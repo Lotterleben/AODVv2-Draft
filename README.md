@@ -14,7 +14,11 @@ Say I want to add and reorder a section about metrics. The workflow would be as 
  
 	git push -u origin metrics_reordering
 
-3) Edit, push to gitHub, edit, ...
+3) Edit, push to gitHub with
+
+	git push
+
+edit, ...
 
 4) When you're done, open pull request by choosing your branch from the drop-down menu and clicking “open pull request”
 
