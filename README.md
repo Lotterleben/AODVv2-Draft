@@ -1,7 +1,7 @@
 # AODVv2-Draft
 
 ## Workflow (proposed by Lotte)
-Please create a dedicated branch for each task and push your changes to that branch. Once you've completed your task, open a pull request so that we can all review the changes. Once we've alle ACKed them, you can merge them into the ``master`` branch.
+Please create a dedicated branch for each task and push your changes to that branch. Once you've completed your task, open a pull request so that we can all review the changes. Once we've all ACKed them, you can merge them into the ``master`` branch.
 
 ### Example
 Say I want to add and reorder a section about metrics. The workflow would be as follows:  
