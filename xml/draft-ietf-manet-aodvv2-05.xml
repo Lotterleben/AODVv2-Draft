@@ -3700,7 +3700,7 @@ authentication token.
     |    ,-------------------
     |    |  Address: <Originating Node Address>
     |    |    | - TLV
-    |    |    |     Type = <Acknowledgment Request (AckReq)>
+    |    |    |     Type = <OrigSeqNum>
     |    |    |     Value length: 2
     |    |    |       0000: 0100
     |    |    | - TLV

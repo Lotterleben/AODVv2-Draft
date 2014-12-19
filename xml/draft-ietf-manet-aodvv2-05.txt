@@ -3428,7 +3428,7 @@ Internet-Draft                   AODVv2                    December 2014
       |    ,-------------------
       |    |  Address: <Originating Node Address>
       |    |    | - TLV
-      |    |    |     Type = <Acknowledgment Request (AckReq)>
+      |    |    |     Type = <OrigSeqNum>
       |    |    |     Value length: 2
       |    |    |       0000: 0100
       |    |    | - TLV
