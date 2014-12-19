@@ -1209,12 +1209,40 @@
 
       <section anchor="MsgCons" title="Message Format considerations">
         <section anchor="MsgStructure" title="AODVv2 RFC5444 Message Structure">
-        <t>
+          <t>
           TODO: since this is RFC5444-specific, where would this go?
-        </t>
+          </t>
           <section anchor="MsgStructure-addr" title="Addresses">
+            <t>
+            AODVv2 messages may contain three types of addresses: OrigNode,
+            TargNode or UnreachableNode.
+            </t>
           </section>
           <section anchor="MsgStructure-tlv" title="TLVs">
+            <t>
+            All TLVs are address block TLVs.
+            The Metric TLV is associated with the OrigNode Address of a RREQ,
+            the TargNode Address of a RREP or the OrigNode Address of a RREP (optional). The MetricType extension type defines of which type the
+            Metric value contained in the Metric TLV is. The default Metric Type
+            is DEFAULT_METRIC_TYPE.
+            </t>
+            <texttable anchor="table-tlv-metric" title="Metric TLV definition">
+            <ttcol align="left">Type</ttcol>
+            <ttcol align="center">Extension Type</ttcol>
+            <ttcol align="left">Value Length</ttcol>
+            <ttcol align="left">Value</ttcol>
+
+                  <c>Metric</c>
+                  <c>MetricType</c>
+                  <c>depends on MetricType</c>
+                  <c>Metric Value, as calculated by Metric of MetricType</c>
+            </texttable>
+            <t>
+            TODO:
+            * add crossreferences in sections 16.*
+            * add column that states with which address type it may be associated? (orignodes don't have metric TLVs)
+            * also write down the address type + packet combinations? how the hell do I do that in an intuitive way?
+            </t>
           </section>
        </section>
       </section>

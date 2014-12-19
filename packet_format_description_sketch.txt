@@ -1,0 +1,48 @@
+Not sure about the general description so I'm going to start with the RFC5444 specific one.
+
+##  AODVv2 Message Structure [RFC5444] (TODO: where would this go?)
+
+### Addresses
+AODVv2 messages may contain three types of addresses: OrigNode, TargNode or UnreachableNode.
+
+### TLVs
+All TLVs are address block TLVs. The Spec defines two TLVs, which may be associated with OrigNode, TargNode or UnreachableNode, depending on the packet.
+
++ type + value length + value
++------+--------------+-------
+Metric | ghjk         | fghjk
+
+TODO:
+* add column that states with which address type it may be associated? (orignodes don't have metric TLVs)
+* also write down the address type + packet combinations? how the hell do I do that in an intuitive way?
+
+TODO: Und wie geht's weiter?
+
+Appendix B.1 Example RREQ Message
+
+The illustrated RREQ message uses DEFAULT_METRIC_TYPE as its metric type, which is hop count.
+
+(Graphic was stolen from the oonf api output and adapted)
+
+    ,-------------------
+    |  MESSAGE
+    |-------------------
+    | * Message type:       <RREQ>
+    | * Message flags:      <only msg-hop-limit field is present>
+    | * Address length:     <msg-addr-length>
+    | * Hop limit:          <msg-hoplimit>
+    |    ,-------------------
+    |    |  Address: <Originating Node Address>
+    |    |    | - TLV
+    |    |    |     Type = <Acknowledgment Request (AckReq)>
+    |    |    |     Value length: 2
+    |    |    |       0000: 0100
+    |    |    | - TLV
+    |    |    |     Type = <Metric>; Type ext. = <DEFAULT_METRIC_TYPE>
+    |    |    |     Value length: 1
+    |    |    |       0000: 02
+    |    `-------------------
+    |    ,-------------------
+    |    |  Address: <Taget Node Address>
+    |    `-------------------
+    `-------------------
