@@ -679,20 +679,21 @@ Internet-Draft                   AODVv2                    December 2014
 
 5.4.  AODVv2 Message Header Fields and Information Elements
 
-   In its default mode of operation, AODVv2 sends messages using the
-   parameters for port number and IP protocol specified in [RFC5498] to
-   carry protocol packets.  By default, AODVv2 messages are sent with
-   the IP destination address set to the link-local multicast address
-   LL-MANET-Routers [RFC5498] unless otherwise specified.  Therefore,
-   all AODVv2 routers MUST subscribe to LL-MANET-Routers [RFC5498] to
-   receive AODVv2 messages.  In order to reduce multicast overhead,
-   regenerated multicast packets in MANETs SHOULD be done according to
-   methods specified in [RFC6621].  AODVv2 does not specify which method
-   should be used to restrict the set of AODVv2 routers that have the
-   responsibility to regenerate multicast packets.  Note that multicast
-   packets MAY be sent via unicast.  For example, this may occur for
-   certain link-types (non-broadcast media), for manually configured
-   router adjacencies, or in order to improve robustness.
+   TODO: IMHO, this title is misleading.  In its default mode of
+   operation, AODVv2 sends messages using the parameters for port number
+   and IP protocol specified in [RFC5498] to carry protocol packets.  By
+   default, AODVv2 messages are sent with the IP destination address set
+   to the link-local multicast address LL-MANET-Routers [RFC5498] unless
+   otherwise specified.  Therefore, all AODVv2 routers MUST subscribe to
+   LL-MANET-Routers [RFC5498] to receive AODVv2 messages.  In order to
+   reduce multicast overhead, regenerated multicast packets in MANETs
+   SHOULD be done according to methods specified in [RFC6621].  AODVv2
+   does not specify which method should be used to restrict the set of
+   AODVv2 routers that have the responsibility to regenerate multicast
+   packets.  Note that multicast packets MAY be sent via unicast.  For
+   example, this may occur for certain link-types (non-broadcast media),
+   for manually configured router adjacencies, or in order to improve
+   robustness.
 
    The IPv4 TTL (IPv6 Hop Limit) field for all packets containing AODVv2
    messages is set to 255.  If a packet is received with a value other
@@ -721,7 +722,6 @@ Internet-Draft                   AODVv2                    December 2014
    is considered stale.
 
    As a consequence, loop freedom is assured.
-
 
 
 

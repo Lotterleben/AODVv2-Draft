@@ -693,7 +693,9 @@
       <section anchor="MsgStruct"
 	      title="AODVv2 Message Header Fields and Information Elements">
 
-	<t> In its default mode of operation, AODVv2 sends messages
+	<t>
+    TODO: IMHO, this title is misleading.
+    In its default mode of operation, AODVv2 sends messages
 	using the parameters for port number and IP protocol specified in
 	<xref target="RFC5498"/> to carry protocol packets.
 <!--	In addition, IP Protocol Number 138
@@ -1177,7 +1179,6 @@
         </t>
         <section anchor="MsgHeader" title="AODVv2 RFC5444 Message Header">
         <t>
-
         </t>
         </section>
         <section anchor="MsgStructure" title="AODVv2 RFC5444 Message Structure">
