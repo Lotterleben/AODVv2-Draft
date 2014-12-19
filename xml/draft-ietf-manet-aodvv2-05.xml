@@ -1221,6 +1221,8 @@
           <section anchor="MsgStructure-tlv" title="TLVs">
             <t>
             All TLVs are address block TLVs.
+            </t>
+            <t>
             The Metric TLV is associated with the OrigNode Address of a RREQ,
             the TargNode Address of a RREP or the OrigNode Address of a RREP (optional). The MetricType extension type defines of which type the
             Metric value contained in the Metric TLV is. The default Metric Type
@@ -1236,9 +1238,24 @@
                   <c>depends on MetricType</c>
                   <c>Metric Value, as calculated by Metric of MetricType</c>
             </texttable>
+
+            <t>
+            The OrigSeqNum TLV is associated with the OrigNode Address of a RREQ or
+            the OrigNode Address of a RREP. An address is identified
+            as the Originating Nodes Address through the OrigSeqNum TLV.
+            </t>
+            <texttable anchor="table-tlv-origseqnum" title="OrigSeqNum TLV definition">
+            <ttcol align="left">Type</ttcol>
+            <ttcol align="left">Value Length</ttcol>
+            <ttcol align="left">Value</ttcol>
+                  <c>OrigSeqNum</c>
+                  <c>2 octets</c>
+                  <c>Sequence Number of the node that initiated the route discovery</c>
+            </texttable>
+
             <t>
             TODO:
-            * add crossreferences in sections 16.*
+            * add crossreferences in sections 16.x
             </t>
           </section>
        </section>

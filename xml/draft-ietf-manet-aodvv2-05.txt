@@ -86,7 +86,7 @@ Table of Contents
        7.1.2.  TLVs  . . . . . . . . . . . . . . . . . . . . . . . .  21
    8.  Routing Messages RREQ and RREP (RteMsgs)  . . . . . . . . . .  21
      8.1.  Route Discovery Retries and Buffering . . . . . . . . . .  22
-     8.2.  RteMsg Structure  . . . . . . . . . . . . . . . . . . . .  22
+     8.2.  RteMsg Structure  . . . . . . . . . . . . . . . . . . . .  23
      8.3.  RREQ Generation . . . . . . . . . . . . . . . . . . . . .  24
      8.4.  RREP Generation . . . . . . . . . . . . . . . . . . . . .  25
      8.5.  Handling a Received RteMsg  . . . . . . . . . . . . . . .  26
@@ -95,14 +95,14 @@ Table of Contents
      8.6.  Suppressing Redundant RREQ messages . . . . . . . . . . .  28
    9.  Route Maintenance and RERR Messages . . . . . . . . . . . . .  29
      9.1.  Maintaining Route Lifetimes During Packet Forwarding  . .  29
-     9.2.  Active Next-hop Router Adjacency Monitoring . . . . . . .  29
+     9.2.  Active Next-hop Router Adjacency Monitoring . . . . . . .  30
      9.3.  RERR Generation . . . . . . . . . . . . . . . . . . . . .  30
        9.3.1.  Case 1: Undeliverable Packet  . . . . . . . . . . . .  31
-       9.3.2.  Case 2: Broken Link . . . . . . . . . . . . . . . . .  31
+       9.3.2.  Case 2: Broken Link . . . . . . . . . . . . . . . . .  32
      9.4.  Receiving and Handling RERR Messages  . . . . . . . . . .  32
-   10. Unknown Message and TLV Types . . . . . . . . . . . . . . . .  33
-   11. Simple Internet Attachment  . . . . . . . . . . . . . . . . .  33
-   12. Multiple Interfaces . . . . . . . . . . . . . . . . . . . . .  34
+   10. Unknown Message and TLV Types . . . . . . . . . . . . . . . .  34
+   11. Simple Internet Attachment  . . . . . . . . . . . . . . . . .  34
+   12. Multiple Interfaces . . . . . . . . . . . . . . . . . . . . .  35
    13. AODVv2 Control Message Generation Limits  . . . . . . . . . .  35
    14. Optional Features . . . . . . . . . . . . . . . . . . . . . .  35
      14.1.  Expanding Rings Multicast  . . . . . . . . . . . . . . .  35
@@ -114,30 +114,30 @@ Perkins, et al.           Expires June 22, 2015                 [Page 2]
 Internet-Draft                   AODVv2                    December 2014
 
 
-     14.2.  Intermediate RREP  . . . . . . . . . . . . . . . . . . .  35
-     14.3.  Precursor Lists and Notifications  . . . . . . . . . . .  35
+     14.2.  Intermediate RREP  . . . . . . . . . . . . . . . . . . .  36
+     14.3.  Precursor Lists and Notifications  . . . . . . . . . . .  36
        14.3.1.  Overview . . . . . . . . . . . . . . . . . . . . . .  36
        14.3.2.  Precursor Notification Details . . . . . . . . . . .  36
      14.4.  Multicast RREP Response to RREQ  . . . . . . . . . . . .  37
      14.5.  RREP_ACK . . . . . . . . . . . . . . . . . . . . . . . .  37
-     14.6.  Message Aggregation  . . . . . . . . . . . . . . . . . .  37
+     14.6.  Message Aggregation  . . . . . . . . . . . . . . . . . .  38
    15. Administratively Configurable Parameters and Timer Values . .  38
      15.1.  Timers . . . . . . . . . . . . . . . . . . . . . . . . .  38
      15.2.  Protocol constants . . . . . . . . . . . . . . . . . . .  39
      15.3.  Administrative (functional) controls . . . . . . . . . .  39
-     15.4.  Other administrative parameters and lists  . . . . . . .  39
+     15.4.  Other administrative parameters and lists  . . . . . . .  40
    16. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  40
      16.1.  AODVv2 Message Types Specification . . . . . . . . . . .  40
-     16.2.  Message TLV Type Specification . . . . . . . . . . . . .  40
+     16.2.  Message TLV Type Specification . . . . . . . . . . . . .  41
      16.3.  Address Block TLV Specification  . . . . . . . . . . . .  41
      16.4.  Metric Type Number Allocation  . . . . . . . . . . . . .  41
-   17. Security Considerations . . . . . . . . . . . . . . . . . . .  41
-   18. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  43
-   19. References  . . . . . . . . . . . . . . . . . . . . . . . . .  43
-     19.1.  Normative References . . . . . . . . . . . . . . . . . .  43
-     19.2.  Informative References . . . . . . . . . . . . . . . . .  44
-   Appendix A.  Example Algorithms for AODVv2 Protocol Operations  .  45
-     A.1.  Subroutines for AODVv2 Protocol Operations  . . . . . . .  47
+   17. Security Considerations . . . . . . . . . . . . . . . . . . .  42
+   18. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  44
+   19. References  . . . . . . . . . . . . . . . . . . . . . . . . .  44
+     19.1.  Normative References . . . . . . . . . . . . . . . . . .  44
+     19.2.  Informative References . . . . . . . . . . . . . . . . .  45
+   Appendix A.  Example Algorithms for AODVv2 Protocol Operations  .  46
+     A.1.  Subroutines for AODVv2 Protocol Operations  . . . . . . .  48
      A.2.  Example Algorithms for AODVv2 RREQ Operations . . . . . .  48
        A.2.1.  Generate_RREQ . . . . . . . . . . . . . . . . . . . .  48
        A.2.2.  Receive_RREQ  . . . . . . . . . . . . . . . . . . . .  49
@@ -1124,11 +1124,13 @@ Internet-Draft                   AODVv2                    December 2014
 
 7.1.2.  TLVs
 
-   All TLVs are address block TLVs.  The Metric TLV is associated with
-   the OrigNode Address of a RREQ, the TargNode Address of a RREP or the
-   OrigNode Address of a RREP (optional).  The MetricType extension type
-   defines of which type the Metric value contained in the Metric TLV
-   is.  The default Metric Type is DEFAULT_METRIC_TYPE.
+   All TLVs are address block TLVs.
+
+   The Metric TLV is associated with the OrigNode Address of a RREQ, the
+   TargNode Address of a RREP or the OrigNode Address of a RREP
+   (optional).  The MetricType extension type defines of which type the
+   Metric value contained in the Metric TLV is.  The default Metric Type
+   is DEFAULT_METRIC_TYPE.
 
    +--------+------------+---------------+-----------------------------+
    | Type   | Extension  | Value Length  | Value                       |
@@ -1140,7 +1142,21 @@ Internet-Draft                   AODVv2                    December 2014
 
                       Table 2: Metric TLV definition
 
-   TODO: * add crossreferences in sections 16.*
+   The OrigSeqNum TLV is associated with the OrigNode Address of a RREQ
+   or the OrigNode Address of a RREP.  An address is identified as the
+   Originating Nodes Address through the OrigSeqNum TLV.
+
+   +------------+----------+-------------------------------------------+
+   | Type       | Value    | Value                                     |
+   |            | Length   |                                           |
+   +------------+----------+-------------------------------------------+
+   | OrigSeqNum | 2 octets | Sequence Number of the node that          |
+   |            |          | initiated the route discovery             |
+   +------------+----------+-------------------------------------------+
+
+                    Table 3: OrigSeqNum TLV definition
+
+   TODO: * add crossreferences in sections 16.x
 
 8.  Routing Messages RREQ and RREP (RteMsgs)
 
@@ -1153,6 +1169,15 @@ Internet-Draft                   AODVv2                    December 2014
    for handling.  When a node receives a RREQ or a RREP, the node then
    creates or updates a route to the OrigNode or the TargNode
    respectively.  The main difference between the two messages is that
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 21]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    RREQ messages are typically multicast to solicit a RREP, whereas RREP
    is typically unicast as a response to RREQ.
 
@@ -1167,16 +1192,6 @@ Internet-Draft                   AODVv2                    December 2014
    information to enable RREQ recipients to route packets back to
    OrigNode, and the RREP message contains routing information enabling
    RREP recipients to route packets to TargNode.
-
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 21]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 8.1.  Route Discovery Retries and Buffering
 
@@ -1211,6 +1226,14 @@ Internet-Draft                   AODVv2                    December 2014
    toward the Target Node, any data packets buffered for the
    corresponding Target Node MUST BE dropped and a Destination
    Unreachable ICMP message (Type 3) SHOULD be delivered to the source
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 22]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    of the data packet.  The code for the ICMP message is 1 (Host
    unreachable error).  If RREQ_Gen is not the source (OrigNode), then
    the ICMP is sent over the interface from which OrigNode sent the
@@ -1225,15 +1248,6 @@ Internet-Draft                   AODVv2                    December 2014
    components that map to message elements in RFC5444 but, in line with
    the concept of use, does not specify which order the messages should
    be arranged in an RFC5444 packet.  An implementation of an RFC5444
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 22]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    parser may choose to optimise the content of certain message elements
    to reduce control plane overhead.
 
@@ -1268,6 +1282,14 @@ Internet-Draft                   AODVv2                    December 2014
    Required RFC 5444 Message Header Fields
 
       *  <msg-hop-limit>
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 23]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
       *  Metric Type Message TLV, if Metric Type != 3
    Optional RFC 5444 Message Header Fields
 
@@ -1280,16 +1302,6 @@ Internet-Draft                   AODVv2                    December 2014
       OrigNode and TargNode are as identified in the context of the RREQ
       message originator.
    OrigSeqNum AND/OR TargSeqNum AddrTLV
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 23]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
       At least one of OrigSeqNum or TargSeqNum Address Block TLV is
       REQUIRED and carries the destination sequence numbers associated
       with OrigNode or TargNode respectively.
@@ -1327,6 +1339,13 @@ Internet-Draft                   AODVv2                    December 2014
    a unicast address.  The order of protocol elements is illustrated
    schematically in Figure 1.
 
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 24]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    1.  RREQ_Gen MUST increment its SeqNum by one (1) according to the
        rules specified in Section 5.5.  This assures that each node
        receiving the RREQ will update its route table using the
@@ -1338,13 +1357,6 @@ Internet-Draft                   AODVv2                    December 2014
           additional enlargement (otherwise, <msg-hop-count> could often
           be used as the metric).
    4.  RREQ.AddrBlk := {OrigNode.Addr, TargNode.Addr}
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 24]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
        Let OrigNdx and TargNdx denote the indexes of OrigNode and
        TargNode respectively in the RREQ.AddrBlk list.
@@ -1382,6 +1394,14 @@ Internet-Draft                   AODVv2                    December 2014
 
    1.   RREP_Gen checks the RREQ against recently received RREQ
         information as specified in Section 8.6.  If a previously
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 25]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
         received RREQ has made the information in the incoming RREQ to
         be redundant, no RREP is generated and processing is complete.
    2.   RREP_Gen MUST increment its SeqNum by one (1) according to the
@@ -1394,14 +1414,6 @@ Internet-Draft                   AODVv2                    December 2014
    5.   If Route[TargNode].PrefixLength/8 is equal to the number of
         bytes in the addresses of the RREQ (4 for IPv4, 16 for IPv6),
         then no <prefix-length> is included with the RREP.AddrBlk.
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 25]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
         Otherwise, RREP.PrefixLength[TargNdx] :=
         Route[TargNode].PrefixLength according to the rules of RFC 5444
         AddrBlk encoding.
@@ -1437,6 +1449,15 @@ Internet-Draft                   AODVv2                    December 2014
        routable unicast addresses.  If not, the message is disregarded.
    4.  The router checks the Metric Type MsgTLV (if present) to assure
        that the Metric Type associated with the Metric AddrTLV
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 26]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
        information in the RREQ or RREP is known.  If not, the message is
        disregarded.
 
@@ -1449,14 +1470,6 @@ Internet-Draft                   AODVv2                    December 2014
 
    An AODVv2 router handles a permissible RteMsg according to the
    following steps.
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 26]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
    1.  The router MUST process the routing information for OrigNode and
        TargNode contained in the RteMsg as specified in Section 6.1.
@@ -1492,6 +1505,15 @@ Internet-Draft                   AODVv2                    December 2014
       Current_Time < Blacklist.RemoveTime, then the router receiving
       that RREQ MUST NOT transmit any outgoing RteMsg, and processing is
       complete.
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 27]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    o  Otherwise, if the upstream router is in the Blacklist, and
       Current_Time >= Blacklist.RemoveTime, then the upstream router
       SHOULD be removed from the Blacklist, and message processing
@@ -1504,16 +1526,6 @@ Internet-Draft                   AODVv2                    December 2014
       router generates a RREP message as specified in Section 8.4, and
       subsequently processing for the RREQ is complete.  Otherwise,
       processing continues as follows.
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 27]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    o  If (DEFAULT != Route[OrigNode].MetricType) then include the Metric
       Type message TLV and assign RREQ.MetricType :=
       Route[OrigNode].MetricType
@@ -1550,6 +1562,14 @@ Internet-Draft                   AODVv2                    December 2014
 
    o  The AODVv2 router searches the RREQ Table for recent entries with
       the same OrigNode, TargNode, and Metric Type.  If there is no such
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 28]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
       entry, the incoming RREQ message is not suppressed.  A new entry
       for the incoming RREQ is created in the RREQ Table.
    o  If there is such an entry, and the incoming RREQ has a newer
@@ -1561,14 +1581,6 @@ Internet-Draft                   AODVv2                    December 2014
       and the RREQ Table entry MUST be updated to reflect the new
       Metric.
    o  Otherwise, the incoming RREQ is suppressed.
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 28]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 9.  Route Maintenance and RERR Messages
 
@@ -1605,6 +1617,15 @@ Internet-Draft                   AODVv2                    December 2014
    Otherwise, Route.LastUsed := Current_Time, and the packet is
    forwarded to the route's next hop.
 
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 29]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    Optionally, if a precursor list is maintained for the route, see
    Section 14.3 for precursor lifetime operations.
 
@@ -1618,13 +1639,6 @@ Internet-Draft                   AODVv2                    December 2014
    monitor connectivity to adjacent routers along active routes.  This
    monitoring can be accomplished by one or several mechanisms,
    including:
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 29]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
    o  Neighborhood discovery [RFC6130]
    o  Route timeout
@@ -1660,6 +1674,14 @@ Internet-Draft                   AODVv2                    December 2014
    Required Message Header Fields
       The RERR MUST contain the following:
 
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 30]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
       *  <msg-hop-limit>
       *  PktSource Message TLV (see Section 16), if the RERR is unicast
       *  Metric Type Message TLV (see Section 16), if Metric Type != 3
@@ -1674,14 +1696,6 @@ Internet-Draft                   AODVv2                    December 2014
       If needed, the Address Block can also carry the prefix length
       associated with each UnreachableNode.
    Sequence Number AddrBlk TLV
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 30]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
       This Address Block TLV carries the destination sequence number
       associated with each UnreachableNode when that information is
       available.
@@ -1717,6 +1731,13 @@ Internet-Draft                   AODVv2                    December 2014
    Sequence Number information for those routes.  RERR_Gen MUST discard
    the packet or message that triggered generation of the RERR.
 
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 31]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    If an AODVv2 router receives an ICMP packet from the address of one
    of its client nodes, it simply relays the packet to the ICMP packet's
    destination address, and does not generate any RERR message.
@@ -1730,14 +1751,6 @@ Internet-Draft                   AODVv2                    December 2014
    used as specified in Section 14.3.  All routes (Active, Idle and
    Expired) that use the broken link MUST be marked as Broken.  The set
    of UnreachableNodes is initialized by identifying those Active routes
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 31]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    which use the broken link.  For each such Active Route, Route.Dest is
    added to the set of Unreachable Nodes.  After the Active Routes using
    the broken link have all been included as UnreachableNodes, Idle
@@ -1773,6 +1786,14 @@ Internet-Draft                   AODVv2                    December 2014
 
    HandlingRtr examines the incoming RERR to assure that it contains
    <msg-hop-limit> and at least one UnreachableNode.Address.  If the
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 32]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    required information does not exist, the incoming RERR message is
    disregarded and further processing stopped.  Otherwise, for each
    UnreachableNode.Address, HandlingRtr searches its route table for a
@@ -1786,13 +1807,6 @@ Internet-Draft                   AODVv2                    December 2014
        RERR was received.
    4.  The UnreachableNode.SeqNum is unknown, OR Route.SeqNum <=
        UnreachableNode.SeqNum (using signed 16-bit arithmetic).
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 32]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
    If the Route satisfies all of the above conditions, HandlingRtr
    checks whether Route.PrefixLength is the same as the prefix length
@@ -1825,6 +1839,17 @@ Internet-Draft                   AODVv2                    December 2014
       send the outgoing RERR to Route[PktSource.Addr].NextHop.
    o  Otherwise, the outgoing RERR MUST be sent to LL-MANET-Routers.
 
+
+
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 33]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
 10.  Unknown Message and TLV Types
 
    For handling of messages that contain unknown TLV types, ignore the
@@ -1841,14 +1866,6 @@ Internet-Draft                   AODVv2                    December 2014
    clients, wishing to be reachable from hosts on the Internet MUST have
    IP addresses within the IAR's routable and topologically correct
    prefix (e.g. 191.0.2.0/24).
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 33]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
         /-------------------------\
        / +----------------+        \
@@ -1881,6 +1898,14 @@ Internet-Draft                   AODVv2                    December 2014
    that destination it will perform normal AODVv2 route discovery for
    that destination.
 
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 34]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
 12.  Multiple Interfaces
 
    AODVv2 MAY be used with multiple interfaces; therefore, the
@@ -1895,16 +1920,6 @@ Internet-Draft                   AODVv2                    December 2014
 
    Similarly, AODVv2 routers MUST subscribe to LL-MANET-Routers on all
    their AODVv2 interfaces.
-
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 34]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 13.  AODVv2 Control Message Generation Limits
 
@@ -1938,6 +1953,15 @@ Internet-Draft                   AODVv2                    December 2014
 
    For multicast RREQ, <msg-hop-limit> MAY be set in accordance with an
    expanding ring search as described in [RFC3561] to limit the RREQ
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 35]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    propagation to a subset of the local network and possibly reduce
    route discovery overhead.
 
@@ -1952,15 +1976,6 @@ Internet-Draft                   AODVv2                    December 2014
    possibly other reactive routing protocols) enabling more economical
    notifications to traffic sources upon determination that a route
    needed to forward such traffic to its destination has become Broken.
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 35]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 14.3.1.  Overview
 
@@ -1995,6 +2010,14 @@ Internet-Draft                   AODVv2                    December 2014
    destinations in its route table.  For each precursor in the precursor
    list, a record must be maintained to indicate whether the precursor
    has been used for recent traffic (in other words, whether the
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 36]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    precursor is an Active precursor).  So, when traffic arrives from a
    precursor, the Current_Time is used to mark the time of last use for
    the precursor list element associated with that precursor.
@@ -2010,13 +2033,6 @@ Internet-Draft                   AODVv2                    December 2014
       RERR_PRECURSORS is, by default, LL-MANET-Routers [RFC5498].  This
       option is typically preferable when there are many precursors,
       since fewer packet transmissions are required.
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 36]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
    Each active upstream neighbor (i.e., precursor) MAY then execute the
    same procedure until all active upstream routers have received the
@@ -2050,6 +2066,14 @@ Internet-Draft                   AODVv2                    December 2014
 
    Since the RREP_ACK is simply echoed back to the node from which the
    RREP was received, there is no need for any additional RFC 5444
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 37]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    address information (or TLVs).  Considerations of packet TTL are as
    specified in Section 5.4.  An example message format is illustrated
    in section Appendix B.4.
@@ -2062,17 +2086,6 @@ Internet-Draft                   AODVv2                    December 2014
    Implementations MAY choose to briefly delay transmission of messages
    for the purpose of aggregation (into a single packet) or to improve
    performance by using jitter [RFC5148].
-
-
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 37]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 15.  Administratively Configurable Parameters and Timer Values
 
@@ -2097,6 +2110,26 @@ Internet-Draft                   AODVv2                    December 2014
    route table entries.  The default values are as follows, subject to
    future experience:
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 38]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
              +------------------------------+---------------+
              |             Name             | Default Value |
              +------------------------------+---------------+
@@ -2109,7 +2142,7 @@ Internet-Draft                   AODVv2                    December 2014
              |      RREQ_HOLDDOWN_TIME      | 10 seconds    |
              +------------------------------+---------------+
 
-                     Table 3: Timing Parameter Values
+                     Table 4: Timing Parameter Values
 
    The above timing parameter values have worked well for small and
    medium well-connected networks with moderate topology changes.
@@ -2120,15 +2153,6 @@ Internet-Draft                   AODVv2                    December 2014
    either experimentally determined values or dynamic adaptation.  For
    example, in networks with infrequent topology changes MAX_IDLETIME
    may be set to a much larger value.
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 38]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 15.2.  Protocol constants
 
@@ -2147,13 +2171,21 @@ Internet-Draft                   AODVv2                    December 2014
    |                        |                    | clock time          |
    +------------------------+--------------------+---------------------+
 
-                         Table 4: Parameter Values
+                         Table 5: Parameter Values
 
 15.3.  Administrative (functional) controls
 
    The following administrative controls may be used to change the
    operation of the network, by enabling optional behaviors.  These
    options are not required for correct routing behavior, although they
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 39]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    may potentially reduce AODVv2 protocol messaging in certain
    situations.  The default behavior is to NOT enable most such options,
    options.  Packet buffering is enabled by default.
@@ -2167,24 +2199,12 @@ Internet-Draft                   AODVv2                    December 2014
       |   USE_MULTICAST_RREP   | Section 14.4                       |
       +------------------------+------------------------------------+
 
-               Table 5: Administratively Configured Controls
+               Table 6: Administratively Configured Controls
 
 15.4.  Other administrative parameters and lists
 
    The following table lists contains AODVv2 parameters which should be
    administratively configured for each specific network.
-
-
-
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 39]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
     +-----------------------+-----------------------+-----------------+
     | Name                  | Default Value         | Cross Reference |
@@ -2196,7 +2216,7 @@ Internet-Draft                   AODVv2                    December 2014
     | CONTROL_TRAFFIC_LIMIT | TBD [50 packets/sec?] | Section 13      |
     +-----------------------+-----------------------+-----------------+
 
-                 Table 6: Other Administrative Parameters
+                 Table 7: Other Administrative Parameters
 
 16.  IANA Considerations
 
@@ -2205,6 +2225,22 @@ Internet-Draft                   AODVv2                    December 2014
    types is specified.
 
 16.1.  AODVv2 Message Types Specification
+
+
+
+
+
+
+
+
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 40]
+
+Internet-Draft                   AODVv2                    December 2014
+
 
           +----------------------------------------+------------+
           |                  Name                  | Type (TBD) |
@@ -2215,7 +2251,7 @@ Internet-Draft                   AODVv2                    December 2014
           | Route Reply Acknowledgement (RREP_ACK) |     13     |
           +----------------------------------------+------------+
 
-                       Table 7: AODVv2 Message Types
+                       Table 8: AODVv2 Message Types
 
 16.2.  Message TLV Type Specification
 
@@ -2229,18 +2265,7 @@ Internet-Draft                   AODVv2                    December 2014
    | Metric Type                       |   12  |    1    | Section 8.2 |
    +-----------------------------------+-------+---------+-------------+
 
-                        Table 8: Message TLV Types
-
-
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 40]
-
-Internet-Draft                   AODVv2                    December 2014
-
+                        Table 9: Message TLV Types
 
 16.3.  Address Block TLV Specification
 
@@ -2258,13 +2283,21 @@ Internet-Draft                   AODVv2                    December 2014
    | VALIDITY_TIME               |   1    | 1 octet      | [RFC5497]   |
    +-----------------------------+--------+--------------+-------------+
 
-                Table 9: Address Block TLV (AddrTLV) Types
+                Table 10: Address Block TLV (AddrTLV) Types
 
 16.4.  Metric Type Number Allocation
 
    Metric types are identified according to the assignments as specified
    in [RFC6551].  The metric type of the Hop Count metric is assigned to
    be 3, in order to maintain compatibility with that existing table of
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 41]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    values from RFC 6551.  Non-addititve metrics are not supported in
    this draft.
 
@@ -2277,7 +2310,7 @@ Internet-Draft                   AODVv2                    December 2014
             |        Reserved       |   255    |  Undefined  |
             +-----------------------+----------+-------------+
 
-                          Table 10: Metric Types
+                          Table 11: Metric Types
 
 17.  Security Considerations
 
@@ -2289,14 +2322,6 @@ Internet-Draft                   AODVv2                    December 2014
    routers store the information contained in these messages in order to
    properly forward data packets, and they generally provide this
    information to other AODVv2 routers.
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 41]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
    This section does not mandate any specific security measures.
    Instead, this section describes various security considerations and
@@ -2320,6 +2345,14 @@ Internet-Draft                   AODVv2                    December 2014
 
    In situations where confidentiality of AODVv2 messages is important,
    cryptographic techniques can be applied.
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 42]
+
+Internet-Draft                   AODVv2                    December 2014
+
 
    In certain situations, for example sending a RREP or RERR, an AODVv2
    router could include proof that it has previously received valid
@@ -2346,14 +2379,6 @@ Internet-Draft                   AODVv2                    December 2014
 
    In particular, routing messages SHOULD be authenticated to avoid
    creation of spurious routes to a destination.  Otherwise, an attacker
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 42]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    could masquerade as that destination and maliciously deny service to
    the destination and/or maliciously inspect and consume traffic
    intended for delivery to the destination.  RERR messages SHOULD be
@@ -2376,6 +2401,15 @@ Internet-Draft                   AODVv2                    December 2014
    [RFC5444].  This enables hop-by-hop security.  For destination-only
    RREP discovery procedures, AODVv2 routers that share a security
    association SHOULD use the appropriate mechanisms as specified in RFC
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 43]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
    6621.  The establishment of these security associations is out of
    scope for this document.
 
@@ -2401,15 +2435,6 @@ Internet-Draft                   AODVv2                    December 2014
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
 
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 43]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    [RFC5082]  Gill, V., Heasley, J., Meyer, D., Savola, P., and C.
               Pignataro, "The Generalized TTL Security Mechanism
               (GTSM)", RFC 5082, October 2007.
@@ -2428,6 +2453,18 @@ Internet-Draft                   AODVv2                    December 2014
    [RFC6551]  Vasseur, JP., Kim, M., Pister, K., Dejean, N., and D.
               Barthel, "Routing Metrics Used for Path Calculation in
               Low-Power and Lossy Networks", RFC 6551, March 2012.
+
+
+
+
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 44]
+
+Internet-Draft                   AODVv2                    December 2014
+
 
 19.2.  Informative References
 
@@ -2457,15 +2494,6 @@ Internet-Draft                   AODVv2                    December 2014
               Demand Distance Vector (AODV) Routing", RFC 3561, July
               2003.
 
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 44]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    [RFC4193]  Hinden, R. and B. Haberman, "Unique Local IPv6 Unicast
               Addresses", RFC 4193, October 2005.
 
@@ -2484,6 +2512,15 @@ Internet-Draft                   AODVv2                    December 2014
    [RFC6130]  Clausen, T., Dearlove, C., and J. Dean, "Mobile Ad Hoc
               Network (MANET) Neighborhood Discovery Protocol (NHDP)",
               RFC 6130, April 2011.
+
+
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 45]
+
+Internet-Draft                   AODVv2                    December 2014
+
 
    [RFC6621]  Macker, J., "Simplified Multicast Forwarding", RFC 6621,
               May 2012.
@@ -2514,14 +2551,6 @@ Appendix A.  Example Algorithms for AODVv2 Protocol Operations
    o  Process_Routing_Info
    o  Generate_RREQ
    o  Receive_RREQ
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 45]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    o  Regenerate_RREQ
    o  Generate_RREP
    o  Receive_RREP
@@ -2541,6 +2570,14 @@ Internet-Draft                   AODVv2                    December 2014
 
       inRREQ.origIP := originator IP address
       inRREQ.origSeq := originator IP sequence #
+
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 46]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
       inRREQ.metType := metric type
       inRREQ.origMet := metric to originator
       inRREQ.targIP := target IP address
@@ -2571,13 +2608,6 @@ Internet-Draft                   AODVv2                    December 2014
 
    Outgoing RREP message parameters:
 
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 46]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
       outRREP.origIP := originator's IP address
       outRREP.metType := metric type
       outRREP.targIP := target IP address
@@ -2597,6 +2627,13 @@ Internet-Draft                   AODVv2                    December 2014
 
    Outgoing RERR message parameters:
 
+
+
+Perkins, et al.           Expires June 22, 2015                [Page 47]
+
+Internet-Draft                   AODVv2                    December 2014
+
+
       outRERR.PktSrc := source IP of unforwardable packet (if present)
       outRERR.metType := metric type for routes to unreachable
       destinations
@@ -2605,33 +2642,6 @@ Internet-Draft                   AODVv2                    December 2014
       outRERR.LostSeq[] := sequence #s for unreachable destinations
 
 A.1.  Subroutines for AODVv2 Protocol Operations
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 47]
-
-Internet-Draft                   AODVv2                    December 2014
 
 
     /* Compare incoming route information to current route, maybe use */
@@ -2663,16 +2673,6 @@ Internet-Draft                   AODVv2                    December 2014
 A.2.  Example Algorithms for AODVv2 RREQ Operations
 
 A.2.1.  Generate_RREQ
-
-
-
-
-
-
-
-
-
-
 
 
 
