@@ -1215,7 +1215,9 @@
           <section anchor="MsgStructure-addr" title="Addresses">
             <t>
             AODVv2 messages may contain three types of addresses: OrigNode,
-            TargNode or UnreachableNode.
+            TargNode or UnreachableNode. Both RREQ as well as RREP messages contain
+            one OrigNode and one TargNode Address. RERR messages contain one or
+            more UnreachableNode Address.
             </t>
           </section>
           <section anchor="MsgStructure-tlv" title="TLVs">
