@@ -1210,7 +1210,7 @@
       <section anchor="MsgCons" title="Message Format considerations">
         <section anchor="MsgStructure" title="AODVv2 RFC5444 Message Structure">
           <t>
-          TODO: since this is RFC5444-specific, where would this go?
+          TODO: since this is RFC5444-specific, where would this section go?
           </t>
           <section anchor="MsgStructure-addr" title="Addresses">
             <t>
@@ -1244,7 +1244,7 @@
             <t>
             The OrigSeqNum TLV is associated with the OrigNode Address of a RREQ or
             the OrigNode Address of a RREP. An address is identified
-            as the Originating Nodes Address through the OrigSeqNum TLV.
+            as the Originating Node's Address through the OrigSeqNum TLV.
             </t>
             <texttable anchor="table-tlv-origseqnum" title="OrigSeqNum TLV definition">
             <ttcol align="left">Type</ttcol>
@@ -1253,6 +1253,20 @@
                   <c>OrigSeqNum</c>
                   <c>2 octets</c>
                   <c>Sequence Number of the node that initiated the route discovery</c>
+            </texttable>
+
+            <t>
+            The TargSeqNum TLV is associated with the TargNode Address of a RREQ or
+            the TargNode Address of a RREP. An address is identified
+            as the Target Node's Address through the TargSeqNum TLV.
+            </t>
+            <texttable anchor="table-tlv-targseqnum" title="TargSeqNum TLV definition">
+            <ttcol align="left">Type</ttcol>
+            <ttcol align="left">Value Length</ttcol>
+            <ttcol align="left">Value</ttcol>
+                  <c>TargSeqNum</c>
+                  <c>2 octets</c>
+                  <c>Sequence Number of the node which the route discovery is directed towards</c>
             </texttable>
 
             <t>
