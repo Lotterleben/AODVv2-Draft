@@ -727,43 +727,7 @@
 	  <t>IP packets containing AODVv2 protocol messages SHOULD be
 		  given priority queuing and channel access.</t>
 
-	<t>AODVv2 messages are transmitted in messages that conform to the
-	  packet and message format specified in <xref target="RFC5444"/>.
-	  Here is a brief summary of the format.
-        <list style="hanging">
-		<t> A packet formatted according to RFC 5444
-			  contains zero or more messages. </t>
-		<t> A message contains a message header,
-		    message TLV block, and zero or more address blocks.</t>
-		<t> Each address block MAY also have an associated TLV
-			block; this TLV block MAY encode multiple TLVs.
-			Each such TLV may include an array of values.
-			The list of TLV values may be associated with
-			various subsets of the addresses in the address block.
-		</t>
-	</list>
-	  If a packet contains only a single AODVv2 message and no packet TLVs,
-	  it need only include a minimal Packet-Header <xref target="RFC5444"/>.
-          The length of an address (32 bits for IPv4 and 128 bits
-          for IPv6) inside an AODVv2 message is indicated by the
-	  msg-addr-length (MAL) in the msg-header, as specified in
-	  <xref target="RFC5444"/>.</t>
-<!-- Deleted / Issue #28 - - >
-	<t> When multiple messages are aggregated
-	 into a single packet according to RFC 5444 formatting, and the
-	 aggregation of messages is also authenticated (e.g., with IPsec),
-	 and the IP destination is multiple hops away,
-	 it becomes infeasible to delete individual messages.  In such
-	 cases, instead of deleting individual messages, they are maintained
-	 in the aggregation of messages, but simply ignored for further
-	 processing.  In such cases where individual messages cannot be
-	 deleted, in this document "disregarded" means "ignored".  Otherwise,
-	 any such "disregarded" AODVv2 messages SHOULD be deleted from
-	 the aggregated messages in the RFC 5444 packet.
-	 </t>
-< ! - - Deleted / Issue #28 -->
-
-        </section>
+    </section>
 
 
 <!-- ============================================================= -->
@@ -1207,7 +1171,15 @@
       </section>
     </section>
 
-      <section anchor="MsgCons" title="Message Format considerations">
+      <section anchor="MsgFormat" title="Message Format">
+        <t>AODVv2 messages are transmitted in messages that conform to the
+    packet and message format specified in <xref target="RFC5444"/>.
+        </t>
+        <section anchor="MsgHeader" title="AODVv2 RFC5444 Message Header">
+        <t>
+
+        </t>
+        </section>
         <section anchor="MsgStructure" title="AODVv2 RFC5444 Message Structure">
           <t>
           TODO: since this is RFC5444-specific, where would this section go?
