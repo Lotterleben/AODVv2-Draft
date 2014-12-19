@@ -1138,12 +1138,9 @@ Internet-Draft                   AODVv2                    December 2014
    |        |            | MetricType    | by Metric of MetricType     |
    +--------+------------+---------------+-----------------------------+
 
-                       Table 2: Metric TLV defintion
+                      Table 2: Metric TLV definition
 
-   TODO: * add column that states with which address type it may be
-   associated? (orignodes don't have metric TLVs) * also write down the
-   address type + packet combinations? how the hell do I do that in an
-   intuitive way?
+   TODO: * add crossreferences in sections 16.*
 
 8.  Routing Messages RREQ and RREP (RteMsgs)
 
@@ -1170,6 +1167,9 @@ Internet-Draft                   AODVv2                    December 2014
    information to enable RREQ recipients to route packets back to
    OrigNode, and the RREP message contains routing information enabling
    RREP recipients to route packets to TargNode.
+
+
+
 
 
 

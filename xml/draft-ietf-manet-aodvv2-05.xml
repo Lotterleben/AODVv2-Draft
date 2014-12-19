@@ -1239,8 +1239,6 @@
             <t>
             TODO:
             * add crossreferences in sections 16.*
-            * add column that states with which address type it may be associated? (orignodes don't have metric TLVs)
-            * also write down the address type + packet combinations? how the hell do I do that in an intuitive way?
             </t>
           </section>
        </section>
