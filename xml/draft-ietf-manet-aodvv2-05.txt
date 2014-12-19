@@ -153,15 +153,15 @@ Internet-Draft                   AODVv2                    December 2014
        A.5.3.  Timeout_RREP_Ack  . . . . . . . . . . . . . . . . . .  58
    Appendix B.  Example RFC 5444-compliant packet formats  . . . . .  58
      B.1.  RREQ Message Format . . . . . . . . . . . . . . . . . . .  59
-     B.2.  RREP Message Format . . . . . . . . . . . . . . . . . . .  61
-     B.3.  RERR Message Format . . . . . . . . . . . . . . . . . . .  63
-     B.4.  RREP_ACK Message Format . . . . . . . . . . . . . . . . .  65
-   Appendix C.  Changes since revision ...-04.txt  . . . . . . . . .  65
-   Appendix D.  Changes since revision ...-03.txt  . . . . . . . . .  66
-   Appendix E.  Changes since revision ...-02.txt  . . . . . . . . .  66
-   Appendix F.  Multi-homing Considerations  . . . . . . . . . . . .  67
+     B.2.  RREP Message Format . . . . . . . . . . . . . . . . . . .  60
+     B.3.  RERR Message Format . . . . . . . . . . . . . . . . . . .  62
+     B.4.  RREP_ACK Message Format . . . . . . . . . . . . . . . . .  64
+   Appendix C.  Changes since revision ...-04.txt  . . . . . . . . .  64
+   Appendix D.  Changes since revision ...-03.txt  . . . . . . . . .  65
+   Appendix E.  Changes since revision ...-02.txt  . . . . . . . . .  65
+   Appendix F.  Multi-homing Considerations  . . . . . . . . . . . .  66
    Appendix G.  Shifting Network Prefix Advertisement Between AODVv2
-                Routers  . . . . . . . . . . . . . . . . . . . . . .  67
+                Routers  . . . . . . . . . . . . . . . . . . . . . .  66
 
 
 
@@ -170,7 +170,7 @@ Perkins, et al.           Expires June 22, 2015                 [Page 3]
 Internet-Draft                   AODVv2                    December 2014
 
 
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  67
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  66
 
 1.  Overview
 
@@ -3278,10 +3278,10 @@ Internet-Draft                   AODVv2                    December 2014
 
 B.1.  RREQ Message Format
 
-   Figure 5 illustrates an example RREQ message format.  The illustrated
-   RREQ message uses DEFAULT_METRIC_TYPE as its metric type, which is
-   hop count.  Comment from Lotte: Graphic was stolen from the oonf api
-   output and adapted
+   Figure 5 illustrates an example RREQ message.  The illustrated RREQ
+   message uses DEFAULT_METRIC_TYPE as its metric type, which is hop
+   count.
+
 
 
 
@@ -3310,7 +3310,7 @@ Internet-Draft                   AODVv2                    December 2014
       |  MESSAGE
       |-------------------
       | * Message type:       <RREQ>
-      | * Message flags:      <only msg-hop-limit field is present>
+      | * Message flags:      0x40 (only msg-hop-limit field is present)
       | * Address length:     <msg-addr-length>
       | * Hop limit:          <msg-hoplimit>
       |    ,-------------------
@@ -3331,63 +3331,6 @@ Internet-Draft                   AODVv2                    December 2014
 
    Figure 5: Example IPv4 RREQ, with OrigSeqNum and Metric Address Block
                                    TLVs
-
-   The fields in Figure 5 are to be interpreted as follows:
-
-   o  msg-type=RREQ (first [and only] message is of type RREQ)
-   o  MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
-   o  MAL=3 (Message Address Length indicator [3 for IPv4, 15 for IPv6])
-   o  msg-size=28 (octets -- counting MsgHdr, MsgTLVs, and AddrBlks)
-   o  msg-hop-limit (initially MAX_HOPCOUNT by default)
-   o  msg.tlvs-length=0 (no Message TLVs)
-   o  num-addr=2 (OrigNode and TargNode addresses in RteMsg AddrBlock)
-   o  AddrBlk flags:
-
-      *  bit 0 (ahashead): 1
-      *  bit 1 (ahasfulltail): 0
-      *  bit 2 (ahaszerotail): 0
-      *  bit 3 (ahassingleprelen): 0
-      *  bit 4 (ahasmultiprelen): 0
-      *  bits 5-7: RESERVED
-   o  head-length=3 (length of head part of each address is 3 octets)
-   o  Head (3 initial bytes for both Originating & Target addresses)
-   o  Orig.Tail (4th byte of Originating Node IP address)
-   o  Target.Tail (4th byte of Target Node IP address)
-   o  addr.TLV.len = 11 (length in bytes for OrigSeqNum and Metric TLVs
-
-
-
-Perkins, et al.           Expires June 22, 2015                [Page 60]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
-   o  type=OrigSeqNum (type of first AddrBlk TLV, value 2 octets)
-   o  AddrTLV flags for the OrigSeqNum TLV:
-
-      *  bit 0 (thastypeext): 0
-      *  bit 1 (thassingleindex): 1
-      *  bit 2 (thasmultiindex): 0
-      *  bit 3 (thasvalue): 1
-      *  bit 4 (thasextlen): 0
-      *  bit 5 (tismultivalue): 0
-      *  bits 6-7: RESERVED
-   o  Index-start=0 (OrigSeqNum TLV value applies at index 0)
-   o  tlv-length=2 (so there is only one TLV value, [1 = 2/2])
-   o  Orig.Node Sequence # (TLV value for the OrigSeqNum TLV
-   o  type=Metric (AddrTLV type of second AddrBlk TLV, values 1 octet)
-   o  AddrTLV flags for Metric_TLV:
-
-      *  bit 0 (thastypeext): 0
-      *  bit 1 (thassingleindex): 1
-      *  bit 2 (thasmultiindex): 0
-      *  bit 3 (thasvalue): 1
-      *  bit 4 (thasextlen): 0
-      *  bit 5 (tismultivalue): 0
-      *  bits 6-7: RESERVED
-   o  Index-start=0 (Metric TLV values start at index 0)
-   o  tlv-length=1 (so there is only one TLV value, [1 = 1/1])
-   o  OrigNodeHopCt (first [and only] TLV value for the Metric TLV)
 
 B.2.  RREP Message Format
 
@@ -3413,7 +3356,8 @@ B.2.  RREP Message Format
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 61]
+
+Perkins, et al.           Expires June 22, 2015                [Page 60]
 
 Internet-Draft                   AODVv2                    December 2014
 
@@ -3469,7 +3413,7 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 62]
+Perkins, et al.           Expires June 22, 2015                [Page 61]
 
 Internet-Draft                   AODVv2                    December 2014
 
@@ -3525,7 +3469,7 @@ B.3.  RERR Message Format
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 63]
+Perkins, et al.           Expires June 22, 2015                [Page 62]
 
 Internet-Draft                   AODVv2                    December 2014
 
@@ -3581,7 +3525,7 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 64]
+Perkins, et al.           Expires June 22, 2015                [Page 63]
 
 Internet-Draft                   AODVv2                    December 2014
 
@@ -3637,7 +3581,7 @@ Appendix C.  Changes since revision ...-04.txt
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 65]
+Perkins, et al.           Expires June 22, 2015                [Page 64]
 
 Internet-Draft                   AODVv2                    December 2014
 
@@ -3693,7 +3637,7 @@ Appendix E.  Changes since revision ...-02.txt
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 66]
+Perkins, et al.           Expires June 22, 2015                [Page 65]
 
 Internet-Draft                   AODVv2                    December 2014
 
@@ -3749,7 +3693,7 @@ Authors' Addresses
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 67]
+Perkins, et al.           Expires June 22, 2015                [Page 66]
 
 Internet-Draft                   AODVv2                    December 2014
 
@@ -3805,4 +3749,4 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 22, 2015                [Page 68]
+Perkins, et al.           Expires June 22, 2015                [Page 67]

@@ -3608,7 +3608,7 @@ authentication token.
     |  MESSAGE
     |-------------------
     | * Message type:       <RREQ>
-    | * Message flags:      <only msg-hop-limit field is present>
+    | * Message flags:      0x40 (only msg-hop-limit field is present)
     | * Address length:     <msg-addr-length>
     | * Hop limit:          <msg-hoplimit>
     |    ,-------------------
@@ -3629,65 +3629,6 @@ authentication token.
 ]]></artwork>
 <!--            <postamble></postamble>		-->
           </figure>
-
-<!--  <vspace blankLines="2" />  -->
-	The fields in <xref target="figRREQ"/> are to be interpreted as follows:
-
-<?rfc compact="yes" ?>    <!-- conserve vertical whitespace -->
-<?rfc subcompact="yes" ?>  <!-- don't keep a blank line between list items -->
-	<list style="symbols">
-   	<t>msg-type=RREQ (first [and only] message is of type RREQ)</t>
-   	<t>MF=4 (Message Flags = 4 [only msg-hop-limit field is present])</t>
-   	<t>MAL=3
-   		(Message Address Length indicator [3 for IPv4, 15 for IPv6])</t>
-   	<t>msg-size=28 (octets -- counting MsgHdr, MsgTLVs, and AddrBlks)</t>
-   	<t>msg-hop-limit (initially MAX_HOPCOUNT by default)</t>
-   	<t>msg.tlvs-length=0 (no Message TLVs)</t>
-   	<t>num-addr=2 (OrigNode and TargNode addresses in RteMsg AddrBlock)</t>
-   	<t>AddrBlk flags:
-		<list style="symbols">
-		<t>bit 0 (ahashead): 1</t>
-		<t>bit 1 (ahasfulltail): 0</t>
-		<t>bit 2 (ahaszerotail): 0</t>
-		<t>bit 3 (ahassingleprelen): 0</t>
-		<t>bit 4 (ahasmultiprelen): 0</t>
-		<t>bits 5-7:  RESERVED</t>
-		</list></t>
-   	<t>head-length=3 (length of head part of each address is 3 octets)</t>
-   	<t>Head
-   	     (3 initial bytes for both Originating &amp; Target addresses)</t>
-   	<t>Orig.Tail (4th byte of Originating Node IP address)</t>
-   	<t>Target.Tail (4th byte of Target Node IP address)</t>
-   	<t>addr.TLV.len = 11 (length in bytes for OrigSeqNum and Metric TLVs</t>
-   	<t>type=OrigSeqNum (type of first AddrBlk TLV, value 2 octets)</t>
-   	<t>AddrTLV flags for the OrigSeqNum TLV:
-		<list style="symbols">
-		<t>bit 0 (thastypeext): 0</t>
-		<t>bit 1 (thassingleindex): 1</t>
-		<t>bit 2 (thasmultiindex): 0</t>
-		<t>bit 3 (thasvalue): 1</t>
-		<t>bit 4 (thasextlen): 0</t>
-		<t>bit 5 (tismultivalue): 0</t>
-		<t>bits 6-7:  RESERVED</t>
-		</list></t>
-   	<t>Index-start=0 (OrigSeqNum TLV value applies at index 0)</t>
-   	<t>tlv-length=2 (so there is only one TLV value, [1 = 2/2])</t>
-   	<t>Orig.Node Sequence # (TLV value for the OrigSeqNum TLV</t>
-   	<t>type=Metric (AddrTLV type of second AddrBlk TLV, values 1 octet)</t>
-   	<t>AddrTLV flags for Metric_TLV:
-		<list style="symbols">
-		<t>bit 0 (thastypeext): 0</t>
-		<t>bit 1 (thassingleindex): 1</t>
-		<t>bit 2 (thasmultiindex): 0</t>
-		<t>bit 3 (thasvalue): 1</t>
-		<t>bit 4 (thasextlen): 0</t>
-		<t>bit 5 (tismultivalue): 0</t>
-		<t>bits 6-7:  RESERVED</t>
-		</list></t>
-   	<t>Index-start=0 (Metric TLV values start at index 0)</t>
-   	<t>tlv-length=1 (so there is only one TLV value, [1 = 1/1])</t>
-   	<t>OrigNodeHopCt (first [and only] TLV value for the Metric TLV)</t>
-	</list>
 	</t>
 
 </section>
