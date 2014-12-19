@@ -27,12 +27,12 @@ RREQ
 	|    |    |  Address: fe80::ff:fe00:1fad
 	|    |    |    | - TLV
 	|    |    |    |     Flags = 0x50
-	|    |    |    |     Type = 0
+	|    |    |    |     Type = OrigSeqNum
 	|    |    |    |     Value length: 2
 	|    |    |    |       0000: 0100
 	|    |    |    | - TLV
 	|    |    |    |     Flags = 0xd0
-	|    |    |    |     Type = 3; Type ext. = 3
+	|    |    |    |     Type = Metric; Type ext. = DEFAULT_METRIC_TYPE
 	|    |    |    |     Value length: 1
 	|    |    |    |       0000: 02
 	|    |    `-------------------
@@ -68,7 +68,7 @@ RREP
 	|    |    |  Address: fe80::ff:fe00:1fad
 	|    |    |    | - TLV
 	|    |    |    |     Flags = 0x50
-	|    |    |    |     Type = 0
+	|    |    |    |     Type = OrigSeqNum
 	|    |    |    |     Value length: 2
 	|    |    |    |       0000: 0100
 	|    |    `-------------------
@@ -76,12 +76,12 @@ RREP
 	|    |    |  Address: fe80::ff:fe00:1fa4
 	|    |    |    | - TLV
 	|    |    |    |     Flags = 0x50
-	|    |    |    |     Type = 1
+	|    |    |    |     Type = TargSeqNum
 	|    |    |    |     Value length: 2
 	|    |    |    |       0000: 0100
 	|    |    |    | - TLV
 	|    |    |    |     Flags = 0xd0
-	|    |    |    |     Type = 3; Type ext. = 3
+	|    |    |    |     Type = Metric; Type ext. = DEFAULT_METRIC_TYPE
 	|    |    |    |     Value length: 1
 	|    |    |    |       0000: 01
 	|    |    `-------------------
