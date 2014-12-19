@@ -1269,6 +1269,22 @@
                   <c>Sequence Number of the node which the route discovery is directed towards</c>
             </texttable>
 
+            <t> NOTE: I kind of made this one up, since it's actually not listed in Section <xref target="IANA"/>,but mentioned in <xref target="figRERRstruct"/>.
+            It may also be that <xref target="figRERRstruct"/> refers to the SeqNum TLV type listed in <xref target="IANA"/>. In this case, I'd argue that the name SeqNum is misleading.
+            </t>
+
+            <t>
+            Each UnreachableNode Address of a RERR is associated with one UnreachableNodeSeqNum.
+            </t>
+            <texttable anchor="table-tlv-unseqnum" title="UnreachableNodeSeqNum TLV definition">
+            <ttcol align="left">Type</ttcol>
+            <ttcol align="left">Value Length</ttcol>
+            <ttcol align="left">Value</ttcol>
+                  <c>TargSeqNum</c>
+                  <c>2 octets</c>
+                  <c>The destination sequence number associated with the UnreachableNode Address when that information is available.</c>
+            </texttable>
+
             <t>
             TODO:
             * add crossreferences in sections 16.x
