@@ -1,0 +1,2 @@
+# don't accidentally push rfcdiff output
+*.html
