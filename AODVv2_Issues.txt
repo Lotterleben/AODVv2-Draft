@@ -5156,6 +5156,9 @@ On 12/18/2014 7:22 PM, manet issue tracker wrote:
 >  node (an AODVv2 Router?) from an address of that node/router (suggest
 >  !OrigNodeAddr)
 
+Proposed resolution:
+	Agreed and done throughout the document.
+
 =========================== Next Issue ===================================
 [manet] #59: Use of the term "invalid" (Submitted for Justin Dean)
 ==========================================================================
@@ -5165,6 +5168,9 @@ On 12/18/2014 7:24 PM, manet issue tracker wrote:
 >
 >  The term "invalid" is used a few times when a more specific reference to
 >  the defined term "broken" and/or "expired" should be used.
+
+Proposed resolution:
+	Agreed and reviewed throughout the document.
 
 =========================== Next Issue ===================================
 [manet] #60: Should OrigNode be included in the message header?
@@ -5182,6 +5188,18 @@ On 12/18/2014 7:27 PM, manet issue tracker wrote:
 >  confusing.  Later it's described that !OrigNode should indeed be included
 >  in the address block but it happens after the diagram.  Also, is there a
 >  reason the !OrigNode is included twice?
+
+Proposed resolution:
+	To discuss.
+
+OrigAddr in message header simplifies description of Address Blocks, and
+is smaller.
+
+OrigAddr in Address Block allows for address compression, makes Chris
+happier.
+
+Note: a long time ago, both OrigAddr and TargAddr were Message Header
+fields, in closer conformance with RFC 3561.
 
 =========================== Next Issue ===================================
 [manet] #61: Difference between "broken" and "expired"
@@ -5201,6 +5219,10 @@ On 12/18/2014 7:27 PM, manet issue tracker wrote:
  and reduce the number of states a route can have (unless there is
  something operationally different that should be done that I'm missing)
 
+
+Proposed resolution:
+	Add explanation of the difference between broken and expired.
+
 =========================== Next Issue ===================================
 [manet] #62: Inconsistency surrounding the "timed" state
            (Submitted for Justin Dean)
@@ -5213,11 +5235,22 @@ On 12/18/2014 7:31 PM, manet issue tracker wrote:
 >  in the document when route state is referenced.  The "Route Table Entry
 >  Timeouts" section for example may need to be updated.
 
+
+Proposed resolution:
+	Change "timed state" to be "timed flag".
+
 =========================== Next Issue ===================================
 [manet] #63: {Orig,Targ}.Tail should be {Orig,Targ}.Mid
               (Submitted for Justin Dean)
 ==========================================================================
 
-> Orig.Tail and Targ.Tail should be Orig.Mid and Targ.Mid as the tail term
-> is used for common bits of an address among the addresses listed. 
+On 12/19/2014 6:34 AM, manet issue tracker wrote:
+> #63: {Orig,Targ}.Tail should be {Orig,Targ}.Mid
+>
+>  Orig.Tail and Targ.Tail should be Orig.Mid and Targ.Mid as the Tail term
+>  is used for common bits of an address among the addresses listed.
+
+
+Proposed resolution:
+	Agreed and done throughout the document.  Only appeared in Appendix.
 
