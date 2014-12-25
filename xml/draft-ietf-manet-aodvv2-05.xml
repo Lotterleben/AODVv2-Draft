@@ -1187,10 +1187,10 @@
           </t>
           <section anchor="MsgStructure-addr" title="Addresses">
             <t>
-            AODVv2 messages may contain three types of addresses: OrigNode,
-            TargNode or UnreachableNode. Both RREQ as well as RREP messages contain
-            one OrigNode and one TargNode Address. RERR messages contain one or
-            more UnreachableNode Address.
+            AODVv2 messages may contain three types of addresses: OrigAddr,
+            TargAddr or UnreachableNode. Both RREQ as well as RREP messages contain
+            one OrigAddr and one TargAddr Address. RERR messages contain one or
+            more UnreachableNode Addresses.
             </t>
           </section>
           <section anchor="MsgStructure-tlv" title="TLVs">
@@ -1198,8 +1198,8 @@
             All TLVs are address block TLVs.
             </t>
             <t>
-            The Metric TLV is associated with the OrigNode Address of a RREQ,
-            the TargNode Address of a RREP or the OrigNode Address of a RREP (optional). The MetricType extension type defines of which type the
+            The Metric TLV is associated with the OrigAddr Address of a RREQ,
+            the TargAddr Address of a RREP or the OrigAddr Address of a RREP (optional). The MetricType extension type defines of which type the
             Metric value contained in the Metric TLV is. The default Metric Type
             is DEFAULT_METRIC_TYPE.
             </t>
@@ -1215,8 +1215,8 @@
             </texttable>
 
             <t>
-            The OrigSeqNum TLV is associated with the OrigNode Address of a RREQ or
-            the OrigNode Address of a RREP. An address is identified
+            The OrigSeqNum TLV is associated with the OrigAddr Address of a RREQ or
+            the OrigAddr Address of a RREP. An address is identified
             as the Originating Node's Address through the OrigSeqNum TLV.
             </t>
             <texttable anchor="table-tlv-origseqnum" title="OrigSeqNum TLV definition">
@@ -1229,8 +1229,8 @@
             </texttable>
 
             <t>
-            The TargSeqNum TLV is associated with the TargNode Address of a RREQ or
-            the TargNode Address of a RREP. An address is identified
+            The TargSeqNum TLV is associated with the TargAddr Address of a RREQ or
+            the TargAddr Address of a RREP. An address is identified
             as the Target Node's Address through the TargSeqNum TLV.
             </t>
             <texttable anchor="table-tlv-targseqnum" title="TargSeqNum TLV definition">
