@@ -812,7 +812,32 @@
    </t>
         </section>
 
-      <section anchor="metrics" title="Metrics">
+      <section anchor="metrics_new" title="Metrics">
+        <t>
+          Metrics describe the quality of a route or a link. They can take various aspects into account, such as latency, delay, monetary, energy, etc. Routing decisions are made based on metrics. AODVv2 enables the use of generic metrics, whose data type depends on the metric used.
+          The Metric Type is specified by the [MetricType extension Type of the Metric TLV (Lottes version) | the MetricType TLV] of each RteMsg.
+        </t>
+          <section anchor="cost_function" title="The Cost() function">
+            <t>
+              There is a Cost() function. This function is supposed to return the Cost of traversing a Route ("Cost(R)")or a Link ("Cost(L)").
+            </t>
+          </section>
+          <section anchor="default_metric" title="Default Metric type">
+            <t>
+              The default Metric Type is Hop Count. Cost(L) is always 1, and Cost(R) is the number of hops this route goes over.
+            </t>
+          </section>
+          <section anchor="alternate_metrics" title="Alternate Metrics">
+            <t>
+              Hop Count is often undesirable, so other metrics can be used as well. It is out of the scope of this document to specify the Cost(L) and Cost(R) functions or their return type for alternate metrics, but they must be defined for any other metric you want to use.
+            </t>
+          </section>
+          <section anchor="loopfree" title="The LoopFree() function">
+            <t>...</t>
+          </section>
+      </section>
+
+      <section anchor="metrics" title="Metrics (deprecated)">
 
       <t>AODVv2 route selection in MANETs depends upon associating metric
 		information with each route table entry.  When presented
@@ -823,25 +848,54 @@
 		the default metric associated with routes in MANET.
 		It is well known that reliance on Hop Count can
 		cause selection of the worst possible route in many situations.
-	</t>
+    Therefor, it is important to enable route selection based on metric
+    information other than Hop Count -- in other words, based on
+    "alternate metrics".
+    </t>
+    <t>
+    Each such alternate metric measures a
+    "cost" of using the associated route (examples may be latency, delay, monetary, energy, etc.). The range and data type of each such alternate metric
+    may be different.  For instance, the data type might be
+    integers, or floating point numbers, or restricted subsets
+    thereof.
+    </t>
 
-      <t>It is beyond the scope of this document to describe how
-      		applications specify route selection at the time they
-      		launch processing.  One possibility would be to provide a
-      		route metric preference as part of the library routines for
-      		opening sockets.  In view of the above considerations,
-      		it is important to enable route selection based on metric
-      		information other than Hop Count -- in other words, based on
-      		"alternate metrics".  Each such alternate metric measures a
-      		"cost" of using the associated route, and there are many
-      		different kinds of cost (latency, delay, monetary, energy,
-		etc.).  The range and data type of each such alternate metric
-		may be different.  For instance, the data type might be
-		integers, or floating point numbers, or restricted subsets
-		thereof.  Let "Cost(R)", where 'R' is the route for which
-		the Cost is to be evaluated; the route table entry for R
-		includes the information about the metric type for R.
-	</t>
+    <t> == BEGIN 6.5.1 The Cost() function ==</t>
+    <t>
+      [LOTTE]PLEASE NOTE: this should actually be a subsection of
+      <xref target="metrics"/>, but rfc2xml refuses to let me add a subsection
+      to the Metrics section, so I'll do it like this for now and fix whatever
+      the problem is in case of approval.
+    </t>
+    <!--
+    <t>
+    Let "Cost(R)", where 'R' is the route for which
+    the Cost is to be evaluated; the route table entry for R
+    includes the information about the metric type for R.
+    </t>
+    -->
+
+    <t>Whenever an AODV router receives metric information in an
+    incoming message, the value of the metric is as measured
+    by the transmitting router, and does not reflect the cost
+    of traversing the incoming link.  In order to simplify the
+    description of storing accrued route costs in the route
+    table, the Cost() function is also defined to return the
+    value of traversing a link 'L'.  In other words, the domain
+    of the Cost() function is enlarged to include links as well
+    as routes.
+    The specification of Cost(L) for metric types other than
+    3 is beyond the scope of this document.  Whether the argument
+    of the Cost() function is a link or a route will, in this
+    document, always be clear.  As a natural result of the way
+    routes are looked up according to conformant metric type,
+    all intermediate routers handling a RteMsg will assign the
+    same metric type to all metric information in the RteMsg.
+  </t>
+
+    <t> == END OF 6.5.1 The Cost() function ==</t>
+
+    <t> == BEGIN OF 6.5.2 the LoopFree() function ==</t>
 
       <t>
 		Since determining loop freedom is known to depend
@@ -862,7 +916,11 @@
 		route table, and is used as parameter R2 for LoopFree.
 	</t>
 
-	<t>HopCount is still the default metric for
+    <t> == ED OF 6.5.2 the LoopFree() function ==</t>
+
+
+    <t> == BEGIN OF 6.5.3 Default Metric ==</t>
+	<t> HopCount is still the default metric for
 		use in MANETs, notwithstanding the above objections.  Each
 		metric has to have a Metric Type, and the Metric Type is
 		allocated by IANA as specified in <xref target="RFC6551"/>.
@@ -870,30 +928,12 @@
 		route using Metric Type 3 is simply the hop count between
 		the router and the destination.
 		Using Metric Type 3, LoopFree (AdvRte, Route) is TRUE when
-		Cost(AdvRte) &le; Cost(Route).  The specification of
+		<![CDATA[Cost(AdvRte) &le; Cost(Route)]]> The specification of
 		Cost(R) and LoopFree(AdvRte, Route) for metric types other than
 		3 is beyond the scope of this document.
 	</t>
+    <t> == END OF OF 6.5.3 Default Metric ==</t>
 
-	<t>Whenever an AODV router receives metric information in an
-		incoming message, the value of the metric is as measured
-		by the transmitting router, and does not reflect the cost
-		of traversing the incoming link.  In order to simplify the
-		description of storing accrued route costs in the route
-		table, the Cost() function is also defined to return the
-		value of traversing a link 'L'.  In other words, the domain
-		of the Cost() function is enlarged to include links as well
-		as routes.
-		For Metric Type 3, (i.e., the HopCount metric) Cost(L) = 1
-		for all links L.
-		The specification of Cost(L) for metric types other than
-		3 is beyond the scope of this document.  Whether the argument
-		of the Cost() function is a link or a route will, in this
-		document, always be clear.  As a natural result of the way
-		routes are looked up according to conformant metric type,
-		all intermediate routers handling a RteMsg will assign the
-		same metric type to all metric information in the RteMsg.
-	</t>
 
 	<t>For some metrics, a maximum value is defined, namely MAX_METRIC[i]
 		where 'i' is the Metric Type.  AODVv2 does not store routes
@@ -1069,7 +1109,7 @@
 		entry, and LoopFree (AdvRte, Route) assures loop freedom,
 		incoming information still does not offer any improvement over
 		the existing route table information if
-		AdvRte.Cost &ge; Route.Metric.
+		<![CDATA[AdvRte.Cost &ge; Route.Metric]]>.
 		Using such incoming routing information to update a route
 		table entry is not recommended.</t>
 
@@ -1460,10 +1500,8 @@
 			HopCount, e.g., measured from msg_hop_count. </t>
 		</list></t>
 
-	   <t> If (MAX_METRIC[MetricType] - Cost(L)) &le; RteMsg_Metric,
-		the RteMsg is disregarded, where Cost(L) denotes the cost of
-		traversing the incoming link (i.e., as measured by the
-		network interface receiving the incoming RteMsg). </t>
+	   <t> If <![CDATA[(MAX_METRIC[MetricType] - Cost(L)) &le; RteMsg_Metric]]>,
+		where L denotes the incoming link, the RteMsg is disregarded. </t>
 
         </list>
         An AODVv2 router handles a valid RteMsg as follows:
@@ -1516,7 +1554,7 @@
 	is complete. </t>
 
   <t> Otherwise, if the upstream router is in the Blacklist, and
-	Current_Time &ge; Blacklist.RemoveTime, then the upstream router
+	<![CDATA[Current_Time &ge; Blacklist.RemoveTime]]>, then the upstream router
 	SHOULD be removed from the Blacklist, and message processing
 	continued. </t>
 
