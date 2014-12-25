@@ -1,0 +1,20 @@
+# metrics
+Metrics describe the quality of a route or a link. They can take various aspects into account, such as latency, delay, monetary, energy, etc. Routing decisions are made based on metrics. AODVv2 enables the use of generic metrics, whose data type depends on the metric used.
+The Metric Type is specified by the [MetricType extension Type of the Metric TLV (Lottes version) | the MetricType TLV] of each RteMsg.
+
+## The Cost() function
+There is a Cost() function. This function is supposed to return the Cost of traversing a Route ("Cost(R)")or a Link ("Cost(L)").
+
+## Metrics of Type DEFAULT_METRIC_TYPE
+The default Metric Type is Hop Count. Cost(L) is always 1, and Cost(R) is the number of hops this route goes over.
+
+## Alternate Metrics
+Hop Count is often undesirable, so other metrics can be used as well. It is out of the scope of this document to specify the Cost(L) and Cost(R) functions or their return type for alternate metrics, but they must be defined for any other metric you want to use.
+
+## The LoopFree() function
+...
+
+# TODOs
+- rm ~:1479 “, where Cost(L) denotes the cost of
+        traversing the incoming link (i.e., as measured by the
+        network interface receiving the incoming RteMsg).”
