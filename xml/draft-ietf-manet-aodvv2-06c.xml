@@ -928,7 +928,7 @@
 		route using Metric Type 3 is simply the hop count between
 		the router and the destination.
 		Using Metric Type 3, LoopFree (AdvRte, Route) is TRUE when
-		<![CDATA[Cost(AdvRte) &le; Cost(Route)]]> The specification of
+		Cost(AdvRte) &le; Cost(Route) The specification of
 		Cost(R) and LoopFree(AdvRte, Route) for metric types other than
 		3 is beyond the scope of this document.
 	</t>
@@ -1109,7 +1109,7 @@
 		entry, and LoopFree (AdvRte, Route) assures loop freedom,
 		incoming information still does not offer any improvement over
 		the existing route table information if
-		<![CDATA[AdvRte.Cost &ge; Route.Metric]]>.
+		AdvRte.Cost &ge; Route.Metric.
 		Using such incoming routing information to update a route
 		table entry is not recommended.</t>
 
@@ -1500,7 +1500,7 @@
 			HopCount, e.g., measured from msg_hop_count. </t>
 		</list></t>
 
-	   <t> If <![CDATA[(MAX_METRIC[MetricType] - Cost(L)) &le; RteMsg_Metric]]>,
+	   <t> If (MAX_METRIC[MetricType] - Cost(L)) &le; RteMsg_Metric,
 		where L denotes the incoming link, the RteMsg is disregarded. </t>
 
         </list>
@@ -1554,7 +1554,7 @@
 	is complete. </t>
 
   <t> Otherwise, if the upstream router is in the Blacklist, and
-	<![CDATA[Current_Time &ge; Blacklist.RemoveTime]]>, then the upstream router
+	Current_Time &ge; Blacklist.RemoveTime, then the upstream router
 	SHOULD be removed from the Blacklist, and message processing
 	continued. </t>
 
