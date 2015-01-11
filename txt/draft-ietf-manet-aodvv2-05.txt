@@ -5,10 +5,10 @@
 Mobile Ad hoc Networks Working Group                          C. Perkins
 Internet-Draft                                                 Futurewei
 Intended status: Standards Track                              S. Ratliff
-Expires: June 28, 2015                                             Cisco
+Expires: July 15, 2015                                             Cisco
                                                               J. Dowdell
                                                 Airbus Defence and Space
-                                                       December 25, 2014
+                                                        January 11, 2015
 
 
                 Dynamic MANET On-demand (AODVv2) Routing
@@ -37,11 +37,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on June 28, 2015.
+   This Internet-Draft will expire on July 15, 2015.
 
 Copyright Notice
 
-   Copyright (c) 2014 IETF Trust and the persons identified as the
+   Copyright (c) 2015 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 1]
+Perkins, et al.           Expires July 15, 2015                 [Page 1]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    include Simplified BSD License text as described in Section 4.e of
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 2]
+Perkins, et al.           Expires July 15, 2015                 [Page 2]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
      14.1.  Expanding Rings Multicast  . . . . . . . . . . . . . . .  36
@@ -160,22 +160,22 @@ Internet-Draft                   AODVv2                    December 2014
      B.1.  RREQ Message Format . . . . . . . . . . . . . . . . . . .  61
      B.2.  RREP Message Format . . . . . . . . . . . . . . . . . . .  62
      B.3.  RERR Message Format . . . . . . . . . . . . . . . . . . .  64
-     B.4.  RREP_ACK Message Format . . . . . . . . . . . . . . . . .  66
-   Appendix C.  Changes since revision ...-04.txt  . . . . . . . . .  66
+     B.4.  RREP_ACK Message Format . . . . . . . . . . . . . . . . .  65
+   Appendix C.  Changes since revision ...-04.txt  . . . . . . . . .  65
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 3]
+Perkins, et al.           Expires July 15, 2015                 [Page 3]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
-   Appendix D.  Changes since revision ...-03.txt  . . . . . . . . .  67
-   Appendix E.  Changes since revision ...-02.txt  . . . . . . . . .  67
-   Appendix F.  Multi-homing Considerations  . . . . . . . . . . . .  68
+   Appendix D.  Changes since revision ...-03.txt  . . . . . . . . .  66
+   Appendix E.  Changes since revision ...-02.txt  . . . . . . . . .  66
+   Appendix F.  Multi-homing Considerations  . . . . . . . . . . . .  67
    Appendix G.  Shifting Network Prefix Advertisement Between AODVv2
-                Routers  . . . . . . . . . . . . . . . . . . . . . .  68
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  68
+                Routers  . . . . . . . . . . . . . . . . . . . . . .  67
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  67
 
 1.  Overview
 
@@ -221,9 +221,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 4]
+Perkins, et al.           Expires July 15, 2015                 [Page 4]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 2.  Terminology
@@ -277,9 +277,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 5]
+Perkins, et al.           Expires July 15, 2015                 [Page 5]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
       A protocol operation is said to be "reactive" if it is performed
@@ -333,9 +333,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 6]
+Perkins, et al.           Expires July 15, 2015                 [Page 6]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
       An UnreachableNode is a node for which a valid route is not known.
@@ -389,9 +389,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 7]
+Perkins, et al.           Expires July 15, 2015                 [Page 7]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    +------------------------+------------------------------------------+
@@ -445,9 +445,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 8]
+Perkins, et al.           Expires July 15, 2015                 [Page 8]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    network interfaces supporting AODVv2 is administratively configured
@@ -501,9 +501,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                 [Page 9]
+Perkins, et al.           Expires July 15, 2015                 [Page 9]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    unidirectional, metric information from incoming AODVv2 messages MUST
@@ -557,9 +557,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 10]
+Perkins, et al.           Expires July 15, 2015                [Page 10]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    Route.Precursors (optional)
@@ -613,9 +613,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 11]
+Perkins, et al.           Expires July 15, 2015                [Page 11]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 5.2.  Bidirectional Connectivity and Blacklists
@@ -669,9 +669,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 12]
+Perkins, et al.           Expires July 15, 2015                [Page 12]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    Routing Clients for an AODVv2 router is never empty, since an AODVv2
@@ -725,9 +725,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 13]
+Perkins, et al.           Expires July 15, 2015                [Page 13]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    An AODVv2 router increments its SeqNum as follows.  Most of the time,
@@ -781,9 +781,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 14]
+Perkins, et al.           Expires July 15, 2015                [Page 14]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    destination, where the "cost" of each of the multiple routes is
@@ -837,9 +837,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 15]
+Perkins, et al.           Expires July 15, 2015                [Page 15]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    handling a RteMsg will assign the same metric type to all metric
@@ -893,9 +893,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 16]
+Perkins, et al.           Expires July 15, 2015                [Page 16]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    The RREQ Table is maintained so that no two entries in the RREQ
@@ -949,9 +949,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 17]
+Perkins, et al.           Expires July 15, 2015                [Page 17]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    the same Metric Type as the AdvRte, matching AdvRte.Address.  If not,
@@ -998,16 +998,16 @@ Internet-Draft                   AODVv2                    December 2014
       used to update an existing route table entry as described in
       Section 6.2.
 
-     (AdvRte.SeqNum > Route.SeqNum) OR
-         ((AdvRte.SeqNum == Route.SeqNum) AND
+   (AdvRte.SeqNum > Route.SeqNum) OR
+       ((AdvRte.SeqNum == Route.SeqNum) AND
                 [(AdvRte.Cost < Route.Metric) OR
                  ((Route.State == Broken) && LoopFree (AdvRte, Route))])
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 18]
+Perkins, et al.           Expires July 15, 2015                [Page 18]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
       The above logic corresponds to placing the following conditions
@@ -1061,9 +1061,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 19]
+Perkins, et al.           Expires July 15, 2015                [Page 19]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    At any time, the route table can be examined and route table entries
@@ -1117,9 +1117,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 20]
+Perkins, et al.           Expires July 15, 2015                [Page 20]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    +--------+------------+---------------+-----------------------------+
@@ -1173,9 +1173,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 21]
+Perkins, et al.           Expires July 15, 2015                [Page 21]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    +------------+--------+---------------------------------------------+
@@ -1229,9 +1229,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 22]
+Perkins, et al.           Expires July 15, 2015                [Page 22]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    RREQ_HOLDDOWN_TIME before attempting another Route Discovery to the
@@ -1285,9 +1285,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 23]
+Perkins, et al.           Expires July 15, 2015                [Page 23]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    o  Message Hop Limit, <msg-hop-limit>, which should be mapped to the
@@ -1341,9 +1341,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 24]
+Perkins, et al.           Expires July 15, 2015                [Page 24]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    MAY appear in the same RteMsg when SeqNum information is available
@@ -1397,9 +1397,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 25]
+Perkins, et al.           Expires July 15, 2015                [Page 25]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
        RREQ_Gen SHOULD include TargNode's SeqNum, if a previous value of
@@ -1453,9 +1453,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 26]
+Perkins, et al.           Expires July 15, 2015                [Page 26]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    An example message format for RREP is illustrated in Appendix B.2.
@@ -1509,9 +1509,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 27]
+Perkins, et al.           Expires July 15, 2015                [Page 27]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 8.5.1.  Additional Handling for Incoming RREQ
@@ -1565,9 +1565,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 28]
+Perkins, et al.           Expires July 15, 2015                [Page 28]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    generated) (see Table 1).  OrigNdx and TargNdx are set according to
@@ -1621,9 +1621,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 29]
+Perkins, et al.           Expires July 15, 2015                [Page 29]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 9.1.  Maintaining Route Lifetimes During Packet Forwarding
@@ -1677,9 +1677,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 30]
+Perkins, et al.           Expires July 15, 2015                [Page 30]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 9.3.  RERR Generation
@@ -1733,9 +1733,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 31]
+Perkins, et al.           Expires July 15, 2015                [Page 31]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    In both cases, the <msg-hop-limit> MUST be included and SHOULD be set
@@ -1789,9 +1789,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 32]
+Perkins, et al.           Expires July 15, 2015                [Page 32]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    If the set of UnreachableNodes is empty, no RERR is generated.
@@ -1845,9 +1845,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 33]
+Perkins, et al.           Expires July 15, 2015                [Page 33]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    shorter than Route.PrefixLength, then Route MUST be expunged from the
@@ -1901,9 +1901,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 34]
+Perkins, et al.           Expires July 15, 2015                [Page 34]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
         /-------------------------\
@@ -1957,9 +1957,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 35]
+Perkins, et al.           Expires July 15, 2015                [Page 35]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 13.  AODVv2 Control Message Generation Limits
@@ -2013,9 +2013,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 36]
+Perkins, et al.           Expires July 15, 2015                [Page 36]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 14.3.1.  Overview
@@ -2069,9 +2069,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 37]
+Perkins, et al.           Expires July 15, 2015                [Page 37]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    Each active upstream neighbor (i.e., precursor) MAY then execute the
@@ -2125,9 +2125,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 38]
+Perkins, et al.           Expires July 15, 2015                [Page 38]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 15.  Administratively Configurable Parameters and Timer Values
@@ -2181,9 +2181,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 39]
+Perkins, et al.           Expires July 15, 2015                [Page 39]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 15.2.  Protocol constants
@@ -2237,9 +2237,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 40]
+Perkins, et al.           Expires July 15, 2015                [Page 40]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
     +-----------------------+-----------------------+-----------------+
@@ -2293,9 +2293,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 41]
+Perkins, et al.           Expires July 15, 2015                [Page 41]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 16.3.  Address Block TLV Specification
@@ -2349,9 +2349,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 42]
+Perkins, et al.           Expires July 15, 2015                [Page 42]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    This section does not mandate any specific security measures.
@@ -2405,9 +2405,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 43]
+Perkins, et al.           Expires July 15, 2015                [Page 43]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    could masquerade as that destination and maliciously deny service to
@@ -2461,9 +2461,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 44]
+Perkins, et al.           Expires July 15, 2015                [Page 44]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    [RFC5082]  Gill, V., Heasley, J., Meyer, D., Savola, P., and C.
@@ -2517,9 +2517,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 45]
+Perkins, et al.           Expires July 15, 2015                [Page 45]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    [RFC4193]  Hinden, R. and B. Haberman, "Unique Local IPv6 Unicast
@@ -2573,9 +2573,9 @@ Appendix A.  Example Algorithms for AODVv2 Protocol Operations
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 46]
+Perkins, et al.           Expires July 15, 2015                [Page 46]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    o  Regenerate_RREQ
@@ -2629,9 +2629,9 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 47]
+Perkins, et al.           Expires July 15, 2015                [Page 47]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
       outRREP.origIP := originator's IP address
@@ -2685,9 +2685,9 @@ A.1.  Subroutines for AODVv2 Protocol Operations
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 48]
+Perkins, et al.           Expires July 15, 2015                [Page 48]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
     /* Compare incoming route information to current route, maybe use */
@@ -2695,23 +2695,23 @@ Internet-Draft                   AODVv2                    December 2014
                                                        last_hop_metric)
       /* last_hop_metric: either Cost(inRREQ.netif) or (inRREP.netif) */
     {
-    new_metric := metric + last_hop_metric;
-    rte := Fetch_Route_Table_Entry (dest, seq#, metric_type);
-    if (NULL == rte) {
-        rte := Create_Route_Table_Entry
-                (dest, seq#, metric_type, new_metric);
-    } else if (seq# > rte.seq#) { /* stale rte route entry */
-        Update_Route_Table_Entry (rte, seq#, metric_type, new_metric);
-    } else if (seq# < rte.seq#) { /* stale incoming route infor */
-        return(NULL);
-    } else if (rte.state == broken) {  /* when (seq# == rte.seq#) */
-        Update_Route_Table_Entry (rte, seq#, metric_type, new_metric);
-    } else if (rte.metric > (new_metric) { /* and (seq# == rte.seq#) */
-        Update_Route_Table_Entry (rte, seq#, metric_type, new_metric);
-    } else {    /* incoming route information is not useful */
-        return(NULL);
-    }
-    return (rte);
+  new_metric := metric + last_hop_metric;
+  rte := Fetch_Route_Table_Entry (dest, seq#, metric_type);
+  if (NULL == rte) {
+      rte := Create_Route_Table_Entry
+        (dest, seq#, metric_type, new_metric);
+  } else if (seq# > rte.seq#) { /* stale rte route entry */
+      Update_Route_Table_Entry (rte, seq#, metric_type, new_metric);
+  } else if (seq# < rte.seq#) { /* stale incoming route infor */
+      return(NULL);
+  } else if (rte.state == broken) {  /* when (seq# == rte.seq#) */
+      Update_Route_Table_Entry (rte, seq#, metric_type, new_metric);
+  } else if (rte.metric > (new_metric) { /* and (seq# == rte.seq#) */
+      Update_Route_Table_Entry (rte, seq#, metric_type, new_metric);
+  } else {  /* incoming route information is not useful */
+      return(NULL);
+  }
+  return (rte);
     }
 
 
@@ -2741,12 +2741,12 @@ A.2.1.  Generate_RREQ
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 49]
+Perkins, et al.           Expires July 15, 2015                [Page 49]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
-    Generate_RREQ {
+      Generate_RREQ {
     /* Marshall parameters */
     outRREQ.origIP := IP address used by application
     outRREQ.origSeq := originating router's sequence #
@@ -2754,20 +2754,20 @@ Internet-Draft                   AODVv2                    December 2014
     outRREQ.origMet := 0 (default) or MIN_METRIC(Metric_type)
     outRREQ.targIP := target IP address
     outRREQ.targSeq := target sequence # /* if known from route table */
-    outRREQ.hopLim := msg-hop-limit     /* RFC 5444 */
+    outRREQ.hopLim := msg-hop-limit   /* RFC 5444 */
 
     /* build RFC 5444 message header fields */
     {
-        msg-type=RREQ (message is of type RREQ)
-        MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
-        MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
-        msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
-        msg-hop-limit := MAX_HOPCOUNT
-        if (Metric_type == DEFAULT) {
-            msg.tlvs-length=0
-        } else { /* Metric_type != HopCount */
-            /* Build Metric_type Message TLV */
-        }
+      msg-type=RREQ (message is of type RREQ)
+      MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
+      MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
+      msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
+      msg-hop-limit := MAX_HOPCOUNT
+      if (Metric_type == DEFAULT) {
+        msg.tlvs-length=0
+      } else { /* Metric_type != HopCount */
+        /* Build Metric_type Message TLV */
+      }
     }
 
     /* build AddrBlk */
@@ -2775,14 +2775,14 @@ Internet-Draft                   AODVv2                    December 2014
     AddrBlk := {outRREQ.origIP and outRREQ.targIP addresses}
 
     /* Include each available Sequence Number in appropriate AddrTLV */
-        /* put outRREQ.origSeq in OrigSeqNum AddrTLV */
-        if (NULL != targSeq) {
-            /* put outRREQ.targSeq in TargSeqNum AddrTLV */
-        }
+      /* put outRREQ.origSeq in OrigSeqNum AddrTLV */
+      if (NULL != targSeq) {
+        /* put outRREQ.targSeq in TargSeqNum AddrTLV */
+      }
 
     /* Build Metric AddrTLV containing OrigNode metric */
-        /* use MIN_METRIC(metric type) [==0 for default metric type */
-    }
+      /* use MIN_METRIC(metric type) [==0 for default metric type */
+      }
 
 
 A.2.2.  Receive_RREQ
@@ -2797,27 +2797,27 @@ A.2.2.  Receive_RREQ
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 50]
+Perkins, et al.           Expires July 15, 2015                [Page 50]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
-     Receive_RREQ (inRREQ) {
+       Receive_RREQ (inRREQ) {
      /* Extract inRREQ values */
      origRTE = Process_Routing_Info (inRREQ.origIP, inRREQ.origSeq, ...)
      if (inRREQ.targIP belongs to me or my client subnet) {
-         Generate_RREP()
+       Generate_RREP()
      } else if (inRREQ present in RREQ_table) {
-         return;     /* don't regenerate RREQ... */
+       return;   /* don't regenerate RREQ... */
      } else if (inRREQ.nbrIP not present in blacklist) {
-         Regenerate_RREQ(origRTE, inRREQ)
+       Regenerate_RREQ(origRTE, inRREQ)
      } else if (blacklist_expiration_time > current_time) {
-         return;     /* don't regenerate RREQ... */
+       return;   /* don't regenerate RREQ... */
      } else {
-         Remove nbrIP from blacklist;
-         Regenerate_RREQ(origRTE, inRREQ)
+       Remove nbrIP from blacklist;
+       Regenerate_RREQ(origRTE, inRREQ)
      }
-     }
+       }
 
 
 A.2.3.  Regenerate_RREQ
@@ -2853,49 +2853,49 @@ A.2.3.  Regenerate_RREQ
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 51]
+Perkins, et al.           Expires July 15, 2015                [Page 51]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
     Regenerate_RREQ (origRTE, inRREQ) { /* called from receive_RREQ() */
-    outRREQ.hopLim := inRREQ.hopLim - 1
-    if (outRREQ.hopLim == 0) {  /* don't regenerate */
-        return()
+  outRREQ.hopLim := inRREQ.hopLim - 1
+  if (outRREQ.hopLim == 0) {  /* don't regenerate */
+    return()
+  }
+  /* Marshall parameters */
+  outRREQ.origIP := origRTE.origIP
+  outRREQ.origSeq := origRTE.origSeq
+  outRREQ.origMet := origRTE.origMet
+  outRREQ.metType := origRTE.metType
+  outRREQ.targIP := inRREQ.targIP
+  outRREQ.targSeq := inRREQ.targSeq /* if present */
+
+  /* build RFC 5444 message header fields */
+  {
+    msg-type=RREQ (message is of type RREQ)
+    MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
+    MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
+    msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
+    msg-hop-limit := MAX_METRIC(Metric Type) (default, MAX_HOPCOUNT)
+    if (Metric_type == DEFAULT) {
+      msg.tlvs-length=0
+    } else { /* Metric_type != HopCount */
+      /* Build Metric_type Message TLV */
     }
-    /* Marshall parameters */
-    outRREQ.origIP := origRTE.origIP
-    outRREQ.origSeq := origRTE.origSeq
-    outRREQ.origMet := origRTE.origMet
-    outRREQ.metType := origRTE.metType
-    outRREQ.targIP := inRREQ.targIP
-    outRREQ.targSeq := inRREQ.targSeq   /* if present */
+  }
 
-    /* build RFC 5444 message header fields */
-    {
-        msg-type=RREQ (message is of type RREQ)
-        MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
-        MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
-        msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
-        msg-hop-limit := MAX_METRIC(Metric Type) (default, MAX_HOPCOUNT)
-        if (Metric_type == DEFAULT) {
-            msg.tlvs-length=0
-        } else { /* Metric_type != HopCount */
-            /* Build Metric_type Message TLV */
-        }
-    }
+  /* build AddrBlk */
+  num-addr := 2
+  AddrBlk := {outRREQ.origIP and outRREQ.targIP addresses}
 
-    /* build AddrBlk */
-    num-addr := 2
-    AddrBlk := {outRREQ.origIP and outRREQ.targIP addresses}
+  /* Include each available Sequence Number in its proper AddrTLV */
+  /* put outRREQ.origSeq in OrigSeqNum AddrTLV */
+  if (NULL != targSeq) {
+    /* put outRREQ.targSeq in TargSeqNum AddrTLV */
+  }
 
-    /* Include each available Sequence Number in its proper AddrTLV */
-    /* put outRREQ.origSeq in OrigSeqNum AddrTLV */
-    if (NULL != targSeq) {
-        /* put outRREQ.targSeq in TargSeqNum AddrTLV */
-    }
-
-    /* Build Metric AddrTLV to contain outRREQ.origMet */
+  /* Build Metric AddrTLV to contain outRREQ.origMet */
 
     }
 
@@ -2909,20 +2909,20 @@ A.3.  Example Algorithms for AODVv2 RREP Operations
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 52]
+Perkins, et al.           Expires July 15, 2015                [Page 52]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 A.3.1.  Generate_RREP
 
 
-     Generate_RREP {
+       Generate_RREP {
      /* Marshall parameters */
      outRREP.origIP := origRTE.origIP
      metric_type := origRTE.metType  /* if not default */
      if (DEFAULT != metric_type)
-         outRREP.metType := metric_type
+       outRREP.metType := metric_type
      outRREP.targIP := inRREQ.targIP
      outRREP.targMet := MIN_METRIC(outRREP.metType) (0  by default)
      my_sequence_# := (1 + my_sequence_#) /* from nonvolatile storage */
@@ -2930,21 +2930,21 @@ A.3.1.  Generate_RREP
 
      /* build RFC 5444 message header fields */
      {
-         msg-type=RREP
-         MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
-         MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
-         msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
-         msg-hop-limit := MAX_HOPCOUNT
-         /* Include the AckReq TLV when:
-            - previous RREP does not seem to enable any data flow, OR
-            - when RREQ is received from same OrigNode after RREP was
-              unicast to targRTE.nextHop
-          */
-         if (DEFAULT != metric_type) {
-             msg.tlvs-length=0
-         } else { /* Metric_type != HopCount */
-             /* Build Metric_type Message TLV */
-         }
+       msg-type=RREP
+       MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
+       MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
+       msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
+       msg-hop-limit := MAX_HOPCOUNT
+       /* Include the AckReq TLV when:
+          - previous RREP does not seem to enable any data flow, OR
+          - when RREQ is received from same OrigNode after RREP was
+            unicast to targRTE.nextHop
+        */
+       if (DEFAULT != metric_type) {
+         msg.tlvs-length=0
+       } else { /* Metric_type != HopCount */
+         /* Build Metric_type Message TLV */
+       }
      }
 
      /* build AddrBlk */
@@ -2955,7 +2955,7 @@ A.3.1.  Generate_RREP
 
      /* Build Metric AddrTLV containing TargNode metric */
      /* use MIN_METRIC(origRTE.metType) */
-     }
+       }
 
 
 
@@ -2965,27 +2965,27 @@ A.3.1.  Generate_RREP
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 53]
+Perkins, et al.           Expires July 15, 2015                [Page 53]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 A.3.2.  Receive_RREP
 
 
-    Receive_RREP (inRREP)
-    {
+      Receive_RREP (inRREP)
+      {
     If (RREP includes AckReq TLV) {
-        Generate_RREP_Ack()
+      Generate_RREP_Ack()
     }
     /* Extract inRREP values */
     targRTE := Process_Routing_Info (inRREP.targIP, inRREP.targSeq, ...)
     if (inRREP.targIP belongs to me, a client, or a client subnet) {
-        Consume_RREP(inRREP)
+      Consume_RREP(inRREP)
     } else {
-        Regenerate_RREP(targRTE, inRREP)
+      Regenerate_RREP(targRTE, inRREP)
     }
-    }
+      }
 
 
 
@@ -3021,75 +3021,75 @@ A.3.2.  Receive_RREP
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 54]
+Perkins, et al.           Expires July 15, 2015                [Page 54]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 A.3.3.  Regenerate_RREP
 
 
-      Regenerate_RREP(targRTE, inRREP) {
-      outRREP.hopLim := inRREP.hopLim - 1
-      if (outRREP.hopLim == 0) {  /* don't regenerate */
-          return()
-      }
-      /* Marshall parameters */
-      outRREP.targIP := targRTE.targIP
-      outRREP.targSeq := targRTE.targSeq
-      outRREP.targMet := targRTE.targMet
-      metric_type := origRTE.metType  /* if not default */
-      if (DEFAULT != metric_type)
-          outRREP.metType := metric_type
-      outRREP.origIP := inRREP.origIP
-      outRREP.nextHop := targRTE.nextHop
+       Regenerate_RREP(targRTE, inRREP) {
+     outRREP.hopLim := inRREP.hopLim - 1
+     if (outRREP.hopLim == 0) {  /* don't regenerate */
+       return()
+     }
+     /* Marshall parameters */
+     outRREP.targIP := targRTE.targIP
+     outRREP.targSeq := targRTE.targSeq
+     outRREP.targMet := targRTE.targMet
+     metric_type := origRTE.metType  /* if not default */
+     if (DEFAULT != metric_type)
+       outRREP.metType := metric_type
+     outRREP.origIP := inRREP.origIP
+     outRREP.nextHop := targRTE.nextHop
 
-      /* build RFC 5444 message header fields */
-      {
-          msg-type=RREP (message is of type RREP)
-          MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
-          MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
-          msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
-          /* Include the AckReq TLV when:
-             - previous RREP does not seem to enable any data flow, OR
-             - when RREQ is received from same OrigNode after RREP was
-               unicast to targRTE.nextHop
-           */
-          msg-hop-limit := outRREP.hopLim;
-          if (metric_type == DEFAULT) {
-              msg.tlvs-length=0
-          } else { /* Metric_type != HopCount */
-              /* Build Metric_type Message TLV */
-          }
-      }
+     /* build RFC 5444 message header fields */
+     {
+       msg-type=RREP (message is of type RREP)
+       MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
+       MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
+       msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
+       /* Include the AckReq TLV when:
+          - previous RREP does not seem to enable any data flow, OR
+          - when RREQ is received from same OrigNode after RREP was
+            unicast to targRTE.nextHop
+        */
+       msg-hop-limit := outRREP.hopLim;
+       if (metric_type == DEFAULT) {
+         msg.tlvs-length=0
+       } else { /* Metric_type != HopCount */
+         /* Build Metric_type Message TLV */
+       }
+     }
 
-      /* build AddrBlk */
-      num-addr := 2
-      AddrBlk := {outRREQ.origIP and outRREQ.targIP addresses}
+     /* build AddrBlk */
+     num-addr := 2
+     AddrBlk := {outRREQ.origIP and outRREQ.targIP addresses}
 
-      /* put outRREP.targSeq in TargSeqNum AddrTLV */
+     /* put outRREP.targSeq in TargSeqNum AddrTLV */
 
-      /* Build Metric AddrTLV containing TargNode metric */
-      }
-
-
+     /* Build Metric AddrTLV containing TargNode metric */
+       }
 
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 55]
+
+
+Perkins, et al.           Expires July 15, 2015                [Page 55]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 A.3.4.  Consume_RREP
 
 
-       /* executed by RREQ_Gen */
-       /* TargNode route table entry was updated by Receive_RREP() */
-       Consume_RREP() {
-           /* Transmit buffered packet(s) (if any) to TargNode */
-       }
+     /* executed by RREQ_Gen */
+     /* TargNode route table entry was updated by Receive_RREP() */
+     Consume_RREP() {
+       /* Transmit buffered packet(s) (if any) to TargNode */
+     }
 
 
 A.4.  Example Algorithms for AODVv2 RERR Operations
@@ -3097,69 +3097,69 @@ A.4.  Example Algorithms for AODVv2 RERR Operations
 A.4.1.  Generate_RERR
 
 
-      Generate_RERR()
-      {
-      metric_type := DEFAULT;
-      switch (error_type) in {
-      case (broken_link):
-          num-broken-addr=0
-          /* find unreachable destinations, seqNums, prefixes */
-          for (every rte (route table entry) in route table) {
-              if (broken_link == rte.next_hop) {
-              rte.state := broken;
-              outRERR.LostDest[num-broken-addr] := rte.dest
-              outRERR.LostSeq[num-broken-addr] := rte.seq#
-              outRERR.PfxLen[num-broken-addr] := rte.pfx
-              metric_type := rte.metType
-              num-broken-addr := (num-broken-addr+1)
-              }
-          }
-          /* No offending-src for this case */
-      case (undeliverable packet):
-          offending-src := undeliverable_packet.srcIP
-          outRERR.LostDest[] := undeliverable_packet.destIP
-          outRERR.LostPfxSiz[] := MAX_PFX_SIZE   /* 31 or 127 */
-          num-broken-addr=1
-      }
+       Generate_RERR()
+       {
+     metric_type := DEFAULT;
+     switch (error_type) in {
+     case (broken_link):
+       num-broken-addr=0
+       /* find unreachable destinations, seqNums, prefixes */
+       for (every rte (route table entry) in route table) {
+           if (broken_link == rte.next_hop) {
+         rte.state := broken;
+         outRERR.LostDest[num-broken-addr] := rte.dest
+         outRERR.LostSeq[num-broken-addr] := rte.seq#
+         outRERR.PfxLen[num-broken-addr] := rte.pfx
+         metric_type := rte.metType
+         num-broken-addr := (num-broken-addr+1)
+           }
+       }
+       /* No offending-src for this case */
+     case (undeliverable packet):
+       offending-src := undeliverable_packet.srcIP
+       outRERR.LostDest[] := undeliverable_packet.destIP
+       outRERR.LostPfxSiz[] := MAX_PFX_SIZE   /* 31 or 127 */
+       num-broken-addr=1
+     }
 
-      /* build RFC 5444 message header fields */
-      {
-          msg-type=RERR (message is of type RERR)
-          MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
-          MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
-          msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
-          msg-hop-limit := outRERR.hopLim;
-          if (NULL != offending-src) {
+     /* build RFC 5444 message header fields */
+     {
+       msg-type=RERR (message is of type RERR)
+       MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
+       MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
+       msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
+       msg-hop-limit := outRERR.hopLim;
+       if (NULL != offending-src) {
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 56]
+Perkins, et al.           Expires July 15, 2015                [Page 56]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
-              /* Build PktSource Message TLV */
-          }
-          if (metric_type != DEFAULT) { /* Metric_type != HopCount */
-              /* Build Metric_type Message TLV */
-          }
-      }
+         /* Build PktSource Message TLV */
+       }
+       if (metric_type != DEFAULT) { /* Metric_type != HopCount */
+         /* Build Metric_type Message TLV */
+       }
+     }
 
-      /* build AddrBlk */
-      num-addr := num-broken-addr;
-      AddrBlk := outRERR.LostDest[];
+     /* build AddrBlk */
+     num-addr := num-broken-addr;
+     AddrBlk := outRERR.LostDest[];
 
-      /* Add AddrBlk Seq# TLV */
-      Seq#TLV := outRERR.LostSeq[]
+     /* Add AddrBlk Seq# TLV */
+     Seq#TLV := outRERR.LostSeq[]
 
-      /* only add AddrBlk PfxSiz TLV if prefixes are nondefault */
-      for (pfx in outRERR.LostPfx[]) {
-          if (pfx != Max_Prefix_Size) { /* 31 for IPv4, 127 for IPv6 */
-              PfxSizTLV := outRERR.LostPfx[]
-              return;
-          }
-      }
-      }
+     /* only add AddrBlk PfxSiz TLV if prefixes are nondefault */
+     for (pfx in outRERR.LostPfx[]) {
+       if (pfx != Max_Prefix_Size) { /* 31 for IPv4, 127 for IPv6 */
+         PfxSizTLV := outRERR.LostPfx[]
+         return;
+       }
+     }
+       }
 
 
 A.4.2.  Receive_RERR
@@ -3189,51 +3189,51 @@ A.4.2.  Receive_RERR
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 57]
+Perkins, et al.           Expires July 15, 2015                [Page 57]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
        Receive_RERR (inERR)
        {
-       /* Extract inERR values */
-       next_hop := inRERR.nbrIP
-       offending-src := inRERR.offending-src;  /* NULL if not present */
+     /* Extract inERR values */
+     next_hop := inRERR.nbrIP
+     offending-src := inRERR.offending-src;  /* NULL if not present */
 
-       precursors[] := NULL;
-       num-broken-addr := 0;
-       in-broken-addr := 0;
-       for (IPaddr := inRERR.LostDest[in-broken-addr]) {
-           rte := Fetch_Route_Table_Entry (dest, metric_type);
-           if (NULL == rte) {
-               continue;
-           } else if (rte.nextHop != inRERR.fromIP) {
-               continue;
-           } else if (NULL != rte.precursors) {
-               /* add rte.precursors to precursors */
-           } else if (rte.PfxSiz < inRERR.PfxSiz) {
-           /***********************************************************
-            If the reported prefix from the incoming RERR is *longer*
-              than the prefix from Route Table, then create a new route
-              with the longer prefix.
-              The newly created route will be marked as broken, and used
-              to regenerate RERR, NOT using shorter the routing prefix.
-            This avoids unnecessarily invalidating the larger subnet.
-            **********************************************************/
-               rte := Create_Route_Table_Entry (IPaddr, seq#,
-                   metric_type, new_metric, inRERR.PfxSiz);
-           }
-           LostDest[num-broken-addr] := rte.Dest;
-           Seq#[num-broken-addr] := rte.Seq#;
-           PfxSiz[num-broken-addr] := rte.PfxSiz;
-           rte.state = broken;
-           num-broken-addr := (num-broken-addr + 1);
-           in-broken-addr := (in-broken-addr + 1);
+     precursors[] := NULL;
+     num-broken-addr := 0;
+     in-broken-addr := 0;
+     for (IPaddr := inRERR.LostDest[in-broken-addr]) {
+       rte := Fetch_Route_Table_Entry (dest, metric_type);
+       if (NULL == rte) {
+         continue;
+       } else if (rte.nextHop != inRERR.fromIP) {
+         continue;
+       } else if (NULL != rte.precursors) {
+         /* add rte.precursors to precursors */
+       } else if (rte.PfxSiz < inRERR.PfxSiz) {
+       /***********************************************************
+        If the reported prefix from the incoming RERR is *longer*
+          than the prefix from Route Table, then create a new route
+          with the longer prefix.
+          The newly created route will be marked as broken, and used
+          to regenerate RERR, NOT using shorter the routing prefix.
+          This avoids unnecessarily invalidating the larger subnet.
+        **********************************************************/
+         rte := Create_Route_Table_Entry (IPaddr, seq#,
+           metric_type, new_metric, inRERR.PfxSiz);
        }
-       if (num-broken-addr > 0) {
-           Regenerate_RERR (offending-src, precursors,
-               LostDest[], Seq#[], PfxSiz[])
-       }
+       LostDest[num-broken-addr] := rte.Dest;
+       Seq#[num-broken-addr] := rte.Seq#;
+       PfxSiz[num-broken-addr] := rte.PfxSiz;
+       rte.state = broken;
+       num-broken-addr := (num-broken-addr + 1);
+       in-broken-addr := (in-broken-addr + 1);
+     }
+     if (num-broken-addr > 0) {
+       Regenerate_RERR (offending-src, precursors,
+         LostDest[], Seq#[], PfxSiz[])
+     }
        }
 
 
@@ -3245,65 +3245,65 @@ A.4.3.  Regenerate_RERR
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 58]
+Perkins, et al.           Expires July 15, 2015                [Page 58]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
-      Regenerate_RERR (offending-src, precursors,
-          LostDest[], LostSeq#[], PfxSiz[])
-      {
-      /* build RFC 5444 message header fields */
-      {
-          msg-type=RERR (message is of type RERR)
-          MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
-          MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
-          msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
-          outRERR.hopLim := inRERR.hopLim - 1
-          msg-hop-limit := outRERR.hopLim;
+       Regenerate_RERR (offending-src, precursors,
+       LostDest[], LostSeq#[], PfxSiz[])
+       {
+     /* build RFC 5444 message header fields */
+     {
+         msg-type=RERR (message is of type RERR)
+         MF=4 (Message Flags = 4 [only msg-hop-limit field is present])
+         MAL=3 or 15 (Message Address Length [3 for IPv4, 15 for IPv6])
+         msg-size=NN (octets -- counting MsgHdr, AddrBlk, and AddrTLVs)
+         outRERR.hopLim := inRERR.hopLim - 1
+         msg-hop-limit := outRERR.hopLim;
 
-          if (NULL != offending-src) {
-              /* Build PktSource Message TLV */
-          }
-          if (metric_type != DEFAULT) { /* Metric_type != HopCount */
-              /* Build Metric_type Message TLV */
-          }
-      }
+         if (NULL != offending-src) {
+         /* Build PktSource Message TLV */
+         }
+         if (metric_type != DEFAULT) { /* Metric_type != HopCount */
+         /* Build Metric_type Message TLV */
+         }
+     }
 
-      /* build AddrBlk */
-      num-addr := num-broken-addr;
-      AddrBlk := LostDest[];
+     /* build AddrBlk */
+     num-addr := num-broken-addr;
+     AddrBlk := LostDest[];
 
-      /* Add AddrBlk Seq# TLV */
-      Seq#TLV := LostSeq[]
+     /* Add AddrBlk Seq# TLV */
+     Seq#TLV := LostSeq[]
 
-      /* only add AddrBlk PfxSiz TLV if prefixes are nondefault */
-      for (pfx in PfxSiz[]) {
-          if (pfx != Max_Prefix_Size) { /* 31 for IPv4, 127 for IPv6 */
-              PfxSizTLV := PfxSiz[]
-          }
-      }   /* If all are default, don't include PfxSize AddrTLV */
+     /* only add AddrBlk PfxSiz TLV if prefixes are nondefault */
+     for (pfx in PfxSiz[]) {
+       if (pfx != Max_Prefix_Size) { /* 31 for IPv4, 127 for IPv6 */
+         PfxSizTLV := PfxSiz[]
+       }
+     } /* If all are default, don't include PfxSize AddrTLV */
 
-      if (#precursors == 1) {
-          unicast RERR to precursor[0];
-      } else if (#precursors > 1) {
-          multicast RERR to RERR_PRECURSORS;
-      } else if (offending-src != NULL) {
-          unicast RERR to offending-src;
-      } else {
-          multicast RERR to RERR_PRECURSORS;
-      }
-      }
-
-
-
+     if (#precursors == 1) {
+       unicast RERR to precursor[0];
+     } else if (#precursors > 1) {
+       multicast RERR to RERR_PRECURSORS;
+     } else if (offending-src != NULL) {
+       unicast RERR to offending-src;
+     } else {
+       multicast RERR to RERR_PRECURSORS;
+     }
+       }
 
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 59]
+
+
+
+Perkins, et al.           Expires July 15, 2015                [Page 59]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
 A.5.  Example Algorithms for AODVv2 RREP-Ack Operations
@@ -3314,11 +3314,11 @@ A.5.1.  Generate_RREP_Ack
        /* To be sent when RREP includes the AckReq TLV */
        Generate_RREP_Ack()
        {
-       /* assign RFC 5444 fields */
-       msgtype := RREPAck
-       MF := 0
-       MAL := 3
-       msg-size := 4
+     /* assign RFC 5444 fields */
+     msgtype := RREPAck
+     MF := 0
+     MAL := 3
+     msg-size := 4
        }
 
 
@@ -3327,7 +3327,7 @@ A.5.2.  Consume_RREP_Ack
 
        Consume_RREP_Ack()
        {
-       /* turn off timeout event for the node sending RREP_Ack */
+     /* turn off timeout event for the node sending RREP_Ack */
        }
 
 
@@ -3336,7 +3336,7 @@ A.5.3.  Timeout_RREP_Ack
 
        Timeout_RREP_Ack()
        {
-       /* insert unresponsive node into blacklist */
+     /* insert unresponsive node into blacklist */
        }
 
 
@@ -3357,9 +3357,9 @@ Appendix B.  Example RFC 5444-compliant packet formats
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 60]
+Perkins, et al.           Expires July 15, 2015                [Page 60]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
    There is no Metric Type Message TLV present, so the Metric AddrTLV
@@ -3413,16 +3413,15 @@ B.1.  RREQ Message Format
 
 
 
-Perkins, et al.           Expires June 28, 2015                [Page 61]
+Perkins, et al.           Expires July 15, 2015                [Page 61]
 
-Internet-Draft                   AODVv2                    December 2014
+Internet-Draft                   AODVv2                     January 2015
 
 
       ,-------------------
       |  MESSAGE
       |-------------------
       | * Message type:       <RREQ>
-      | * Message flags:      0x40 (only msg-hop-limit field is present)
       | * Address length:     <msg-addr-length>
       | * Hop limit:          <msg-hoplimit>
       |    ,-------------------
@@ -3448,32 +3447,6 @@ B.2.  RREP Message Format
 
    Figure 6 illustrates a packet format for an example RREP message.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 62]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
         0                   1                   2                   3
         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -3495,6 +3468,10 @@ Internet-Draft                   AODVv2                    December 2014
        Figure 6: Example IPv4 RREP, with TargSeqNum TLV and 1 Metric
 
 
+
+Perkins, et al.           Expires July 15, 2015                [Page 62]
+
+Internet-Draft                   AODVv2                     January 2015
 
 
    The fields in Figure 6 are to be interpreted as follows:
@@ -3523,13 +3500,6 @@ Internet-Draft                   AODVv2                    December 2014
    o  type=TargSeqNum (type of first AddrBlk TLV, value 2 octets)
    o  AddrTLV flags for the TargSeqNum TLV:
 
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 63]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
       *  bit 0 (thastypeext): 0
       *  bit 1 (thassingleindex): 1
       *  bit 2 (thasmultiindex): 0
@@ -3555,36 +3525,14 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+Perkins, et al.           Expires July 15, 2015                [Page 63]
+
+Internet-Draft                   AODVv2                     January 2015
 
 
 B.3.  RERR Message Format
 
    Figure 7 illustrates an example RERR message format.
-
-
-
-
-
-
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 64]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
         0                   1                   2                   3
         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -3630,17 +3578,17 @@ Internet-Draft                   AODVv2                    December 2014
       *  bit 4 (thasextlen): 0
       *  bit 5 (tismultivalue): 1
       *  bits 6-7: RESERVED
+
+
+
+Perkins, et al.           Expires July 15, 2015                [Page 64]
+
+Internet-Draft                   AODVv2                     January 2015
+
+
    o  tlv-length=4 (so there are two TLV values, [2 = 4/2])
    o  Dest_1 Sequence # (first of two TLV values for the SeqNum TLV)
    o  Dest_2 Sequence # (second of two TLV values for the SeqNum TLV)
-
-
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 65]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 B.4.  RREP_ACK Message Format
 
@@ -3686,17 +3634,16 @@ Appendix C.  Changes since revision ...-04.txt
       TargSeqNum.
    o  Made more extensive use of the AdvRte terminology, in order to
       better distinguish between the incoming RREQ or RREP message
+
+
+
+Perkins, et al.           Expires July 15, 2015                [Page 65]
+
+Internet-Draft                   AODVv2                     January 2015
+
+
       (i.e., RteMsg) versus the route advertised by the RteMsg (i.e.,
       AdvRte).
-
-
-
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 66]
-
-Internet-Draft                   AODVv2                    December 2014
-
 
 Appendix D.  Changes since revision ...-03.txt
 
@@ -3743,17 +3690,17 @@ Appendix E.  Changes since revision ...-02.txt
       using the SeqNum message TLV.
    o  Inclusion of the OrigNode's SeqNum in the RREP message is not
       specified.  The processing rules for the OrigNode's SeqNum were
+
+
+
+Perkins, et al.           Expires July 15, 2015                [Page 66]
+
+Internet-Draft                   AODVv2                     January 2015
+
+
       incompletely specified in previous versions of the draft, and very
       little benefit is foreseen for including that information, since
       reverse path forwarding is used for the RREP.
-
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 67]
-
-Internet-Draft                   AODVv2                    December 2014
-
-
    o  Additional acknowledgements were included, and contributors names
       were alphabetized.
    o  Definitions in the Terminology section capitalize the term to be
@@ -3794,6 +3741,19 @@ Appendix G.  Shifting Network Prefix Advertisement Between AODVv2
 
 Authors' Addresses
 
+
+
+
+
+
+
+
+
+Perkins, et al.           Expires July 15, 2015                [Page 67]
+
+Internet-Draft                   AODVv2                     January 2015
+
+
    Charles E. Perkins
    Futurewei Inc.
    2330 Central Expressway
@@ -3802,12 +3762,6 @@ Authors' Addresses
 
    Phone: +1-408-330-5305
    Email: charliep@computer.org
-
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 68]
-
-Internet-Draft                   AODVv2                    December 2014
 
 
    Stan Ratliff
@@ -3851,14 +3805,4 @@ Internet-Draft                   AODVv2                    December 2014
 
 
 
-
-
-
-
-
-
-
-
-
-
-Perkins, et al.           Expires June 28, 2015                [Page 69]
+Perkins, et al.           Expires July 15, 2015                [Page 68]

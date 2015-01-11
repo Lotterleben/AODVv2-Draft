@@ -3667,7 +3667,6 @@ authentication token.
     |  MESSAGE
     |-------------------
     | * Message type:       <RREQ>
-    | * Message flags:      0x40 (only msg-hop-limit field is present)
     | * Address length:     <msg-addr-length>
     | * Hop limit:          <msg-hoplimit>
     |    ,-------------------
