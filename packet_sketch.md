@@ -15,23 +15,19 @@ RREQ
 	|  PACKET
 	|------------------
 	| * Packet version:    0
-	| * Packet flags:      0x0
 	|    ,-------------------
 	|    |  MESSAGE
 	|    |-------------------
 	|    | * Message type:       10
-	|    | * Message flags:      0x40
 	|    | * Address length:     16
 	|    | * Hop limit:          18
 	|    |    ,-------------------
 	|    |    |  Address: fe80::ff:fe00:1fad
 	|    |    |    | - TLV
-	|    |    |    |     Flags = 0x50
 	|    |    |    |     Type = OrigSeqNum
 	|    |    |    |     Value length: 2
 	|    |    |    |       0000: 0100
 	|    |    |    | - TLV
-	|    |    |    |     Flags = 0xd0
 	|    |    |    |     Type = Metric; Type ext. = DEFAULT_METRIC_TYPE
 	|    |    |    |     Value length: 1
 	|    |    |    |       0000: 02
@@ -56,18 +52,15 @@ RREP
 	|  PACKET
 	|------------------
 	| * Packet version:    0
-	| * Packet flags:      0x0
 	|    ,-------------------
 	|    |  MESSAGE
 	|    |-------------------
 	|    | * Message type:       11
-	|    | * Message flags:      0x40
 	|    | * Address length:     16
 	|    | * Hop limit:          20
 	|    |    ,-------------------
 	|    |    |  Address: fe80::ff:fe00:1fad
 	|    |    |    | - TLV
-	|    |    |    |     Flags = 0x50
 	|    |    |    |     Type = OrigSeqNum
 	|    |    |    |     Value length: 2
 	|    |    |    |       0000: 0100
@@ -75,7 +68,6 @@ RREP
 	|    |    ,-------------------
 	|    |    |  Address: fe80::ff:fe00:1fa4
 	|    |    |    | - TLV
-	|    |    |    |     Flags = 0x50
 	|    |    |    |     Type = TargSeqNum
 	|    |    |    |     Value length: 2
 	|    |    |    |       0000: 0100
