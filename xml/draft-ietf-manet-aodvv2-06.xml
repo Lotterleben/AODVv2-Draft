@@ -938,7 +938,7 @@
             <t>
               The range and data type of each such alternate metric may be
               different. For instance, the data type might be integers, or
-              floating point numbers, or restricted subsets thereof. 
+              floating point numbers, or restricted subsets thereof.
               It is out of the scope of this document to specify for alternate
               metrics the Cost(L) and Cost(R) functions, or their return type.
             </t>
@@ -2249,19 +2249,28 @@
 
 <!-- Removed: issue #40  -->
     <section anchor="rrep_ack" title="RREP_ACK">
-
     <t>Instead of relying on existing mechanisms for requesting
       verification of link bidirectionality during Route
   Discovery, RREP_Ack is provided as an optional feature
   and modeled on the RREP_Ack message type from
   AODV <xref target="RFC3561"/>.</t>
 
-  <t>Since the RREP_ACK is simply echoed back to the node from
+  <t> A RREP_ACK message MUST be sent in reply to a ReqAck message, as
+      described in <xref target="blacklists"/>. A RREP_ACK is generated as follows:
+  </t>
+  <t>1.  Set the message type to RREP_ACK.</t>
+
+  <t>  Considerations of packet TTL are as specified
+  in <xref target="MsgXmit"/>.
+  Since the RREP_ACK is simply echoed back to the node from
   which the RREP was received, there is no need for other
-  data elements.
-  Considerations of packet TTL are as specified
-        in <xref target="MsgXmit"/>. An example message format
-  is illustrated in section <xref target="RREP_ACK-format"/>.</t>
+  data elements. An example message format
+  is illustrated in section <xref target="RREP_ACK-format"/>.
+</t>
+  <t>
+    Upon receipt of a RREP_ACK, a node notifies the mechanism which yielded the
+    RREP_ACK so that it can process the event as described in <xref target="blacklists"/>.
+  </t>
 
     </section>
 <!-- End removed section: issue #40  -->
@@ -3900,7 +3909,7 @@ authentication token.
   </t>
 
   <t>
-    Eliminated the instance of duplicate specification for inclusion of 
+    Eliminated the instance of duplicate specification for inclusion of
     OrigNode (now, OrigAddr) in the message.
   </t>
 
