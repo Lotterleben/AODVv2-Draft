@@ -676,7 +676,6 @@
 
       <section anchor="blacklists"
         title="Bidirectional Connectivity and Blacklists">
-
       <!-- [JPD] I believe that the following section should be mandatory and
       therefore the SHOULDs and MAYs should become MUST and WILL. Personally I
       feel that the 'any unicast packet' method should be changed for an explicit
@@ -691,11 +690,8 @@
       <t>To avoid repeated failure of Route Discovery, an AODVv2 router
    <!-- [CEP]: to discuss MUST versus MAY here... -->
         (HandlingRtr) handling a RREP message MUST attempt to verify
-        connectivity towards RREQ_Gen. This MAY be done by
-        including the Acknowledgement Request (AckReq) data element
-        in the RREP. In reply to an AckReq, an RREP_ACK message
-        message MUST be sent.
-        If the verification
+        connectivity towards RREQ_Gen. This MAY be done suing an AckReq/RREP_ACK
+        cycle, as described in <xref target="ackreq_rrep_ack"/>. If the verification
         is not received within UNICAST_MESSAGE_SENT_TIMEOUT,
         HandlingRtr MUST put the upstream neighbor in the
         blacklist.  RREQs received from a blacklisted router, or any
@@ -717,6 +713,7 @@
   </t>
 
       </section>
+
 
       <section anchor="clients" title="Router Clients and Client Networks">
 
@@ -1453,7 +1450,9 @@
     then no PrefixLengthList is included in the RREP.  Otherwise,
     PrefixLengthList := {null, Route[TargAddr].PrefixLength} </t>
         <t>MetricList :=  {null, Route[TargAddr].Metric}} </t>
-
+  <t>If AckReq is used to verify bidirectional connectivity, an AckReq Message
+    TLV as described in <xref target="msgtlvtypes"/> is added.
+  </t>
   </list> </t>
 
   <t> By default, the RREP message is unicast to OrigAddr.  An example message
@@ -1587,6 +1586,8 @@
     HandlingRtr is not RREQ_Gen then the outgoing RREP is sent to
     the Route.NextHopAddress for OrigAddr.
     </t>
+    <t>If the message contains an AckReq message TLV, a RREP_ACK message is
+      dispatched, as described in <xref target="rrep_ack_gen"/></t>
   <t>If HandlingRtr is RREQ_Gen then the RREP satisfies
     RREQ_Gen's earlier RREQ, and RREP processing is completed.
     Any packets buffered for OrigAddr should be transmitted.
@@ -1908,6 +1909,89 @@
     </list>
     </t>
   </section>
+
+
+    <!-- Removed: issue #40  -->
+
+  <section anchor="ackreq_rrep_ack" title="The AckReq/RREP_ACK cycle">
+    <t> /*
+        [Lotte] I think this is actually a horrible place to put this, but I
+        have no idea where else it should go unless we agree to a major
+        resturcturing of text. Any suggestions are very welcome.
+        */
+    </t>
+    <t>An AODVv2 router MAY verify bidirectional connectivity to its upstream neighbor
+      by adding an AckReq TLC to a RERR message. The upstream neighbor then MUST
+      respond with a RREP_ACK message. If this message is received within UNICAST_MESSAGE_SENT_TIMEOUT,
+      bidirectional connectivity is assumed. Otherwise, the upstream neighbor is
+      blacklisted as described in <xref target="blacklists"/>.
+    </t>
+
+    <section anchor="ackreq" title="AckReq">
+      <t> In order to initiate an AckReq/RREP_ACK cycle, a node must add an AckReq
+        TLV as described in <xref target="RREP_gen"/>.
+      </t>
+      <t>A node MAY store information about the target node, sequence number and current timestamp
+        of the RREQs which included an AckReq TLV in order to record the arrival
+        of a RREP_ACK within UNICAST_MESSAGE_SENT_TIMEOUT, and prevent the use of
+        false information.
+      </t>
+    </section>
+
+    <section anchor="rrep_ack" title="RREP_ACK">
+    <t> A RREP_ACK message MUST be sent in reply to a RREP containing an AckReq TLV, as
+        described in <xref target="blacklists"/>. In order to allow the recipient
+        to associate the RREP_ACK with the RREP which yielded this message and thus
+        prevent misinformation, a sequence number is included.
+    </t>
+
+    <t> Considerations of packet TTL are as specified
+        in <xref target="MsgXmit"/>. An example message format
+        is illustrated in section <xref target="RREP_ACK-format"/>.
+    </t>
+
+    <section anchor="rrep_ack_gen" title="RREP_ACK message generation">
+      <texttable anchor="rrep_ack-tbl" title="OrigSeqNum TLV definition">
+          <ttcol align="left">Type</ttcol>
+          <ttcol align="left">Value length</ttcol>
+          <ttcol align="left">Value</ttcol>
+          <c>OrigSeqNum</c>
+          <c>2 octets</c>
+          <c>Sequence number of the RREQ which yielded the RREP_ACK</c>
+      </texttable>
+
+    <t>The only data element of a RREP_ACK is the OrigSeqNum Message TLV.
+    The message is generated as follows.
+      <list style="numbers">
+        <t>Set the message type to RREP_ACK.</t>
+        <t>Set the value of the OrigSeqNum Message TLV to the sequence number of
+           the RREQ which yielded the RREP_ACK</t>
+      </list>
+    </t>
+    </section>
+
+    <section anchor="rrep_ack_handle" title="Handling a Received RREP_ACK message">
+    <t>
+<!--
+      Upon receipt of a RREP_ACK, a node notifies the mechanism which yielded the
+      RREP_ACK so that it can process the event as described in <xref target="blacklists"/>.
+      /* [Lotte] TODO: how do we describe the SeqNum being handled? */
+-->
+      A received RREP_ACK message is processed as follows.
+      <list style="numbers">
+        <t>If the message was not recieved within UNICAST_MESSAGE_SENT_TIMEOUT,
+          it is discarded.</t>
+        <t>If the Sequence Number of the original RREQ was stored and it is different
+          from the value of the OrigSeqNum Message TLV, the message is discarded.</t>
+        <t>Else, everything is fine?</t>
+      </list>
+    </t>
+
+    </section>
+  </section>
+</section>
+
+
 </section>
 
 <section anchor="represent"
@@ -2105,6 +2189,8 @@
         preference: RREQ, RREP, and finally RERR.</t>
       </section>
 
+
+
 <!-- ======================== Optional Features ======================== -->
 
     <section anchor="optional" title="Optional Features">
@@ -2247,32 +2333,6 @@
     setting the administrative parameter USE_MULTICAST_RREP.</t>
     </section>
 
-<!-- Removed: issue #40  -->
-    <section anchor="rrep_ack" title="RREP_ACK">
-    <t>Instead of relying on existing mechanisms for requesting
-      verification of link bidirectionality during Route
-  Discovery, RREP_Ack is provided as an optional feature
-  and modeled on the RREP_Ack message type from
-  AODV <xref target="RFC3561"/>.</t>
-
-  <t> A RREP_ACK message MUST be sent in reply to a ReqAck message, as
-      described in <xref target="blacklists"/>. A RREP_ACK is generated as follows:
-  </t>
-  <t>1.  Set the message type to RREP_ACK.</t>
-
-  <t>  Considerations of packet TTL are as specified
-  in <xref target="MsgXmit"/>.
-  Since the RREP_ACK is simply echoed back to the node from
-  which the RREP was received, there is no need for other
-  data elements. An example message format
-  is illustrated in section <xref target="RREP_ACK-format"/>.
-</t>
-  <t>
-    Upon receipt of a RREP_ACK, a node notifies the mechanism which yielded the
-    RREP_ACK so that it can process the event as described in <xref target="blacklists"/>.
-  </t>
-
-    </section>
 <!-- End removed section: issue #40  -->
 
     <section anchor="aggreg" title="Message Aggregation">
