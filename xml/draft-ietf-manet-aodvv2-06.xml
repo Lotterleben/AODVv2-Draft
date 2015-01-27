@@ -1932,7 +1932,7 @@
         TLV as described in <xref target="RREP_gen"/>.
       </t>
       <t>A node MAY store information about the target node, sequence number and current timestamp
-        of the RREQs which included an AckReq TLV in order to record the arrival
+        of the RREPs which included an AckReq TLV in order to record the arrival
         of a RREP_ACK within UNICAST_MESSAGE_SENT_TIMEOUT, and prevent the use of
         false information.
       </t>
@@ -1957,7 +1957,7 @@
           <ttcol align="left">Value</ttcol>
           <c>OrigSeqNum</c>
           <c>2 octets</c>
-          <c>Sequence number of the RREQ which yielded the RREP_ACK</c>
+          <c>Sequence number of the RREP which yielded the RREP_ACK</c>
       </texttable>
 
     <t>The only data element of a RREP_ACK is the OrigSeqNum Message TLV.
@@ -1965,7 +1965,7 @@
       <list style="numbers">
         <t>Set the message type to RREP_ACK.</t>
         <t>Set the value of the OrigSeqNum Message TLV to the sequence number of
-           the RREQ which yielded the RREP_ACK</t>
+           the RREP which yielded the RREP_ACK</t>
       </list>
     </t>
     </section>
@@ -1981,7 +1981,7 @@
       <list style="numbers">
         <t>If the message was not recieved within UNICAST_MESSAGE_SENT_TIMEOUT,
           it is discarded.</t>
-        <t>If the Sequence Number of the original RREQ was stored and it is different
+        <t>If the Sequence Number of the original RREP was stored and it is different
           from the value of the OrigSeqNum Message TLV, the message is discarded.</t>
         <t>Else, everything is fine?</t>
       </list>
