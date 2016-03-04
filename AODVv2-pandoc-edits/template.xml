@@ -1,0 +1,197 @@
+<?xml version='1.0' ?>
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd' [
+<!ENTITY pandocAbstract PUBLIC '' 'abstract.xml'>
+<!ENTITY pandocMiddle   PUBLIC '' 'AODVv2.xml'>
+<!ENTITY pandocBack     PUBLIC '' 'appendices.xml'>
+]>
+
+<?rfc toc="yes"?>
+<?rfc tocompact="yes"?>
+<?rfc tocdepth="3"?>
+<?rfc tocindent="yes"?>
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space
+     (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc comments="yes"?>
+<?rfc inline="yes"?>
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<rfc category="std" docName="draft-ietf-manet-aodvv2-14" ipr="trust200902">
+  <front>
+    <title abbrev="AODVv2">Ad Hoc On-demand Distance Vector Version 2 (AODVv2) Routing</title>
+
+    <author fullname="Charles E. Perkins" initials="C.E." surname="Perkins">
+      <organization abbrev="Futurewei">Futurewei Inc. </organization>
+      <address>
+        <postal>
+          <street>2330 Central Expressway</street>
+          <city>Santa Clara</city>
+          <code>95050</code>
+          <region>CA</region>
+          <country>USA</country>
+        </postal>
+        <phone>+1-408-330-4586</phone>
+        <email>charliep@computer.org</email>
+      </address>
+    </author>
+    <author fullname="Stan Ratliff" initials="S." surname="Ratliff">
+      <organization>Idirect</organization>
+      <address>
+        <postal>
+          <street>13861 Sunrise Valley Drive, Suite 300</street>
+          <city>Herndon</city>
+          <region>VA</region>
+          <code>20171</code>
+          <country>USA</country>
+        </postal>
+        <email>ratliffstan@gmail.com</email>
+      </address>
+    </author>
+    <author fullname="John Dowdell" initials="J." surname="Dowdell">
+      <organization>Airbus Defence and Space</organization>
+      <address>
+        <postal>
+          <street>Celtic Springs</street>
+          <city>Newport</city>
+          <region>Wales</region>
+          <code>NP10 8FZ</code>
+          <country>United Kingdom</country>
+        </postal>
+        <email>john.dowdell@airbus.com</email>
+      </address>
+    </author>
+    <author fullname="Lotte Steenbrink" initials="L." surname="Steenbrink">
+      <organization>HAW Hamburg, Dept. Informatik</organization>
+      <address>
+        <postal>
+          <street>Berliner Tor 7</street>
+          <city>D-20099 Hamburg</city>
+          <!-- <code>D-20099</code>  -->
+          <country>Germany</country>
+        </postal>
+        <email>lotte.steenbrink@haw-hamburg.de</email>
+      </address>
+    </author>
+    <author fullname="Victoria Mercieca" initials="V." surname="Mercieca">
+      <organization>Airbus Defence and Space</organization>
+      <address>
+        <postal>
+          <street>Celtic Springs</street>
+          <city>Newport</city>
+          <region>Wales</region>
+          <code>NP10 8FZ</code>
+          <country>United Kingdom</country>
+        </postal>
+        <email>victoria.mercieca@airbus.com</email>
+      </address>
+    </author>
+
+    <date/>
+
+    <area>Routing</area>
+    <workgroup>Mobile Ad hoc Networks Working Group</workgroup>
+
+    <keyword>RFC</keyword>
+    <keyword>Request for Comments</keyword>
+    <keyword>I-D</keyword>
+    <keyword>Internet-Draft</keyword>
+    <keyword>XML</keyword>
+    <keyword>reactive protocol</keyword>
+	<abstract>
+    &pandocAbstract;
+	</abstract>
+	</front>
+	<middle>
+	&pandocMiddle;
+	</middle>
+	<back>
+		<references title="Normative References">
+	      <?rfc include="reference.RFC.2119" ?>
+	      <?rfc include="reference.RFC.3561" ?>
+	      <?rfc include="reference.RFC.4291" ?>
+	      <?rfc include="reference.RFC.5082" ?>
+	      <?rfc include="reference.RFC.5444" ?>
+	      <?rfc include="reference.RFC.5497" ?>
+	      <?rfc include="reference.RFC.5498" ?>
+	      <?rfc include="reference.RFC.6551" ?>
+	      <?rfc include="reference.RFC.7182" ?>
+	    </references>
+	    <references title="Informative References">
+	      <?rfc include="reference.RFC.2501" ?>
+	      <?rfc include="reference.RFC.4193" ?>
+	      <?rfc include="reference.RFC.4728" ?>
+	      <?rfc include="reference.RFC.4861" ?>
+	      <?rfc include="reference.RFC.5148" ?>
+	      <?rfc include="reference.RFC.6130" ?>
+<!--	      <?rfc include="reference.RFC.6621" ?> -->
+	      <?rfc include="reference.I-D.perkins-irrep" ?>
+	
+	      <reference anchor="Perkins94">
+	        <front>
+	          <title>Highly Dynamic Destination-Sequenced Distance-Vector Routing (DSDV) for Mobile Computers</title>
+		          <author fullname="Charles E. Perkins" initials="C." surname="Perkins">
+	            <organization>
+	            IBM, TJ Watson Research Center
+	            </organization>
+	          </author>
+	          <author fullname="Pravin Bhagwat" initials="P." surname="Bhagwat">
+	            <organization>
+	            Computer Science Department, University of Maryland
+	            </organization>
+	          </author>
+	          <date month="August" year="1994"/>
+	        </front>
+	        <seriesInfo name="Proceedings" value="of the ACM SIGCOMM '94 Conference on Communications Architectures, Protocols and Applications, London, UK, pp. 234-244"/>
+	      </reference>
+	
+	      <reference anchor="Perkins99">
+	        <front>
+	          <title>Ad hoc On-Demand Distance Vector (AODV) Routing</title>
+	          <author fullname="Charles E. Perkins" initials="C." surname="Perkins">
+	            <organization/>
+	          </author>
+	          <author fullname="Elizabeth M. Royer" initials="E." surname="Royer">
+	            <organization>University of California</organization>
+	          </author>
+	          <date month="February" year="1999"/>
+	        </front>
+		        <seriesInfo name="Proceedings" value="of the 2nd IEEE Workshop on Mobile Computing Systems and Applications, New Orleans, LA, pp. 90-100"/>
+	      </reference>
+	      <reference anchor="Sholander02">
+	        <front>
+	          <title>A Portable Software Implementation of a Hybrid MANET Routing Protocol</title>
+<author fullname="P. Sholander" initials="P." surname="Sholander"></author>		          
+<author fullname="P. Coccoli" initials="P." surname="Coccoli"></author>
+<author fullname="T. Oakes" initials="T." surname="Oakes"></author>
+<author fullname="S. Swank" initials="S." surname="Swank"></author>
+	          
+	          <date year="2002"/>
+	        </front>
+	      </reference>
+
+		<reference anchor="Koodli01">
+	        <front>
+	          <title>Fast handovers and context transfers in mobile networks</title>
+	          <author fullname="Rajeev Koodli" initials="R." surname="Koodli">
+	           </author>
+	          <author fullname="Charles E. Perkins" initials="C." surname="Perkins">
+	          </author>
+	          <date month="October" year="2001"/>
+	        </front>
+	              <seriesInfo name="Proceedings" value="of the ACM SIGCOMM Computer Communication Review 2001, Volume 31 Issue 5, 37-47"/>
+	      </reference>	
+		<!--
+		    <?rfc include="reference.I-D.chakeres-manet-manetid" ?>
+		    <?rfc include="reference.I-D.clausen-lln-loadng" ?>
+		  -->
+	    </references>
+    	&pandocBack;
+	</back>
+</rfc>

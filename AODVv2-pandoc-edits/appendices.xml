@@ -1,0 +1,37 @@
+<!-- This document was prepared using Pandoc2rfc, https://github.com/miekg/pandoc2rfc -->
+
+  
+<section title="AODVv2 Draft Updates" anchor="aodvv2-draft-updates">
+  
+  <t>
+    This section lists the changes between AODVv2 revisions ...-13.txt
+    and ...-14.txt.
+  </t>
+  <t><list style="symbols">
+    <t>
+      
+        Moved Address Type TLV Value definitions to IANA section.
+      
+    </t>
+    <t>
+      
+        Removed use of MAX_HOPCOUNT and <xref target="RFC5444"/>
+        msg-hop-limit, msg-hop-count.
+      
+    </t>
+    <t>
+      
+        Allow only one Unconfirmed route.
+      
+    </t>
+    <t>
+      
+        Incorporate changes from Justin Dean's review.
+      
+    </t>
+  </list></t>
+  
+
+  
+</section>
+

@@ -1,0 +1,334 @@
+ 
+
+# AODVv2 Draft Updates
+
+This section lists the changes between AODVv2 revisions ...-13.txt and ...-14.txt.
+
+* Moved Address Type TLV Value definitions to IANA section.
+* Removed use of MAX_HOPCOUNT and [](#RFC5444) msg-hop-limit, msg-hop-count.
+* Allow only one Unconfirmed route.
+* Incorporate changes from Justin Dean's review.
+
+<!--
+This section lists the changes between AODVv2 revisions ...-12.txt
+and ...-13.txt.
+
+* Updated uses of host and node.
+* Removed use of Data Element.
+* Added explanation of self-healing issue of hop-by-hop acknowledgements.
+* Moved appendix on relocation of routing prefix to a different router into the main draft.
+* Added notes on forwarding plane to the Overview and added to text in the Applicability Statement.
+* Separated AODVv2's Local Route Set from the Routing Information Base.
+* Updated Adjacency Monitoring to Next Hop Monitoring.
+* Added extra description in Multicast Route Message Table section.
+* Added extra notes on possible implementations of Local Route Set.
+* Added short description of reactive routing protocols to Applicability Statement.
+* Added extra note in Applicability Statement about multiple IP addresses per router interface.
+* Used clear references to Neighbor.State and LocalRoute.State.
+* Added reference for text aboute buffering TCP packets.
+* Updated text about Route.State to be clear which routes may be copied to a Routing Information Base.
+* Added explanation of when a route discovery might not be attempted and action taken instead.
+* Added text to explain that routes to prefixes are learned when prefix lengths are included in AODVv2 messages.
+* Changed rule for adding new route if current routes to the same address have Route.State set to Unconfirmed.
+* Changed text about reporting broken routes to use MUST instead of SHOULD.
+* Updated message processing algorithms to refer to Neighbor Table updates.
+* Added extra explanation for use of AckReq in RREP message.
+* Added extra explanation for RREP_Ack handling.
+* Removed references to MTU in RERR section and updated processing rules.
+* Removed reference to RFC 6621.
+* Removed appendix about multi-homing.
+* Removed appendix containing pseudo-code.
+* Minor editorial improvements.
+-->
+
+<!--
+## Changes between revisions 11 and 12
+ This section lists the changes between AODVv2 revisions ...-11.txt
+and ...-12.txt.
+
+* Avoided use of "node" and "subnet" where possible.
+* Improved separation of data structure information from protocol operation.
+* Updated uses of the terms "IP address" and "packet" to be clearer.
+* More consistent and accurate use of MUST, SHOULD, SHOULD NOT, and MAY, and added explanations of consequences of not implementing SHOULDs.
+* Used consistent references to [](#RFC5444).
+* Updated title to include "Version 2".
+* Updated Overview to state differences from AODV, text about loop freedom and RFC 7182 in Overview.
+* Updated Terminology and removed the Data Element table. Gave clearer definition of Router Client and Unreachable Address. 
+* Updated Applicability Statement to draw attention to requirements of the forwarding plane, handling of uni-directional
+  links, usage of IP addresses on multiple interfaces, and description of gateway functionality.  Added note about penalty for not storing persistent state. 
+* Updated Router Client section and added cost to Router Client entry.
+* Clarified that Neighbor Table needs only information on neighboring routers on discovered routes. 
+* Updated Sequence Number section. Use only one sequence number per router. Added description of sequence number comparison.
+* Updated descriptions of route states.
+* Improved clarity of Metrics section, generic metric instead of hopcount, removed default metric type, added explanation of LoopFree.
+* Improved Initialization section.
+* Major update to Adjacency Monitoring section. Made it clear that if bidirectional connectivity is already confirmed, requesting 
+  acknowledgement is unnecessary. Separated Neighbor Table Updates into separate section.
+* Updated description of message prioritization near the control message generation limit. 
+* Updated wording regarding [](#RFC6621).
+* Added description of backoff used for message retries.
+* Improved description of how unidirectional links are handled.
+* Improved text regarding creation of Unconfirmed route entries.
+* Improved section on determining redundancy of received multicast messages.
+* Added section on interactions with the forwarding plane.
+* Improved Route State section. Clarified action when Active route expires. Separated information on expunging routes on memory constrained routers.
+* Updated RERR description to be clearer about triggers.
+* Updated IANA section to include only newly defined Messages and TLVs, and define an Unspecified value for AddressType.
+* Updated references.
+* Updated section on Gateway behaviour.
+* Updated Appendix D to include more checks on msg_hop_limit and msg_hop_count.
+* Renamed MAX_TIME to INFINITY_TIME to make meaning clearer.
+
+
+
+## Changes between revisions 10 and 11
+ This section lists the changes between AODVv2 revisions ...-10.txt
+and ...-11.txt.
+
+* Updated Simple Internet Attachment section to clarify behaviour of IAR for incoming RREQ messages.
+
+
+## Changes between revisions 9 and 10
+ This section lists the changes between AODVv2 revisions ...-09.txt
+and ...-10.txt.
+
+* Updated [](#RFC5444) Representation section to add "Address Type" TLV, which explicitly declares 
+  the meaning of addresses in the [](#RFC5444) Address Block.
+* Relocated route state definitions. Minor improvements to clarity throughout.
+* Updated definition of timed routes.
+* More consistent use of OrigPrefixLen, TargPrefixLen, and Invalid.
+* Mandated use of neighbor adjacency checking and support of AckReq and RREP_Ack and clarified related text.
+* Changed order of LoopFree checking and route cost comparisons in Evaluating Route Information.
+* Updated structure of section on Applying Route Updates.
+* Updated AckReq to include intended next hop address, and RREP to be multicast if intended next hop is not a 
+  confirmed neighbor.
+* Clarified that gateway router is not default router.  
+
+## Changes between revisions 8 and 9
+ This section lists the changes between AODVv2 revisions ...-08.txt
+and ...-09.txt.
+
+* Numerous editorial improvements were made, including relocation/removal/renaming/adding of some 
+  sections and text, collection and tidying of scattered text on same topic, formatting made more 
+  consistent to improve readability.
+* Removed mentions of precursors from main text, except one mention in Route Table Entry.
+* Removed use of MIN_METRIC which was not defined.
+* Changed Current_Time to CurrentTime for consistency.
+* Changed OrigAddrMetric and TargAddrMetric to OrigMetric and TargMetric respectively.
+* Updated Overview to simplify and provide a broader summary.
+* Updated Terminology definitions, Data Elements tables and combined sections.
+* Updated Applicability Statement to move some of the non-applicability text and to simplify 
+  what remains.
+* Updated TLV names to conform to existing naming style.
+* Updated Blacklist to be a NeighborList to include neighbors that have confirmed bidirectional 
+  connectivity.
+* Updated messages processed if router on blacklist and which are indicators of bidirectional links.
+* Added RemoveTime to RteMsg Table section.
+* Added short description of timed route to Route Table Entry section but removed Route.Timed 
+  flag. Route is timed if its expiration time is not MAX_TIME.
+* Added Unconfirmed route state for route to OrigAddr learned from RREQ.
+* Updated AODVv2 Protocol Operations section and subsections, including Initialization, Adjacency 
+  Monitoring, making algorithms easier to read and making notation consistent, general improvements 
+  to the text.
+* Updated Route Discovery, Retries and Buffering to include a more complete description of the route 
+  discovery process.
+* Updated wording relating to different metric types.
+* Added text regarding control message limit in Message Transmission section.
+* Added short explanation of positive/negative effects of buffering.
+* Simplified the packet diagrams, since some of their contents was already explained in the 
+  text below and then again as part of generation, reception and regeneration processes.
+* Clarified some elements of the message content descriptions.
+* Moved MetricType above MetricList in message sections, for consistency.
+* Mirrored structure throughout AODVv2 Protocol Messages.
+* Changed RREQ and RREP's use of Lists when only one entry is necessary.
+* Added some pre-message-generation checks.
+* Ensured consistency in regeneration (if msg-hop-limit is reduced to zero, do not regenerate).
+* Removed statements about neighbors but added blacklist checks where necessary.
+* Noted that RREQ retries SHOULD increase the SeqNum.
+* Added statement that implementations SHOULD retry sending RREP.
+* Added text explaining what happens if RREP is lost, regarding blacklisting and RREQ retries.
+* Removed hop limit from RREP_Ack. Changed order of blacklist check.
+* Updated RERR so that multiple metric types can be reported in the same message. 
+* Updated RERR reception processing to ensure PktSource deletes the contained route.
+* Added text to show that if a router is the destination of a RERR, the RERR is not regenerated.
+* Added text that RERRs SHOULD NOT be created if the same RERR has recently been sent.
+* Updated [](#RFC5444) overview and simplified/rearranged text in this section.
+* Major update to [](#RFC5444) representation section
+* Updated RERR's [](#RFC5444) representation so that PktSource is placed in Address Block, and updated 
+  IANA section to make PktSource an Address Block TLV to indicate which address is PktSource.
+* Described use of extension type in Metric TLV to represent MetricType, and the interpretation 
+  when using the default metric type.
+* Removed Multicast RREP as an optional feature.
+* Updated Precursor Lists section to include options for precursor information to store.
+* Updated Security Considerations.
+ 
+
+## Changes between revisions 7 and 8
+ This section lists the changes between AODVv2 revisions ...-07.txt
+and ...-08.txt.
+
+* MetricType is now an Address Block TLV. Minor changes to the text. By using an extension 
+type in the Metric TLV we can represent MetricType more elegantly in the [](#RFC5444) message. 
+* Updated Overview to be slightly more concise.
+* Moved MetricType next to Metric when mentioned for better flow.
+* Added text to Applicability to address comments on mailing list regarding gateway
+behavior and NHDP HELLO messages.
+* Removed paragraph in AODVv2 Message Transmission section regarding TTL.
+* Added reference where precursors are mentioned in route table entry.
+* Added text to bidirectionality explanation regarding NHDP HELLO messages and lower
+layer triggers.
+* Clarified blacklist removal with SHOULD rather than MAY.
+* Removed pseudo-code from section on evaluating incoming routing information.
+* Clarified rules for expunging route entries on memory-constrained devices.
+* Clarified the use of exponential backoff for route discovery attempts.
+* Small updates to message sections. Removed steps about checking if neighbors.
+* Renamed [](#RFC5444) parser to multiplexer in Section 10.
+* Removed "optional feature" to include multiple addresses in RERR.
+* Removed MetricType from the Message TLV Type Specification.
+* Updated Security Considerations.
+* Added reference to RFC 7182.
+* Small updates to message algorithms, including moving MetricType from Message TLV 
+to the Metric TLV in the Address Block TLV Block, and only generating RERR if an Active 
+route was made Invalid.
+
+
+
+## Changes between revisions 6 and 7
+This section lists the changes since AODVv2 revision ...-06.txt
+
+* Added Victoria Mercieca as co-author.
+* Reorganized protocol message descriptions into major subsections for each protocol 
+message.  For protocol messages, organized processing into Generation, Reception, and
+Regeneration subsections.
+* Separated RREQ and RREP message processing description into separate major
+subsection which had previously been combined into RteMsg description.
+* Enlarged RREQ Table function to include similar processing for optional flooded RREP 
+messages.  The table name has been correspondingly been changed to be the Table for 
+Multicast RteMsgs.
+* Moved sections for Multiple Interfaces and AODVv2 Control Message Generation Limits to 
+be major subsections of the AODVv2 Protocol Operations section.
+* Reorganized the protocol message processing steps into the subsections
+as previously described, adopting a more step-by-step presentation.
+* Coalesced the router states Broken and Expired into a new combined state
+named the Invalid state.  No changes in processing are required for this.
+* Merged the sections describing Next-hop Router Adjacency Monitoring and Blacklists.
+* Specified that routes created during Route Discovery are marked as Idle routes.  If they 
+are used for carrying data they become Active routes.
+* Added Route.LastSeqNumUpdate information to route table, so that route activity and 
+sequence number validity can be tracked separately. An active route can still forward 
+traffic even if the sequence number has not been refreshed within MAX_SEQNUM_LIFETIME.
+* Mandated implementation of RREP_Ack as response to AckReq Message TLV in RREP messages.  
+Added field to RREP_Ack to ensure correspondence to the correct AckReq message.
+* Added explanations for what happens if protocol constants are given different values on 
+different AODVv2 routers.
+* Specified that AODVv2 implementations are free to choose their own
+heuristics for reducing multicast overhead, including RFC 6621.
+* Added appendix to identify AODVv2 requirements from OS implementation of IP and ICMP.
+* Deleted appendix showing example [](#RFC5444) packet formats.
+* Clarification on the use of RFC 5497 VALIDITY_TIME.
+* In Terminology, deleted superfluous definitions, added missing definitions.
+* Numerous editorial improvements and clarifications.
+
+## Changes between revisions 5 and 6
+This section lists the changes between AODVv2 revisions ...-05.txt
+and ...-06.txt.
+
+* Added Lotte Steenbrink as co-author.
+* Reorganized section on Metrics to improve readability by putting specific topics into 
+subsections.
+* Introduced concept of data element, which is used to clarify the method of enabling [](#RFC5444) 
+representation for AODVv2 data elements.  A list of Data Elements was introduced in 
+section 3, which provides a better understanding of their role than was previously supplied 
+by the table of notational devices.
+* Replaced instances of OrigNode by OrigAddr whenever the more specific meaning is appropriate.
+Similarly for instances of other node versus address terminology.
+* Introduced concepts of PrefixLengthList and MetricList in order to avoid use of index-based 
+terminology such as OrigNdx and TargNdx.
+* Added section 5, "AODVv2 Message Transmission", describing the intended interface to [](#RFC5444).
+* Included within the main body of the specification the mandatory setting of the TLV flag 
+thassingleindex for TLVs OrigSeqNum and TargSeqNum.
+* Removed the Route.Timed state.  Created a new flag for route table entries known as 
+Route.Timed.  This flag can be set when the route is in the active state.  Previous description 
+would require that the route table entry be in two states at the same time, which seems to be 
+misleading.  The new flag is used to clarify other specification details for Timed routes.
+* Created table 3 to show the correspondence between AODVv2 data elements and [](#RFC5444) message 
+components.
+* Replaced "invalid" terminology by the more specific terms "broken" or "expired" where 
+appropriate.
+* Eliminated the instance of duplicate specification for inclusion of OrigNode (now, 
+OrigAddr) in the message.
+* Corrected the terminology to be Mid instead of Tail for the trailing address bits of 
+OrigAddr and TargAddr for the example message formats in the appendices.
+* Repaired remaining instances of phraseology that could be construed as indicating that 
+AODV only supports a single network interface.
+* Numerous editorial improvements and clarifications.
+
+
+## Changes between revisions 4 and 5
+This section lists the changes between AODVv2 revisions ...-04.txt
+and ...-05.txt.
+
+* Normative text moved out of definitions into the relevant section of the body of the 
+specification.
+* Editorial improvements and improvements to consistent terminology were made.  Replaced 
+"retransmit" by the slightly more accurate term "regenerate".
+* Issues were resolved as discussed on the mailing list.
+* Changed definition of LoopFree as suggested by Kedar Namjoshi and Richard Trefler to avoid 
+the failure condition that they have described. In order to make understanding easier, 
+replaced abstract parameters R1 by RteMsg and R2 by Route to reduce the level of abstraction 
+when the function LoopFree is discussed.
+* Added text to clarify that different metrics may have different data types and different 
+ranges of acceptable values.
+* Added text to section "RteMsg Structure" to emphasize the proper use of [](#RFC5444).
+* Included within the main body of the specification the mandatory setting of the TLV flag 
+thassingleindex for TLVs OrigSeqNum and TargSeqNum.
+* Made more extensive use of the AdvRte terminology, in order to better distinguish 
+between the incoming RREQ or RREP message (i.e., RteMsg) versus the route advertised by 
+the RteMsg (i.e., AdvRte).
+
+
+## Changes between revisions 3 and 4
+This section lists the changes between AODVv2 revisions ...-03.txt
+and ...-04.txt.
+
+* An appendix was added to exhibit algorithmic code for implementation of AODVv2 functions.
+* Numerous editorial improvements and improvements to consistent terminology were made. 
+Terminology related to prefix lengths was made consistent.  Some items listed in 
+"Notational Conventions" were no longer used, and so deleted.
+* Issues were resolved as discussed on the mailing list.
+* Appropriate instances of "may" were changed to "MAY".
+* Definition inserted for "upstream".
+* Route.Precursors included as an \*optional\* route table field
+* Reworded text to avoid use of "relevant".
+* Deleted references to "DestOnly" flag.
+* Refined statements about MetricType TLV to allow for omission when MetricType == HopCount.
+* Bulletized list in section 8.1
+* ENABLE_IDLE_UNREACHABLE renamed to be ENABLE_IDLE_IN_RERR
+* Transmission and subscription to LL-MANET-Routers converted to MUST from SHOULD.
+
+
+## Changes between revisions 2 and 3
+ This section lists the changes between AODVv2 revisions ...-02.txt
+and ...-03.txt.
+
+* The "Added Node" feature was removed.  This feature was intended to enable additional 
+routing information to be carried within a RREQ or a RREP message, thus increasing the
+amount of topological information available to nodes along a routing path.  However, 
+enlarging the packet size to include information which might never be used can increase 
+congestion of the wireless medium.  The feature can be included as an optional feature 
+at a later date when better algorithms are understood for determining when the inclusion 
+of additional routing information might be worthwhile.
+* Numerous editorial improvements and improvements to consistent terminology were made. 
+Instances of OrigNodeNdx and TargNodeNdx were replaced by OrigNdx and TargNdx, to be 
+consistent with the terminology shown in [](#conventions).
+* Example RREQ and RREP message formats shown in the Appendices were changed to use 
+OrigSeqNum and TargSeqNum message TLVs instead of using the SeqNum message TLV.
+* Inclusion of the OrigNode's SeqNum in the RREP message is not specified.  The processing 
+rules for the OrigNode's SeqNum were incompletely specified in previous versions of the 
+draft, and very little benefit is foreseen for including that information, since reverse 
+path forwarding is used for the RREP.
+* Additional acknowledgements were included, and contributors names were alphabetized.
+* Definitions in the Terminology section capitalize the term to be defined.
+* Uncited bibliographic entries deleted.
+* Ancient "Changes" sections were deleted.
+-->

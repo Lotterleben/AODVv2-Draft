@@ -1,0 +1,10 @@
+The Ad Hoc On-demand Distance Vector Version 2 (AODVv2) routing
+protocol is intended for use by mobile routers in wireless, multihop
+networks. AODVv2 determines unicast routes among AODVv2 routers
+within the network in an on-demand fashion. 
+<!-- It offers quick adaptation to dynamic link conditions, low processing 
+and memory overhead, low network utilization, and determines unicast routes 
+to destinations within the ad hoc network. 
+
+offering rapid convergence in dynamic topologies
+--> 

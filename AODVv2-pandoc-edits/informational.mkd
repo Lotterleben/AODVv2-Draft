@@ -1,0 +1,1338 @@
+# Multi-homing Considerations  {#multihome}
+Multi-homing is not supported by the AODVv2 specification. A Router Client, i.e., an IP Address, can only 
+be served by one AODVv2 router at any time. The coordination between multiple AODVv2 routers to distribute 
+routing information correctly for a shared address is not defined.
+ 
+However, previous work indicates that multi-homing can be supported by expanding the sequence number to include 
+the AODVv2 router's IP address as a parsable field of the SeqNum.  Without this, comparing sequence 
+numbers would not work to evaluate freshness.  Even when the IP address is included, there 
+is no good way to compare sequence numbers from different IP addresses, but a 
+handling node can determine whether the two given sequence numbers are comparable.  If the
+route table can store multiple routes for the same destination, then multi-homing can work 
+with sequence numbers augmented by IP addresses.
+
+This non-normative information is provided simply to document the results of previous efforts 
+to enable multi-homing. The intention is to simplify the task of future specification if
+multihoming becomes necessary for reactive protocol operation.
+
+# Example Algorithms for AODVv2 Operations  {#algorithms}
+
+The following subsections show example algorithms for protocol operations 
+required by AODVv2. AODVv2 requires general algorithms for manipulating and 
+comparing table entries, and algorithms specific to each message type, and 
+sometimes values and algorithms specific to each metric type.
+
+The following table indicates the field names used in subsequent sections and their meaning.
+
+Parameter                           Description	
+---------                           -----------
+RteMsg								A route message (inRREQ/outRREQ/inRREP/outRREP)
+RteMsg.HopLimit                		Hop limit for the message
+RteMsg.HopCount 					Hop count for the message
+RteMsg.AckReq                       True/False, optional in RREP 
+RteMsg.MetricType                   The type of metric included, optional
+RteMsg.OrigAddr 					Address of source of queued data
+RteMsg.TargAddr 					Address route is requested for
+RteMsg.OrigPrefixLen                Prefix length of OrigAddr, optional 
+RteMsg.TargPrefixLen                Prefix length of TargAddr, optional 
+RteMsg.OrigSeqNum                   SeqNum of OrigAddr, in RREQ only 
+RteMsg.TargSeqNum                   SeqNum of TargAddr, in RREP, optional in RREQ 
+RteMsg.OrigMetric                   Metric to OrigAddr, in RREQ only 
+RteMsg.TargMetric                   Metric to TargAddr, in RREP only 
+RteMsg.ValidityTime 				Time limit for route advertised
+RteMsg.NbrIP                        Sender of the RteMsg 
+RteMsg.Netif                        Interface on which the RteMsg arrived
+AdvRte								Derived from a RteMsg (see [](#processingrte))  
+AdvRte.Address 						Route destination address
+AdvRte.PrefixLength 				Route destination prefix length
+AdvRte.SeqNum						SeqNum associated with route
+AdvRte.MetricType					MetricType associated with route
+AdvRte.Metric 						Advertised metric of route
+AdvRte.Cost							Cost from receiving router
+AdvRte.ValidityTime 				Time limit for route advertised
+AdvRte.NextHopIP 					Sender of the RteMsg
+AdvRte.NextHopIntf 					Interface on which the RteMsg arrived 
+AdvRte.HopCount 					Number of hops traversed
+AdvRte.HopLimit						Allowed number of hops remaining
+Route								A Local Route Set entry (see [](#rte))
+Route.Address 						Route destination address
+Route.PrefixLength 					Route destination prefix length
+Route.SeqNum 						SeqNum associated with route
+Route.NextHop 						Address of router which advertised the route
+Route.NextHopInterface 				Interface on which next hop is reachable
+Route.LastUsed 						Time this route was last used for packet forwarding
+Route.LastSeqNumUpdate 				Time the SeqNum of the route was last updated
+Route.ExpirationTime 				Time at which the route will expire
+Route.MetricType 					MetricType associated with route
+Route.Metric 						Cost from receiving router
+Route.State 						Active/Idle/Invalid/Unconfirmed
+Route.Precursors 					Optional (see [](#precursor))
+RERR								Route Error message (inRERR/outRERR)
+RERR.HopLimit 						Hop limit for the message 
+RERR.PktSource 						Source address of packet which triggered RERR 
+RERR.AddressList[]					List of unreachable route addresses
+RERR.PrefixLengthList[]				List of PrefixLengths for AddressList
+RERR.SeqNumList[] 					List of SeqNums for AddressList
+RERR.MetricTypeList[]				MetricType for the invalid routes
+RERR.Netif 							Interface on which the RERR arrived 
+
+^[rteproperties::Notation used in Appendix]
+
+## HopCount MetricType
+
+The HopCount MetricType defines:
+
+* MAX_METRIC[HopCount] := MAX_HOPCOUNT. A constant defined in [](#constants). MAX_HOPCOUNT is also 
+  used to limit the number of hops an AODVv2 message can travel, regardless of the MetricType in use. 
+  It MUST be larger than the AODVv2 network diameter, in order that AODVv2 protocol messages may reach 
+  their intended destinations.
+* Cost(L) := 1
+* Cost(R) := Sum of Cost(L) of each link in the route, i.e., the hop count between the router calculating 
+  the cost, and the destination of the route (OrigAddr if RREQ, TargAddr if RREP)
+* LoopFree(R1, R2) := ( Cost(R1) \<= Cost(R2) ). This is derived from the fact that route cost increases 
+  with number of hops. Therefore, an advertised route with higher cost than the corresponding existing 
+  route could include the existing route as a sub-section. Replacing the existing route with the advertised 
+  route could form a routing loop. 
+
+## General Operations  {#sub-algorithms}
+
+General AODVv2 operations involve the comparisons of incoming and current data, 
+and updates to local data sets.  
+
+### Route Operations
+#### Check_Route_State {#check_route_state}
+
+~~~~~~
+	/*	Update the state of the Local Route Set entry based on timeouts. Return 
+		whether the route can be used for forwarding a packet. */
+
+	Check_Route_State(route)
+	{
+		if (CurrentTime > route.ExpirationTime)
+			route.State := Invalid;
+		if ((CurrentTime - route.LastUsed > ACTIVE_INTERVAL + MAX_IDLETIME)
+		    AND (route.State != Unconfirmed) 
+			AND (route.ExpirationTime == INFINITY_TIME)) //not a timed route
+			route.State := Invalid;
+		if ((CurrentTime - route.LastUsed > ACTIVE_INTERVAL) 
+			AND (route.State != Unconfirmed) 
+			AND (route.ExpirationTime == INFINITY_TIME)) //not a timed route
+			route.State := Idle;
+		if ((CurrentTime - route.LastSeqNumUpdate > MAX_SEQNUM_LIFETIME) 
+			AND (route.State == Invalid OR route.State == Unconfirmed))
+			/* remove route from route table */
+		if ((CurrentTime - route.LastSeqNumUpdate > MAX_SEQNUM_LIFETIME) 
+			AND (route.State != Invalid)
+			route.SeqNum := 0;
+
+		if (route still exists AND route.State != Invalid 
+		    AND Route.State != Unconfirmed)
+			return TRUE;
+		else
+			return FALSE;	
+	}   
+~~~~~~
+
+#### Process_Routing_Info  {#Process_Routing_Info}
+
+(See [](#test))
+
+~~~~~~
+/* Compare incoming route information to stored route, and if better, 
+use to update stored route in Local Route Set.  */
+
+Process_Routing_Info (advRte)
+{
+	rte := Fetch_Route_Set_Entry (advRte);
+	if (!rte exists)
+	{
+		rte := Create_Route_Set_Entry(advRte);
+		return rte;
+	}
+
+	if (AdvRte.SeqNum > Route.SeqNum		/* stored route is stale */
+		OR
+		(AdvRte.SeqNum == Route.SeqNum				  /* same SeqNum */
+		 AND	
+		 ((Route.State == Invalid AND LoopFree(advRte, rte))
+		 								 /* advRte can repair stored */
+	 	  OR AdvRte.Cost < Route.Metric)))       /* advRte is better */
+	{
+		if (advRte is from a RREQ)
+		    rte := Create_Route_Set_Entry(advRte);
+		else
+		    Update_Route_Set_Entry (rte, advRte);
+	}
+	return rte;
+}
+~~~~~~
+
+#### Fetch_Route_Set_Entry  {#Fetch_Route_Set_Entry}
+
+~~~~~~
+/* Lookup a Local Route Set entry matching an advertised route */
+
+Fetch_Route_Set_Entry (advRte)
+{
+	foreach (rteSetEntry in rteSet)
+	{
+		if (rteSetEntry.Address == advRte.Address 
+			AND	rteSetEntry.MetricType == advRte.MetricType)
+			return rteSetEntry;
+	}
+	return null;
+}
+
+/* Lookup a Local Route Set entry matching address and metric type */
+
+Fetch_Route_Set_Entry (destination, metricType)
+{
+	foreach (rteSetEntry in rteSet)
+	{
+		if (rteSetEntry.Address == destination 
+			AND rteSetEntry.MetricType == metricType)
+			return rteSetEntry;
+	}
+	return null;
+}
+~~~~~~
+
+#### Update_Route_Set_Entry  {#Update_Route_Set_Entry}
+
+~~~~~~
+/* Update a Local Route Set entry using AdvRte in received RteMsg */
+
+Update_Route_Set_Entry (rte, advRte);
+{
+	rte.SeqNum := advRte.SeqNum;
+	rte.NextHop := advRte.NextHopIp;
+	rte.NextHopInterface := advRte.NextHopIntf;
+	rte.LastUsed := CurrentTime;
+	rte.LastSeqNumUpdate := CurrentTime;
+	if (validityTime)
+		rte.ExpirationTime := CurrentTime + advRte.ValidityTime;
+	else
+		rte.ExpirationTime := INFINITY_TIME;
+
+	rte.Metric := advRte.Cost;
+	if (rte.State == Invalid)
+	    rte.State := Idle (if advRte is from RREP);
+	                 or Unconfirmed (if advRte is from RREQ);
+}
+~~~~~~
+
+#### Create_Route_Set_Entry  {#Create_Route_Set_Entry}
+
+~~~~~~
+/* Create a Local Route Set entry from address and prefix length */
+
+Create_Route_Set_Entry (address, prefixLength, seqNum, metricType)
+{
+	rte := allocate_memory();
+	rte.Address := address;
+	rte.PrefixLength := prefixLength;
+	rte.SeqNum := seqNum;
+	rte.MetricType := metricType;
+}
+
+
+/* Create a Local Route Set entry from the advertised route */
+
+Create_Route_Set_Entry(advRte)
+{
+	rte := allocate_memory();
+
+	rte.Address := advRte.Address;
+	if (advRte.PrefixLength)
+		rte.PrefixLength := advRte.PrefixLength;
+	else
+		rte.PrefixLength := maxPrefixLenForAddressFamily;
+
+	rte.SeqNum := advRte.SeqNum;
+	rte.NextHop := advRte.NextHopIp;
+	rte.NextHopInterface := advRte.NextHopIntf;
+	rte.LastUsed := CurrentTime;
+	rte.LastSeqNumUpdate := CurrentTime;
+	if (validityTime)
+		rte.ExpirationTime := CurrentTime + advRte.ValidityTime;
+	else
+		rte.ExpirationTime := INFINITY_TIME;
+	rte.MetricType := advRte.MetricType;
+	rte.Metric := advRte.Metric;
+	rte.State := Idle (if advRte is from RREP);
+	             or Unconfirmed (if advRte is from RREQ);
+}
+~~~~~~
+
+### LoopFree  {#LoopFree}
+
+~~~~~~
+/* Return TRUE if the route advRte is LoopFree compared to rte */
+
+LoopFree(advRte, rte)
+{
+	if (advRte.Cost <= rte.Cost)
+		return TRUE;
+	else
+		return FALSE;
+}
+~~~~~~
+  
+### Multicast Route Message Table Operations
+  
+#### Fetch_Rte_Msg_Table_Entry  {#Fetch_Rte_Msg_Table_Entry}
+
+~~~~~~
+/* Find an entry in the RteMsg table matching the given 
+   message's msg-type, OrigAddr, TargAddr, MetricType   */
+
+Fetch_Rte_Msg_Table_Entry (rteMsg)
+{
+	foreach (entry in RteMsgTable)
+	{
+		if (entry.msg-type == rteMsg.msg-type 
+			AND	entry.OrigAddr == rteMsg.OrigAddr 
+			AND entry.TargAddr == rteMsg.TargAddr 
+			AND entry.MetricType == rteMsg.MetricType)
+				return entry;
+	}
+	return NULL;
+}
+~~~~~~
+
+#### Update_Rte_Msg_Table  {#Update_Rte_Msg_Table}
+
+(See [](#rtemsgtable))
+
+~~~~~~
+/* Update the multicast route message suppression table based on the 
+   received RteMsg, return true if it was created or the SeqNum was 
+   updated (i.e. it needs to be regenerated) */
+
+Update_Rte_Msg_Table(rteMsg)
+{
+	/* search for a comparable entry */
+	entry := Fetch_Rte_Msg_Table_Entry(rteMsg);
+
+	/* if there is none, create one */
+	if (entry does not exist)
+	{
+		entry.MessageType := rteMsg.msg_type;
+		entry.OrigAddr := rteMsg.OrigAddr;
+		entry.TargAddr := rteMsg.TargAddr;
+		entry.OrigSeqNum := rteMsg.origSeqNum; // (if present)
+    	entry.TargSeqNum := rteMsg.targSeqNum; // (if present)
+    	entry.MetricType := rteMsg.MetricType; 
+		entry.Metric := rteMsg.OrigMetric; // (for RREQ)
+                	 or rteMsg.TargMetric; // (for RREP) 
+        entry.Timestamp := CurrentTime;
+		return TRUE;
+	}
+
+	/* if current entry is stale */
+	if (
+	(rteMsg.msg-type == RREQ AND entry.OrigSeqNum < rteMsg.OrigSeqNum)
+	OR
+	(rteMsg.msg-type == RREP AND entry.TargSeqNum < rteMsg.TargSeqNum))
+	{
+		entry.OrigSeqNum := rteMsg.OrigSeqNum; // (if present)
+    	entry.TargSeqNum := rteMsg.TargSeqNum; // (if present)
+    	entry.Timestamp := CurrentTime;
+		return TRUE;
+	}
+
+	/* if received rteMsg is stale */
+	if ( 
+	(rteMsg.msg-type == RREQ AND entry.OrigSeqNum > rteMsg.OrigSeqNum)
+	OR
+	(rteMsg.msg-type == RREP AND entry.TargSeqNum > rteMsg.TargSeqNum))
+	{
+		entry.Timestamp := CurrentTime;
+		return FALSE;
+	}
+
+	/* if same SeqNum but rteMsg has lower metric */
+	if (entry.Metric > rteMsg.Metric)
+		entry.Metric := rteMsg.Metric;
+
+	entry.Timestamp := CurrentTime;
+	return FALSE;
+}
+~~~~~~
+
+
+## Message Algorithms
+
+Processing for messages follows the following general outline:
+
+1.  Receive incoming message.
+1.  Update route table as appropriate.
+1.  Respond as needed, often regenerating the incoming message with
+    updated information.
+
+After processing a message, the most recent information is stored in the route table.  For this reason,
+it is equally appropriate to set outgoing message field values using route table information or using 
+fields from the incoming message.
+
+### Build_RFC_5444_Message_Header  {#Build_RFC_5444_Message_Header}
+
+~~~~~~
+/* 	This pseudocode shows possible RFC 5444 actions, and would not 
+	be performed by the AODVv2 implementation. It is shown only to 
+	provide more understanding about the AODVv2 message that will be 
+	constructed by RFC 5444.
+	MAL := Message Address Length
+	MF  := Message Flags
+	Size := number of octets in MsgHdr, AddrBlk, AddrTLVs  */
+
+Build_RFC_5444_Message_Header (msgType, Flags, AddrFamily, Size, 
+	hopLimit, hopCount, tlvLength)
+{
+	/* Build RFC 5444 message header fields */
+	msg-type := msgType;
+	MF := Flags;
+	MAL := 3 or 15;  // for IPv4 or IPv6
+	msg-size := Size;
+	msg-hop-limit := hopLimit;
+	if (hopCount != 0)  /* if hopCount is 0, do not include */
+		msg-hop-count := hopCount;
+	msg.tlvs-length := tlvLength;
+}
+~~~~~~
+
+### RREQ Operations  {#rreq-algorithms}
+
+#### Generate_RREQ  {#Generate_RREQ}
+
+~~~~~~
+/* 	Generate a route request message to find a route from OrigAddr
+	to TargAddr using the given MetricType
+	origAddr   := IP address of Router Client which generated the 
+			      packet to be forwarded
+	origPrefix := prefix length associated with the Router Client
+	targAddr   := destination IP address in the packet to be forwarded
+	targSeqNum := sequence number in existing route to targAddr
+	mType 	   := metric type for the requested route   */
+
+Generate_RREQ(origAddr, origPrefix, targAddr, targSeqNum, mType)
+{
+	/* Increment sequence number in nonvolatile storage */
+	mySeqNum := (1 + mySeqNum);
+
+	/* Marshall parameters */
+	outRREQ.HopLimit := MAX_HOPCOUNT;
+	outRREQ.HopCount := 0;								// if included 
+	outRREQ.MetricType := mType;   //include if not DEFAULT_METRIC_TYPE
+	outRREQ.OrigAddr := origAddr; 
+	outRREQ.TargAddr := targAddr;
+	outRREQ.OrigPrefixLen := origPrefix; //include if not address length
+	outRREQ.OrigSeqNum := mySeqNum;
+	outRREQ.TargSeqNum := targSeqNum;            //included if available
+	outRREQ.OrigMetric := Route[OrigAddr].Metric;       //zero by default
+	outRREQ.ValidityTime := limit for route to OrigAddr;   //if required 
+
+	/* Build Address Blk using prefix length information from 
+	   outRREQ.OrigPrefixLen if	necessary */
+	AddrBlk := {outRREQ.OrigAddr, outRREQ.TargAddr};
+
+	/* Include sequence numbers in appropriate Address Block TLVs */
+	/* OrigSeqNum Address Block TLV */
+	origSeqNumAddrBlkTlv.value := outRREQ.OrigSeqNum;
+	/* TargSeqNum Address Block TLV */
+	if (outRREQ.TargSeqNum is known)
+		targSeqNumAddrBlkTlv.value := outRREQ.TargSeqNum;
+
+	/* Build Metric Address Block TLV, include Metric AddrBlkTlv 
+	   Extension type if a non-default metric */
+	metricAddrBlkTlv.value := outRREQ.OrigMetric;
+	if (outRREQ.MetricType != DEFAULT_METRIC_TYPE)
+		metricAddrBlkTlv.typeExtension := outRREQ.MetricType;
+	
+	if (outRREQ.ValidityTime is required)
+	{
+		/* Build VALIDITY_TIME Address Block TLV */
+		VALIDITY_TIMEAddrBlkTlv.value := outRREQ.ValidityTime;
+	}
+
+	Build_RFC_5444_Message_Header (RREQ, 4, IPv4 or IPv6, NN,
+		outRREQ.HopLimit, outRREQ.HopCount, tlvLength);
+
+	/* multicast RFC 5444 message to LL-MANET-Routers */
+}
+~~~~~~
+
+#### Receive_RREQ  {#Receive_RREQ}
+
+~~~~~~
+/* 	Process a RREQ received on link L */
+
+Receive_RREQ (inRREQ, L)
+{
+	if (inRREQ.NbrIP present in blacklist) 
+	{
+		if (blacklist_expiration_time < CurrentTime)
+			return; // don't process or regenerate RREQ
+		else
+			remove nbrIP from blacklist;
+	}
+	if (inRREQ does not contain msg_hop_limit, OrigAddr,
+		TargAddr, OrigSeqNum, OrigMetric)
+		return;
+	if (msg_hop_count > MAX_HOPCOUNT)
+		return;
+	if (msg_hop_limit < 0)
+		return;
+	if (inRREQ.OrigAddr and inRREQ.TargAddr are not valid routable 
+		and unicast addresses)
+		return;
+	if (inRREQ.MetricType is present but an unknown value)
+		return;
+	if (inRREQ.OrigMetric > MAX_METRIC[inRREQ.MetricType] - Cost(L))
+		return;
+
+	/* Extract inRREQ values */
+	advRte.Address := inRREQ.OrigAddr;
+	advRte.PrefixLength := inRREQ.OrigPrefixLen; (if present)
+						or the address length of advRte.Address;
+	advRte.SeqNum := inRREQ.OrigSeqNum;
+	advRte.MetricType := inRREQ.MetricType;
+	advRte.Metric := inRREQ.OrigMetric;
+	advRte.Cost := inRREQ.OrigMetric + Cost(L);
+								//according to the indicated MetricType
+	advRte.ValidityTime := inRREQ.ValidityTime; //if present
+	advRte.NextHopIP := inRREQ.NbrIP;
+	advRte.NextHopIntf := inRREQ.Netif;
+	advRte.HopCount := inRREQ.HopCount;
+	advRte.HopLimit := inRREQ.HopLimit;
+
+	rte := Process_Routing_Info (advRte);
+
+	/* 	Update the RteMsgTable and determine if the RREQ needs
+		to be regenerated */
+	regenerate := Update_Rte_Msg_Table(inRREQ); 
+
+	if (inRREQ.TargAddr is in Router Client list)
+		Generate_RREP(inRREQ, rte);
+	else if (regenerate)
+		Regenerate_RREQ(inRREQ, rte);
+}
+~~~~~~
+
+#### Regenerate_RREQ   {#Regenerate_RREQ}
+
+~~~~~~
+/* 	Called from receive_RREQ() 
+	rte := the route to OrigAddr */
+
+Regenerate_RREQ (inRREQ, rte) 
+{
+	outRREQ.HopLimit := inRREQ.HopLimit - 1;
+	if (outRREQ.HopLimit == 0)
+		return; // don't regenerate
+
+	if (inRREQ.HopCount exists)
+	{
+		if (inRREQ.HopCount >= MAX_HOPCOUNT)
+			return; // don't regenerate
+		outRREQ.HopCount := inRREQ.HopCount + 1;
+	}
+
+	/* Marshall parameters */
+	outRREQ.MetricType := rte.MetricType;
+	outRREQ.OrigAddr := rte.Address;
+	outRREQ.TargAddr := inRREQ.TargAddr;
+	/* include prefix length if not equal to address length */
+	outRREQ.OrigPrefixLen := rte.PrefixLength; 
+	outRREQ.OrigSeqNum := rte.SeqNum;
+	outRREQ.TargSeqNum := inRREQ.TargSeqNum; // if present
+	outRREQ.OrigMetric := rte.Metric;
+	outRREQ.ValidityTime := rte.ValidityTime;
+						 or the time limit this router wishes to put on 
+						 route to OrigAddr
+
+	/* 	Build Address Block using prefix length information from 
+		outRREQ.OrigPrefixLen if necessary */
+	AddrBlk := {outRREQ.OrigAddr, outRREQ.TargAddr};
+	
+	/* Include sequence numbers in appropriate Address Block TLVs */
+	/* OrigSeqNum Address Block TLV */
+	origSeqNumAddrBlkTlv.value := outRREQ.OrigSeqNum;
+	/* TargSeqNum Address Block TLV */
+	if (outRREQ.TargSeqNum is known) 
+		targSeqNumAddrBlkTlv.value := outRREQ.TargSeqNum;
+
+	/* Build Metric Address Block TLV, include Metric AddrBlkTlv 
+	   Extension type if a non-default metric */
+	metricAddrBlkTlv.value := outRREQ.OrigMetric;
+	if (outRREQ.MetricType != DEFAULT_METRIC_TYPE)
+		metricAddrBlkTlv.typeExtension := outRREQ.MetricType;
+
+	if (outRREQ.ValidityTime is required)
+	{
+		/* Build VALIDITY_TIME Address Block TLV */
+		VALIDITY_TIMEAddrBlkTlv.value := outRREQ.ValidityTime;
+	}
+	Build_RFC_5444_Message_Header (RREQ, 4, IPv4 or IPv6, NN,
+		outRREQ.HopLimit, outRREQ.HopCount, tlvLength);
+
+	/* 	Multicast RFC 5444 message to LL-MANET-Routers, or if
+		inRREQ was unicast, the message can be unicast to the next
+		hop on the route to TargAddr, if known */
+}
+~~~~~~
+
+### RREP Operations  {#rrep-algorithms}
+
+#### Generate_RREP  {#Generate_RREP}
+
+~~~~~~
+Generate_RREP(inRREQ, rte)
+{
+	/* Increment sequence number in nonvolatile storage */
+	mySeqNum := (1 + mySeqNum);
+
+	/* Marshall parameters */
+	outRREP.HopLimit := inRREQ.HopCount;
+	outRREP.HopCount := 0;
+	/* Include the AckReq when:
+	   - previous RREP does not seem to enable any data flow, OR
+	   - when RREQ is received from same OrigAddr after RREP was
+	 	 unicast to rte.NextHop  	*/
+	outRREP.AckReq := TRUE or FALSE; //TRUE if acknowledgement required
+	/* if included, set timeout RREP_Ack_SENT_TIMEOUT */
+
+	if (rte.MetricType != DEFAULT_METRIC_TYPE)
+		outRREP.MetricType := rte.MetricType;
+	outRREP.OrigAddr := inRREQ.Address;
+	outRREP.TargAddr := rte.TargAddr;
+	outRREP.TargPrefixLen := rte.PrefixLength; //if not address length
+	outRREP.TargSeqNum := mySeqNum;
+	outRREP.TargMetric := rte.Metric; 
+	outRREP.ValidityTime := limit for route to TargAddr;   //if required
+
+	if (outRREP.AckReq == TRUE)
+		/* include AckReq Message TLV */
+
+	/* 	Build Address Block using prefix length information from 
+		outRREP.TargPrefixLen if necessary */
+	AddrBlk := {outRREP.OrigAddr, outRREP.TargAddr};
+
+	/* TargSeqNum Address Block TLV */
+	targSeqNumAddrBlkTlv.value := outRREP.TargSeqNum;
+
+	/* Build Metric Address Block TLV include Metric AddrBlkTlv 
+	   Extension type if a non-default metric */
+	metricAddrBlkTlv.value := outRREP.TargMetric;
+	if (outRREP.MetricType != DEFAULT_METRIC_TYPE)
+		metricAddrBlkTlv.typeExtension := outRREP.MetricType;
+
+	if (outRREP.ValidityTime is required)
+	{
+		/* Build VALIDITY_TIME Address Block TLV */
+		VALIDITY_TIMEAddrBlkTlv.value := outRREP.ValidityTime;
+	}
+
+	Build_RFC_5444_Message_Header (RREP, 4, IPv4 or IPv6, NN,
+		outRREP.HopLimit, outRREQ.HopCount, tlvLength);
+
+	/* unicast RFC 5444 message to rte[OrigAddr].NextHop */
+}
+~~~~~~
+         
+#### Receive_RREP  {#Receive_RREP}
+
+~~~~~~
+/* 	Process a RREP received on link L */
+
+Receive_RREP (inRREP, L)
+{
+	if (inRREP.NbrIP present in blacklist)
+	{
+		if (blacklist_expiration_time < CurrentTime)
+			return;   // don't process or regenerate RREP
+		else
+			remove NbrIP from blacklist;
+	}
+
+	if (inRREP does not contain msg_hop_limit, OrigAddr,
+			TargAddr, TargSeqNum, TargMetric)
+		return;
+	if (msg_hop_count > MAX_HOPCOUNT)
+		return;
+	if (msg_hop_limit < 0)
+		return;
+	if (inRREP.OrigAddr and inRREQ.TargAddr are not
+		valid routable and unicast addresses)
+		return;
+	if (inRREP.MetricType is present but an unknown value)
+		return;
+	if (inRREP.TargMetric > MAX_METRIC[inRREP.MetricType])
+		return;
+
+	/* Extract inRREP values */
+	advRte.Address := inRREP.TargAddr;
+	advRte.PrefixLength := inRREP.TargPrefixLen; //if present
+						or the address length of advRte.Address;
+	advRte.SeqNum := inRREP.TargSeqNum;
+	advRte.MetricType := inRREP.MetricType;
+	advRte.Metric := inRREP.TargMetric;
+	advRte.Cost := inRREP.TargMetric + Cost(L);
+                        //according to the indicated MetricType
+	advRte.ValidityTime := inRREP.ValidityTime; //if present
+	advRte.NextHopIP := inRREP.NbrIP;
+	advRte.NextHopIntf := inRREP.Netif;
+	advRte.HopCount := inRREP.HopCount;
+	advRte.HopLimit := inRREP.HopLimit; //if included
+
+	rte := Process_Routing_Info (advRte);
+
+`	if (inRREP includes AckReq data element)
+		Generate_RREP_Ack(inRREP);
+
+	/* 	Update the RteMsgTable and determine if the RREP needs
+		to be regenerated */
+	regenerate := Update_Rte_Msg_Table(inRREP);
+
+	if (inRREP.TargAddr is in the Router Client list)
+		send_buffered_packets(rte);    /* start to use the route */
+	else if (regenerate)
+		Regenerate_RREP(inRREP, rte);
+}
+~~~~~~
+
+#### Regenerate_RREP  {#Regenerate_RREP}
+
+~~~~~~
+Regenerate_RREP(inRREP, rte)
+{
+	if (rte does not exist)
+	{
+		Generate_RERR(inRREP);
+   		return;
+	}
+
+	outRREP.HopLimit := inRREP.HopLimit - 1;
+	if (outRREP.HopLimit == 0) /* don't regenerate */
+		return;
+
+	if (inRREP.HopCount exists)
+	{
+		if (inRREP.HopCount >= MAX_HOPCOUNT)
+			return; // don't regenerate the RREP
+		outRREP.HopCount := inRREP.HopCount + 1;
+	}
+
+	/* Marshall parameters */
+	/* Include the AckReq when:
+	   - previous unicast RREP seems not to enable data flow, OR
+	   - when RREQ is received from same OrigAddr after RREP
+	     was unicast to rte.NextHop		*/
+	outRREP.AckReq := TRUE or FALSE; //TRUE if acknowledgement required
+	/* if included, set timeout RREP_Ack_SENT_TIMEOUT */
+
+	if (rte.MetricType != DEFAULT_METRIC_TYPE)
+		outRREP.MetricType := rte.MetricType;
+	outRREP.OrigAddr := inRREP.OrigAddr;
+	outRREP.TargAddr := rte.Address;
+	outRREP.TargPrefixLen := rte.PrefixLength; //if not address length
+	outRREP.TargSeqNum := rte.SeqNum;
+	outRREP.TargMetric := rte.Metric;
+	outRREP.ValidityTime := limit for route to TargAddr;   //if required
+	outRREP.NextHop := rte.NextHop
+
+	if (outRREP.AckReq == TRUE)
+		/* include AckReq Message TLV */
+
+	/* 	Build Address Block using prefix length information from
+		outRREP.TargPrefixLen if necessary */
+	AddrBlk := {outRREP.OrigAddr, outRREP.TargAddr};	
+
+	/* TargSeqNum Address Block TLV */
+	targSeqNumAddrBlkTlv.value := outRREP.TargSeqNum;
+
+	/* Build Metric Address Block TLV include Metric AddrBlkTlv 
+	   Extension type if a non-default metric */
+	metricAddrBlkTlv.value := outRREP.TargMetric;
+	if (outRREP.MetricType != DEFAULT_METRIC_TYPE)
+		metricAddrBlkTlv.typeExtension := outRREP.MetricType;
+
+	if (outRREP.ValidityTime is required)
+	{
+		/* Build VALIDITY_TIME Address Block TLV */
+		VALIDITY_TIMEAddrBlkTlv.value := outRREP.ValidityTime;
+	}
+
+	Build_RFC_5444_Message_Header (RREP, 4, IPv4 or IPv6, NN,
+		outRREP.HopLimit, 0, tlvLength);
+		
+	/* unicast RFC 5444 message to rte[OrigAddr].NextHop */ 
+}
+~~~~~~
+### RREP_Ack Operations  {#rrep_ack-algorithms}
+
+#### Generate_RREP_Ack  {#Generate_RREP_Ack}
+
+~~~~~~
+/* To be sent when a received RREP includes the AckReq data element */
+
+Generate_RREP_Ack(inRREP)
+{
+	Build_RFC_5444_Message_Header (RREP_Ack, 4, IPv4 or IPv6, NN, 
+		1, 0, 0);
+  	/* unicast RFC 5444 message to inRREP.NbrIP */
+}
+~~~~~~
+
+#### Receive_RREP_Ack  {#Receive_RREP_Ack}
+
+~~~~~~
+Receive_RREP_Ack(inRREP_Ack)
+{
+	/* cancel timeout event for the node sending RREP_Ack */
+}
+~~~~~~
+
+#### Timeout_RREP_Ack  {#Timeout_RREP_Ack}
+
+~~~~~~
+Timeout_RREP_Ack(outRREP)
+{
+	if (numRetries < RREP_RETRIES)
+	    /* resend RREP and double the previous timeout */
+	else
+	    /* insert unresponsive node into blacklist */
+}
+~~~~~~
+
+
+### RERR Operations  {#rerr-algorithms} 
+
+#### Generate_RERR  {#Generate_RERR}
+
+There are two parts to this function, based on whether it was 
+triggered by an undeliverable packet or a broken link to 
+neighboring AODVv2 router.
+
+~~~~~~
+/*  Generate a Route Error message. 	
+	errorType := undeliverablePacket or brokenLink	*/
+
+Generate_RERR(errorType, triggerPkt, brokenLinkNbrIp)
+{
+	switch (errorType)
+	{
+	case (brokenLink):
+		doGenerate := FALSE;
+		num-broken-addr := 0;
+		precursors[] := new empty precursor list;
+		outRERR.HopLimit := MAX_HOPCOUNT;
+		/* find routes which are now Invalid */ 
+		foreach (rte in route table)
+		{
+			if (brokenLinkNbrIp == rte.NextHop 
+			 	AND (rte.State == Active 
+			 		 OR
+					 (rte.State == Idle AND ENABLE_IDLE_IN_RERR)))
+			 {
+				if (rte.State == Active)
+					doGenerate := TRUE;
+				rte.State := Invalid;
+				precursors += rte.Precursors (if any);
+				outRERR.AddressList[num-broken-addr] := rte.Address;
+				outRERR.PrefixLengthList[num-broken-addr] :=
+												 rte.PrefixLength;
+				outRERR.SeqNumList[num-broken-addr] := rte.SeqNum;
+				outRERR.MetricTypeList[num-broken-addr] := rte.MetricType
+				num-broken-addr := num-broken-addr + 1;
+			}
+		}		
+	}
+	case (undeliverablePacket):
+		doGenerate := TRUE;
+		num-broken-addr := 1;
+		outRERR.HopLimit := MAX_HOPCOUNT;
+		outRERR.PktSource := triggerPkt.SrcIP;
+						  or triggerPkt.TargAddr; //if pkt was a RREP
+		outRERR.AddressList[0] := triggerPkt.DestIP; 
+							   or triggerPkt.OrigAddr; //if pkt was RREP
+		/* optional to include outRERR.PrefixLengthList, outRERR.SeqNumList
+		   and outRERR.MetricTypeList */		
+	}
+	
+	if (doGenerate == FALSE)
+		return; 
+			
+	if (triggerPkt exists)
+	{ 
+		/* Build PktSource Message TLV */
+		pktSourceMessageTlv.value := outRERR.PktSource;
+	}
+
+	/* 	The remaining steps add address, prefix length, sequence 
+		number and metric type information for each unreachable address. */
+	
+	/* 	Build Address Block using prefix length information from
+		outRERR.PrefixLengthList[] if necessary */
+	AddrBlk := outRERR.AddressList[];
+	
+	/* 	Optionally, add SeqNum Address Block TLV, including index values */
+	seqNumAddrBlkTLV := outRERR.SeqNumList[]; 
+	
+	if (outRERR.MetricTypeList contains non-default MetricTypes)
+		/* include Metric Address Block TLVs with Type Extension set to 
+		   MetricType, including index values if necessary */
+		metricAddrBlkTlv.typeExtension := outRERR.MetricTypeList[];
+
+	Build_RFC_5444_Message_Header (RERR, 4, IPv4 or IPv6, NN,
+		outRERR.HopLimit, 0, tlvLength);
+
+	if (undeliverablePacket)
+		/* unicast outRERR to rte[outRERR.PktSource].NextHop */
+	else if (brokenLink)
+		/* unicast to precursors, or multicast to LL-MANET-Routers */
+}
+~~~~~~
+
+#### Receive_RERR  {#Receive_RERR}
+
+~~~~~~
+Receive_RERR (inRERR)
+{
+	if (inRERR does not contain msg_hop_limit and at least
+		one unreachable address)
+		return;
+
+	/* 	Extract inRERR values, copy relevant unreachable addresses,
+		their prefix lengths, and sequence numbers to outRERR */
+	num-broken-addr := 0;
+	precursors[] := new empty precursor list;
+	foreach (unreachableAddress in inRERR.AddressList)
+	{
+		if (unreachableAddress is not valid routable and unicast)
+			continue;
+		if (unreachableAddress MetricType is present but an unknown value)
+			return;
+		
+		/* 	Find a matching route table entry, assume
+			DEFAULT_METRIC_TYPE if no MetricType included */
+		rte := Fetch_Route_Set_Entry (unreachableAddress,
+										unreachableAddress MetricType)
+		if (rte does not exist)
+			continue;
+		if (rte.State == Invalid)/* ignore already invalid routes */
+			continue;
+		if ((rte.NextHop != inRERR.NbrIP 
+			OR
+			rte.NextHopInterface != inRERR.Netif)
+			AND (PktSource is not present OR is not a Router Client))
+			continue;
+		if (unreachableAddress SeqNum (if known) < rte.SeqNum)
+			continue;
+		
+		/* keep a note of all precursors of newly Invalid routes */
+		precursors += rte.Precursors; //if any
+
+		/* assume prefix length is address length if not included */
+		if (rte.PrefixLength != unreachableAddress prefixLength)
+		{
+			/* create new route with unreachableAddress information */
+			invalidRte := Create_Route_Set_Entry(unreachableAddress,
+										unreachableAddress PrefixLength,
+										unreachableAddress SeqNum, 
+										unreachableAddress MetricType);
+			invalidRte.State := Invalid;
+
+			if (rte.PrefixLength > unreachableAddress prefixLength)
+				expunge_route(rte);
+			rte := invalidRte;
+		}
+		else if (rte.PrefixLength == unreachableAddress prefixLength)
+			rte.State := Invalid;
+
+		outRERR.AddressList[num-broken-addr] := rte.Address;
+		outRERR.PrefixLengthList[num-broken-addr] := rte.PrefixLength;
+		outRERR.SeqNumList[num-broken-addr] := rte.SeqNum;
+		outRERR.MetricTypeList[num-broken-addr] := rte.MetricType;
+		num-broken-addr := num-broken-addr + 1;
+	}
+
+	if (num-broken-addr AND (PktSource is not present OR PktSource is not
+	    a Router Client))
+		Regenerate_RERR(outRERR, inRERR, precursors);
+}
+~~~~~~
+
+#### Regenerate_RERR  {#Regenerate_RERR}
+
+~~~~~~
+Regenerate_RERR (outRERR, inRERR, precursors)
+{
+	/* Marshal parameters */
+	outRERR.HopLimit := inRERR.HopLimit - 1;
+	if (outRERR.HopLimit == 0) // don't regenerate
+		return;
+
+	outRERR.PktSource := inRERR.PktSource; //if included
+	/* 	AddressList[], SeqNumList[], and PrefixLengthList[] are 
+		already up-to-date */
+
+	if (outRERR.PktSource exists)
+	{
+		/* Build PktSource Message TLV */
+		pktSourceMessageTlv.value := outRERR.PktSource;
+	}
+
+	/* 	Build Address Block using prefix length information from 
+		outRERR.PrefixLengthList[] if necessary */
+	AddrBlk := outRERR.AddressList[];
+
+	/* 	Optionally, add SeqNum Address Block TLV, including index values */
+	seqNumAddrBlkTLV := outRERR.SeqNumList[]; 
+	
+	if (outRERR.MetricTypeList contains non-default MetricTypes)
+		/* include Metric Address Block TLVs with Type Extension set to 
+		   MetricType, including index values if necessary */
+		metricAddrBlkTlv.typeExtension := outRERR.MetricTypeList[];
+
+	Build_RFC_5444_Message_Header (RERR, 4, IPv4 or IPv6, NN,
+		outRERR.HopLimit, 0, tlvLength);
+		
+	if (outRERR.PktSource exists)
+		/* 	unicast RFC 5444 message to next hop towards 
+			outRERR.PktSource */
+	else if (number of precursors == 1) 
+		/* 	unicast RFC 5444 message to precursors[0] */
+	else if (number of precursors > 1) 
+		/* 	unicast RFC 5444 message to all precursors, or multicast
+			RFC 5444 message to RERR_PRECURSORS if preferable */
+	else
+		/* multicast RFC 5444 message to LL-MANET-Routers */
+}
+~~~~~~
+
+<!--  Sadly, this section is being deleted.  When re-using,
+      search for <!CEP  ..... CEP> to "re-comment" the previous comments.
+      Nested comments are not allowed...
+
+<section anchor="rfc5444-formats"
+      title="Example RFC 5444-compliant packet formats">
+  <t>The following subsections show example RFC 5444-compliant
+    packets for AODVv2 message types RREQ, RREP, RERR, and RREP_Ack.
+    These
+  proposed message formats are designed based on expected savings
+  from IPv6 addressable MANET nodes, and a layout for the Address TLVs
+  that may be viewed as natural, even if perhaps not the absolute
+  most compact possible encoding.</t>
+
+  <t>For RteMsgs, the msg-hdr fields are followed by
+  at least one and optionally two Address Blocks.  The first AddrBlk
+  contains OrigAddr and TargAddr.  For each AddrBlk,
+  there must be AddrTLVs of type Metric and one of the SeqNum types
+  (i.e, OrigSeqNum, TargSeqNum, or Seqnum).
+  </t>
+
+  <t>
+  There is no MetricType Message TLV present, so the Metric
+  AddrTLV measures HopCount.
+  The Metric Address Block TLV also provides a way for the AODV router
+  generating the RREQ or RREP to supply an initial nonzero cost for the route
+  to its client node (OrigAddr or TargAddr, for RREQ or RREP respectively).</t>
+
+  <t>In all cases, the length of an address (32 bits for IPv4 and
+    128 bits for IPv6) inside an AODVv2 message is indicated
+    by the msg-addr-length (MAL) in the msg-header, as specified
+    in <xref target="RFC5444"/>.</t>
+
+  <t>The RFC 5444 header preceding AODVv2 messages in this document
+    has the format illustrated in <xref target="fig5444_header"/>.
+
+  <figure anchor="fig5444_header" title="RFC 5444 Packet Header">
+<artwork><![CDATA[
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+
+    | PV=0 |  PF=0  |
+    +-+-+-+-+-+-+-+-+
+]]></artwork>
+<CEP            <postamble></postamble>  CEP>
+          </figure>
+  <vspace blankLines="1"/>
+  The fields in <xref target="fig5444_header"/> are to be interpreted
+  as follows:
+
+<?rfc compact="yes" ?>    <CEP conserve vertical whitespace CEP>
+<?rfc subcompact="yes" ?>  <CEP don't keep a blank line between list items CEP>
+  <list style="symbols">
+    <t>PV=0 (Packet Header Version == 0)</t>
+
+    <t>PF=0 (Packet Flags == 0)</t>
+  </list>
+</t>
+
+
+<section anchor="RREQ-format" title="RREQ Message Format">
+    <t><xref target="figRREQ"/> illustrates an example RREQ message format.
+
+      <figure anchor="figRREQ"
+     title="Example IPv4 RREQ, with OrigSeqNum and Metric Address Block TLVs">
+<artwork><![CDATA[
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | msg-type=RREQ | MF=4  | MAL=3 |          msg-size=28          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | msg-hop-limit |      msg.tlvs-length=0        |   num-addr=2  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |1|0|0|0|0| Rsv | head-length=3 | Head (bytes for Orig & Target):
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    :Head(Orig&Targ)|   Orig.Mid    |  Target.Mid   |addr.TLV.len=11:
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    :addr.TLV.len=11|type=OrigSeqNum|0|1|0|1|0|0|Rsv| Index-start=0 |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | tlv-length=2  |     Orig.Node Sequence #      |  type=Metric  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0|1|0|1|0|0|Rsv| Index-start=0 | tlv-length=1  | OrigAddrHopCt |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork>
+<!CEP            <postamble></postamble>   CEP>
+          </figure>
+
+<!CEP  <vspace blankLines="2" />  CEP>
+  The fields in <xref target="figRREQ"/> are to be interpreted as follows:
+
+<?rfc compact="yes" ?>    <!CEP conserve vertical whitespace CEP>
+<?rfc subcompact="yes" ?>  <!CEP don't keep a blank line between list items CEP>
+  <list style="symbols">
+    <t>msg-type=RREQ (first [and only] message is of type RREQ)</t>
+    <t>MF:=4 (Message Flags := 4 [only msg-hop-limit field is present])</t>
+    <t>MAL:=3 (Message Address Length indicator [3 for IPv4, 15 for IPv6])</t>
+    <t>msg-size=28 (octets, counting MsgHdr, MsgTLVs, and AddrBlks)</t>
+    <t>msg-hop-limit (initially MAX_HOPCOUNT by default)</t>
+    <t>msg.tlvs-length=0 (no Message TLVs)</t>
+    <t>num-addr=2 (OrigAddr and TargAddr in RteMsg AddrBlock)</t>
+    <t>AddrBlk flags:
+    <list style="symbols">
+    <t>bit 0 (ahashead): 1</t>
+    <t>bit 1 (ahasfulltail): 0</t>
+    <t>bit 2 (ahaszerotail): 0</t>
+    <t>bit 3 (ahassingleprelen): 0</t>
+    <t>bit 4 (ahasmultiprelen): 0</t>
+    <t>bits 5-7:  RESERVED</t>
+    </list></t>
+    <t>head-length=3 (length of head part of each address is 3 octets)</t>
+    <t>Head
+         (3 initial bytes for both Originating &amp; Target addresses)</t>
+    <t>Orig.Mid  (4th byte of Originating Address)</t>
+    <t>Target.Mid  (4th byte of Target Address)</t>
+    <t>addr.TLV.len := 11 (length in bytes for OrigSeqNum and Metric TLVs</t>
+    <t>type=OrigSeqNum (type of first AddrBlk TLV, value 2 octets)</t>
+    <t>AddrTLV flags for the OrigSeqNum TLV:
+    <list style="symbols">
+    <t>bit 0 (thastypeext): 0</t>
+    <t>bit 1 (thassingleindex): 1</t>
+    <t>bit 2 (thasmultiindex): 0</t>
+    <t>bit 3 (thasvalue): 1</t>
+    <t>bit 4 (thasextlen): 0</t>
+    <t>bit 5 (tismultivalue): 0</t>
+    <t>bits 6-7:  RESERVED</t>
+    </list></t>
+    <t>Index-start=0 (OrigSeqNum TLV value applies at index 0)</t>
+    <t>tlv-length=2 (so there is only one TLV value, [1 = 2/2])</t>
+    <t>Orig.Node Sequence # (TLV value for the OrigSeqNum TLV</t>
+    <t>type=Metric (AddrTLV type of second AddrBlk TLV, values 1 octet)</t>
+    <t>AddrTLV flags for Metric TLV:
+    <list style="symbols">
+    <t>bit 0 (thastypeext): 0</t>
+    <t>bit 1 (thassingleindex): 1</t>
+    <t>bit 2 (thasmultiindex): 0</t>
+    <t>bit 3 (thasvalue): 1</t>
+    <t>bit 4 (thasextlen): 0</t>
+    <t>bit 5 (tismultivalue): 0</t>
+    <t>bits 6-7:  RESERVED</t>
+    </list></t>
+    <t>Index-start=0 (Metric TLV values start at index 0)</t>
+    <t>tlv-length=1 (so there is only one TLV value, [1 = 1/1])</t>
+    <t>OrigAddrHopCt (first [and only] TLV value for the Metric TLV)</t>
+  </list>
+  </t>
+
+</section>
+
+<section anchor="RREP-format" title="RREP Message Format">
+  <t><xref target="RREPstruct"/> illustrates a packet format for
+    an example RREP message.
+
+  <figure anchor="RREPstruct"
+    title="Example IPv4 RREP, with TargSeqNum TLV and 1 Metric">
+<artwork><![CDATA[
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | msg-type=RREP | MF=4  | MAL=3 |          msg-size=28          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | msg-hop-limit |      msg.tlvs-length=0        |   num-addr=2  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |1|0|0|0|0| Rsv | head-length=3 | Head (bytes for Orig & Target):
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    :Head(Orig&Targ)|   Orig.Mid    |  Target.Mid   |addr.TLV.len=11:
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    :addr.TLV.len=11|type=TargSeqNum|0|1|0|1|0|0|Rsv| Index-start=1 |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | tlv-length=2  |     Targ.Node Sequence #      |  type=Metric  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0|1|0|1|0|0|Rsv| Index-start=1 | tlv-length=1  | TargAddrHopCt |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork>
+<!CEP            <postamble></postamble>   CEP>
+          </figure>
+
+  <vspace blankLines="4"/>
+  The fields in <xref target="RREPstruct"/> are to be interpreted as follows:
+
+  <list style="symbols">
+    <t>msg-type=RREP (first [and only] message is of type RREP)</t>
+    <t>MF:=4 (Message Flags = 4 [only msg-hop-limit field is present])</t>
+    <t>MAL:=3 (Message Address Length indicator [3 for IPv4, 15 for IPv6])</t>
+    <t>msg-size=28 (octets, counting MsgHdr, MsgTLVs, and AddrBlks)</t>
+    <t>msg-hop-limit (initially MAX_HOPCOUNT by default)</t>
+    <t>msg.tlvs-length=0 (no Message TLVs)</t>
+    <t>num-addr=2 (OrigAddr and TargAddr in RteMsg AddrBlock)</t>
+    <t>AddrBlk flags:
+    <list style="symbols">
+    <t>bit 0 (ahashead): 1</t>
+    <t>bit 1 (ahasfulltail): 0</t>
+    <t>bit 2 (ahaszerotail): 0</t>
+    <t>bit 3 (ahassingleprelen): 0</t>
+    <t>bit 4 (ahasmultiprelen): 0</t>
+    <t>bits 5-7:  RESERVED</t>
+    </list></t>
+    <t>head-length=3 (length of head part of each address is 3 octets)</t>
+    <t>Head
+         (3 initial bytes for both Originating &amp; Target addresses)</t>
+    <t>Orig.Mid  (4th byte of Originating Address)</t>
+    <t>Target.Mid  (4th byte of Target Address)</t>
+  <t>addr.TLV.len = 11
+    (length in bytes for TargSeqNum TLV and Metric TLV</t>
+    <t>type=TargSeqNum (type of first AddrBlk TLV, value 2 octets)</t>
+    <t>AddrTLV flags for the TargSeqNum TLV:
+    <list style="symbols">
+    <t>bit 0 (thastypeext): 0</t>
+    <t>bit 1 (thassingleindex): 1</t>
+    <t>bit 2 (thasmultiindex): 0</t>
+    <t>bit 3 (thasvalue): 1</t>
+    <t>bit 4 (thasextlen): 0</t>
+    <t>bit 5 (tismultivalue): 0</t>
+    <t>bits 6-7:  RESERVED</t>
+    </list></t>
+  <t>Index-start=1
+    (TargSeqNum TLV value applies to address at index 1)</t>
+    <t>tlv-length=2 (there is one TLV value, 2 bytes in length)</t>
+  <t>Targ.Node Sequence # (value for the TargSeqNum TLV)</t>
+    <t>type=Metric (AddrTLV type of second AddrBlk TLV, value 1 octet)</t>
+  <t>AddrTLV flags for the Metric TLV
+    [01010000, same as for TargSeqNum TLV]</t>
+    <t>Index-start=1 (Metric TLV values start at index 1)</t>
+    <t>tlv-length=1 (there is one TLV value, 1 byte in length)</t>
+    <t>TargAddrHopCt (first [and only] TLV value for Metric TLV)</t>
+  </list>
+  <vspace blankLines="23"/>
+  </t>
+
+</section>
+
+<section anchor="RERR-format" title="RERR Message Format">
+      <t><xref target="figRERR"/> illustrates an example RERR
+        message format.
+  <figure anchor="figRERR"
+    title="Example IPv4 RERR with Two UnreachableAddresses">
+<artwork><![CDATA[
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | msg-type=RERR | MF=4  | MAL=3 |          msg-size=24          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | msg-hop-limit |      msg.tlvs-length=0        |   num-addr=2  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |1|0|0|0|0| Rsv | head-length=3 | Head (for both destinations)  :
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    :Head (3rd byte)|  Mid (Dest_1) | Mid (Dest_2)  | addr.TLV.len=7:
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    :addr.TLV.len=7 |  type=SeqNum  |0|0|1|1|0|1|Rsv| tlv-length=4  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |        Dest_1 Sequence #      |        Dest_2 Sequence #      |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork>
+<!CEP            <postamble>RERR </postamble>   CEP>
+          </figure>
+
+  The fields in <xref target="figRERR"/> are to be interpreted as follows:
+  <list style="symbols">
+    <t>msg-type=RERR (first [and only] message is of type RERR)</t>
+    <t>MF:=4 (Message Flags = 4 [only msg-hop-limit field is present])</t>
+    <t>MAL:=3 (Message Address Length indicator [3 for IPv4, 15 for IPv6])</t>
+    <t>msg-size=24 (octets, counting MsgHdr, MsgTLVs, and AddrBlks)</t>
+    <t>msg-hop-limit (initially MAX_HOPCOUNT by default)</t>
+    <t>msg.tlvs-length=0 (no Message TLVs)</t>
+    <t>num-addr=2 (OrigAddr and TargAddr in RteMsg AddrBlock)</t>
+    <t>AddrBlk flags == 10000000
+      [same as RREQ and RREP AddrBlk examples]</t>
+    <t>head-length=3 (length of head part of each address is 3 octets)</t>
+    <t>Head
+     (3 initial bytes for both UnreachableAddresses, Dest_1 and Dest_2)</t>
+    <t>Dest_1.Mid  (4th byte of Dest_1 IP address)</t>
+    <t>Dest_2.Mid  (4th byte of Dest_2 IP address)</t>
+    <t>addr.TLV.len = 7 (length in bytes for SeqNum TLV</t>
+    <t>type=SeqNum (AddrTLV type of AddrBlk TLV, values 2 octets each)</t>
+    <t>AddrTLV flags for SeqNum TLV:
+    <list style="symbols">
+    <t>bit 0 (thastypeext): 0</t>
+    <t>bit 1 (thassingleindex): 0</t>
+    <t>bit 2 (thasmultiindex): 1</t>
+    <t>bit 3 (thasvalue): 1</t>
+    <t>bit 4 (thasextlen): 0</t>
+    <t>bit 5 (tismultivalue): 1</t>
+    <t>bits 6-7:  RESERVED</t>
+    </list></t>
+    <t>tlv-length=4 (so there are two TLV values, [2 = 4/2])</t>
+    <t>Dest_1 Sequence # (first of two TLV values for the SeqNum TLV)</t>
+    <t>Dest_2 Sequence # (second of two TLV values for the SeqNum TLV)</t>
+
+  </list>
+  </t>
+
+</section>
+
+<!CEP Removed: issue #40 CEP>
+<section anchor="RREP_Ack-format" title="RREP_Ack Message Format">
+  <t>The figure below illustrates a packet format for an example
+    RREP_Ack message.  </t>
+
+  <t><figure anchor="figRREPAk" title="Example IPv4 RREP_Ack">
+<artwork><![CDATA[
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |msgtype=RREPAck| MF=0  | MAL=3 |          msg-size=4           |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork>
+          </figure>
+<!CEP|     Targ.Node Sequence #      |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   CEP>
+  <vspace blankLines="4"/>
+  The fields in <xref target="RREPstruct"/> are to be interpreted as follows:
+
+  <list style="symbols">
+    <t>msg-type=RREPAck (first [and only] message is of type RREP_Ack)</t>
+    <t>MF:=0 (Message Flags = 0 [no field is present])</t>
+    <t>MAL:=3 (Message Address Length indicator [3 for IPv4, 15 for IPv6])</t>
+    <t>msg-size=4</t>
+<!CEP    <t>msg.tlvs-length=0 (no Message TLVs)</t>  CEP>
+  </list>
+  </t>
+
+</section>
+<!CEP End removed section: issue #40 CEP>
+
+</section>
+   End of deleting the example packet formats...  -->
