@@ -486,8 +486,6 @@ information that this router previously issued. Since sequence number informatio
 number in MAX_SEQNUM_LIFETIME, the initializing router MUST wait for MAX_SEQNUM_LIFETIME before it creates any messages containing its
 new sequence number. It can then be sure that the information it sends will not be considered stale.
 
-Until MAX_SEQNUM_LIFETIME after its sequence number is reset, the router SHOULD NOT create RREQ or RREP messages.
-
 During this wait period, the router is permitted to do the following:
 
 * Process information in a received RREQ or RREP message to learn a route to the originator or target of that route discovery
