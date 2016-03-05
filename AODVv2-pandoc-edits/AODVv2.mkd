@@ -32,13 +32,12 @@ both endpoints on all intermediate routers. A metric value is included to repres
 the message. AODVv2 uses sequence numbers to identify stale routing information, and compares route metric values to determine
 if advertised routes could form loops.
 
-Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers before considering discovered routes
-to be valid, issuing Route Error (RERR) messages if link failures invalidate routes, reacting to received Route Error messages,
+Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers, issuing Route Error (RERR) messages, reacting to received Route Error messages,
 and extending and enforcing route timeouts.
 
-To enable the on-demand nature of AODVv2, signals are required to be exchanged between AODVv2 and the forwarding plane,
-to indicate when a packet is to be forwarded, in order to initiate route discovery, when packet forwarding fails, in order to
-initiate route error reporting, and when a packet is successfully forwarded, for route maintenance.
+The on-demand nature of AODVv2 requires signals to be exchanged between AODVv2 and the forwarding plane. These signals
+indicate when: a packet is to be forwarded, in order to initiate route discovery; packet forwarding fails, in order to
+initiate route error reporting; a packet is successfully forwarded, for route maintenance.
 
 Security for authentication of AODVv2 routers and encryption of control messages is accomplished using the TIMESTAMP
 and ICV TLVs defined in [](#RFC7182).
@@ -106,8 +105,7 @@ Routable Unicast IP Address
     <!-- [CEP] That is true, but they *are* routable unicast addresses -->
     <!-- [CEP] Can it be determined if an address is multihop-capable? -->
 Router Client
-:   <vspace/>An address or address range configured on an AODVv2 router, on behalf of which that router will initiate and respond to route discoveries,
-    so that devices configured to use these addresses can send and receive IP traffic to and from remote destinations. These addresses may be used by the
+:   <vspace/>An address or address range configured on an AODVv2 router, on behalf of which that router will initiate and respond to route discoveries. These addresses may be used by the
     AODVv2 router itself or by non-routing devices that are reachable without traversing another AODVv2 router.
 RREP (Route Reply)
 :   <vspace/>The AODVv2 message type used to reply to a Route Request message.
@@ -155,10 +153,8 @@ RteMsg.Field                           A field in either RREQ or RREP
 # Applicability Statement  {#apply}
   <!-- The nets do not have to be mobile, and AODVv2 may be applicable in low power lossy sensor networks. -->
 
-The AODVv2 routing protocol is a reactive routing protocol. While proactive routing protocols send frequent messages and determine routes in
-advance of them being used, a reactive protocol only sends messages to discover a route when there is data to send on that route. Therefore,
-a reactive routing protocol requires certain interactions with the forwarding plane, for example, to indicate when a packet is to be forwarded,
-in order to initiate route discovery, route error reporting, or route maintenance. The set of signals exchanged between AODVv2 and the forwarding
+The AODVv2 routing protocol is a reactive routing protocol. A reactive protocol only sends messages to discover a route when there is data to send on that route. Therefore, a reactive routing protocol requires certain interactions with the forwarding plane (for example, to indicate when a packet is to be forwarded,
+in order to initiate route discovery). The set of signals exchanged between AODVv2 and the forwarding
 plane are discussed in [](#fwdplane).
 
 AODVv2 is designed for stub or disconnected mobile ad hoc networks, i.e., non-transit
@@ -173,7 +169,7 @@ routers in the network. In this case fewer routes are needed, and therefore less
 secure operations.  For other ad hoc networking applications, in which insecure operation could negate the value of establishing communication paths, it is
 important for neighboring AODVv2 routers to establish security associations with one another. -->
 
-Providing security for a reactive routing protocol can be difficult. AODVv2 provides for message integrity and security against replay attacks
+AODVv2 provides for message integrity and security against replay attacks
 by using integrity check values, timestamps and sequence numbers, as described in [](#Security). If security associations can be established,
 encryption can be used for AODVv2 messages to ensure that only trusted routers participate in routing operations.
 
@@ -184,8 +180,7 @@ cost. -->
 <!-- and the TargAddr end wouldnt request a better route if it already has a route -->
 
 <!-- Issue #22 -->
-AODVv2 is applicable to memory constrained devices, since only a little routing state is maintained in each AODVv2 router.  In contrast to proactive
-routing protocols, which maintain routing information for all destinations within the MANET, AODVv2 routes that are not needed for forwarding data
+AODVv2 is applicable to memory constrained devices, since only a little routing state is maintained in each AODVv2 router. AODVv2 routes that are not needed for forwarding data
 do not need to be maintained. On routers unable to store persistent AODVv2 state, recovery can impose a performance penalty (e.g., in case of AODVv2
 router reboot), since if a router loses its sequence number, there is a delay before the router can resume full operations. This is described in [](#boot).
 
@@ -225,15 +220,8 @@ RouterClient.PrefixLength
 RouterClient.Cost
 :   <vspace/>The cost associated with reaching this address or address range.
 
-The Router Client Table for an AODVv2 router is never empty, since an AODVv2 router's interface addresses are always configured in Router
-Client entries.
-<!-- [JPD] Question: does the built-in Route Client always have to have a different IP address to the Router itself? -->
-<!-- [CEP]: No, in fact I never imagined that the IP addresses  would be different -->
-
-In the initial state, an AODVv2 router is not required to have information about the Router Clients of any other AODVv2 router.
-
 A Router Client address MUST NOT be served by more than one AODVv2 router at any one time. To shift responsibility for a Router Client to
-a different AODVv2 router, correct AODVv2 routing behavior MUST be observed. The AODVv2 router adding the Router Client MUST wait for any
+a different AODVv2 router, correct AODVv2 routing behavior MUST be observed; The AODVv2 router adding the Router Client MUST wait for any
 existing routing information about this Router Client to be purged from the network, i.e., at least MAX_SEQNUM_LIFETIME since the last SeqNum
 update on the router which is removing this Router Client.
 
@@ -280,9 +268,7 @@ which case it MUST be reset to one (1). The value zero (0) is reserved to indica
 number is unknown.
 
 An AODVv2 router MUST only attach its own sequence number to information about a route to one of its configured Router
-Clients. All route messages regenerated by other routers retain the originator's sequence number. Therefore, when two
-pieces of information about a route are received, they both contain a sequence number from the originating router.
-Comparing the sequence number will identify which information is stale. The previously stored sequence number is subtracted
+Clients, all route messages regenerated by other routers retain the originator's sequence number. Tod determine staleness, the previously stored sequence number associated with the originator, is subtracted
 from the incoming sequence number. The result of the subtraction is to be interpreted as a signed 16-bit integer, and if
 less than zero, the information in the new AODVv2 message is stale and MUST be discarded.
 <!-- subtraction is unsigned values, actual calculation is incoming + twos complement of current. then interpret result as a signed twos complement value -->
@@ -350,7 +336,7 @@ Invalid
     incoming information to be assessed for freshness.
 
 When the Local Route Set is stored separately from the Routing Information Base, routes are added to the Routing Information Base
-when LocalRoute.State is valid (set to Active or Idle), and removed from the Routing Information Base LocalRoute.State becomes Invalid.
+when LocalRoute.State is valid (set to Active or Idle), and removed from the Routing Information Base when LocalRoute.State becomes Invalid.
 
 Changes to LocalRoute state are detailed in [](#routestatechanges).
 
@@ -381,7 +367,7 @@ route messages might be received by any one router during one route discovery at
 one of these messages.
 
 The Multicast Route Message Table is a conceptual table which contains information about previously received multicast route messages, so that
-incoming route messages can be compared with previously received messages to determine if the incoming information is redundant, and the router can
+incoming route messages can be compared with previously received messages to determine if the incoming information is redundant or stale, and the router can
 avoid sending redundant control traffic.
 
 Multicast Route Message Table entries MUST contain the following information:
@@ -544,7 +530,7 @@ value of Neighbor.State MAY be changed to Blacklisted, e.g. notification of a TC
 ## Neighbor Table Update {#nbrupdate}
 
 On receipt of an RREQ or RREP message, the Neighbor Table MUST be checked for an entry with Neighbor.IPAddress which matches the source IP address
-of the message. If no matching entry is found, a new entry is created.
+of packet containing the AODVv2 message. If no matching entry is found, a new entry is created.
 
 A new Neighbor Table entry is created as follows:
 
@@ -558,7 +544,7 @@ neighbor is bidirectional and the Neighbor Table entry is updated as follows:
 * Neighbor.State := Confirmed <!-- could set reset time when set state to confirmed, to re-test after certain time -->
 * Neighbor.ResetTime := INFINITY_TIME
 
-If an RREP_Ack is not received within the expected time, the link is considered to be uni-directional and the Neighbor Table entry is updated as follows:
+If an RREP_Ack is not received within RREP_Ack_SENT_TIMEOUT, the link is considered to be uni-directional and the Neighbor Table entry is updated as follows:
 
 * Neighbor.State := Blacklisted
 * Neighbor.ResetTime := CurrentTime + MAX_BLACKLIST_TIME
@@ -576,15 +562,17 @@ route discoveries after MAX_BLACKLIST_TIME, in case the link between the routers
 
 ## Interaction with the Forwarding Plane {#fwdplane}
 
-A reactive routing protocol only reacts when a route is needed, i.e., when an application tries to send a packet and the forwarding
-plane has no route to the destination of the packet.
+The signals descried in the following are conceptual signals, and can be implemented in various ways.
+Conformant implementations of AODVv2 are not mandated
+to implement the forwarding plane separately from the control plane or data plane; these signals and interactions are
+identified simply as assistance for implementers who may find them useful.
 
 AODVv2 requires signals from the forwarding plane:
 
-*   A packet cannot be forwarded because a route is unavailable: AODVv2 needs to know the source and destination IP addresses of the packet, to
-    determine if the source of the packet is configured as a Router Client, in which case the router should initiate route discovery. If it is not
+*   A packet cannot be forwarded because a route is unavailable: AODVv2 needs to know the source and destination IP addresses of the packet.
+    If the source of the packet is configured as a Router Client, the router should initiate route discovery to the destination. If it is not
     a Router Client, the router should create a Route Error message.
-*   A packet is to be forwarded: AODVv2 needs to check the state of the route to deal with timeouts to ensure the route is still valid.
+*   A packet is to be forwarded: AODVv2 needs to check the state of the route to ensure it is still valid.
 *   Packet forwarding succeeds: AODVv2 needs to update the record of when a route was last used to forward a packet.
 *   Packet forwarding failure occurs: AODVv2 needs to create a Route Error message.
 
@@ -600,11 +588,6 @@ AODVv2 needs to send signals to the forwarding plane:
 *   A route discovery succeeded: install a corresponding route into the Routing Information Base and begin transmitting any buffered packets.
 *   A route has been made invalid: remove the corresponding route from the Routing Information Base.
 *   A route has been updated: update the corresponding route in the Routing Information Base.
-
-These are conceptual signals, and can be implemented in various ways. Conformant implementations of AODVv2 are not mandated
-to implement the forwarding plane separately from the control plane or data plane; these signals and interactions are
-identified simply as assistance for implementers who may find them useful.
-<!-- recommended behaviours? -->
 
 ## Message Transmission  {#MsgXmit}
 
