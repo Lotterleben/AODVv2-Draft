@@ -498,11 +498,7 @@ During this wait period, the router is permitted to do the following:
 
 ## Next Hop Monitoring  {#nexthopmonitoring}
 
-AODVv2 routers MUST NOT establish routes over uni-directional links. Consider the following. An RREQ is forwarded toward TargAddr, and
-intermediate routers create a LocalRoute corresponding to OrigAddr. An RREP arrives to be forwarded toward OrigAddr, but the link to the
-next hop toward OrigAddr is uni-directional. The RREP sent toward OrigAddr using this link would not reach the next hop, and would therefore
-never reach RREQ_Gen. End-to-end route establishment will fail. If the route discovery is retried by RREQ_Gen, the same will happen. Further,
-if an intermediate router used the route toward OrigAddr to forward data traffic, the data packets would be lost.
+To ensure AODVv2 routers Routers do not establish routes over uni-directional links, AODVv2 routers MUST verify that the link to the next hop router is bidirectional before marking a route as valid in the Local Route Set.
 
 AODVv2 provides a mechanism for testing bidirectional connectivity during route discovery, and blacklisting routers where bidirectional
 connectivity is not available. If a route discovery is retried by RREQ_Gen, the blacklisted routers can be excluded from the process, and
@@ -536,16 +532,13 @@ When routers perform other operations such as those from the list below, these M
 * Promiscuous listening
 * Other monitoring mechanisms or heuristics
 
-If such an external process signals that the link to a neighbor is bidirectional, the AODVv2 router MAY update the matching Neighbor Table entry
-by changing the value of Neighbor.State to Confirmed. If an external process signals that a link is not bidirectional, the value of Neighbor.State
-MAY be changed to Blacklisted. If an external process signals that the link might not be bidirectional, and the value of Neighbor.State is currently
-Confirmed, it MAY be set to Unknown.
+If such an external process signals that the link to a neighbor is
+bidirectional, the AODVv2 router MAY update the matching Neighbor
+Table entry by changing the value of Neighbor.State to Confirmed, e.g. receipt of a Neighborhood Discovery
+Protocol HELLO message with the receiving router listed as a neighbor.  If
+an external process signals that a link is not bidirectional, the the
+value of Neighbor.State MAY be changed to Blacklisted, e.g. notification of a TCP timeout.
 
-For example, receipt of a Neighborhood Discovery Protocol HELLO message with the receiving router listed as a neighbor is a signal of bidirectional
-connectivity. The AODVv2 router MAY update the matching Neighbor Table entry by changing the value of Neighbor.State to Confirmed.
-
-Similarly, if AODVv2 receives notification of a timeout, for example, from TCP or some other protocol, this may be due to a disconnection. The
-AODVv2 router MAY update the matching Neighbor Table entry by setting the value of Neighbor.State to Unknown.
 
 
 ## Neighbor Table Update {#nbrupdate}
