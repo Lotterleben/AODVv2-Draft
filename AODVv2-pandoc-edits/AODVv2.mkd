@@ -10,8 +10,38 @@
 
 # Overview
 
-The Ad Hoc On-demand Distance Vector Version 2 (AODVv2) routing protocol (formerly named DYMO) enables
-on-demand, multihop unicast routing among AODVv2 routers in mobile ad hoc networks (MANETs) [](#RFC2501).
+The Ad hoc On-Demand Distance Vector Version 2 (AODVv2) protocol enables
+dynamic, self-starting, multihop routing between participating mobile
+nodes wishing to establish and maintain an ad hoc network. The
+basic operations of the AODVv2 protocol are route discovery and
+route maintenance.  AODVv2 does not require nodes to maintain routes
+to destinations that are not in active communication.  AODVv2 allows
+mobile nodes to respond to link breakages and changes in network
+topology in a timely manner.  The operation of AODVv2 is loop-free,
+and by avoiding the Bellman-Ford "counting to infinity" problem
+offers quick convergence when the ad hoc network topology changes
+(typically, when a node moves in the network).  When links break,
+AODVv2 causes the affected set of nodes to be notified so that they
+are able to invalidate the routes using the lost link.
+
+One distinguishing feature of AODVv2 is its use of a destination
+sequence number for each route entry.  The destination sequence
+number is created by the destination to be included along with any
+route information it sends to requesting nodes.  Using destination
+sequence numbers ensures loop freedom and is simple to program.
+Given the choice between two routes to a destination, a requesting
+node is required to select the one with the greatest sequence number.
+
+Compared to AODV [](#RFC3561), AODVv2 makes some features optional,
+notably intermediate route replies, expanding ring search, and
+precursor lists.  Hello messages and local repair have been removed.
+AODVv2 provides a mechanism for the use of multiple metric types.
+Message formats have been updated and made compliant with [](#RFC5444).
+AODVv2 control messages are defined as sets of data, which are mapped
+to message elements using the Generalized MANET Packet/Message Format
+defined in [](#RFC5444) and sent using the parameters in [](#RFC5498).
+Verification of link bidirectionality has been substantially improved, and
+additional refinements made for route timeouts and state management.
 
 Although AODVv2 is closely related to AODV [](#RFC3561), and shares some features of DSR [](#RFC4728), AODVv2 is not
 interoperable with either of those protocols. Compared to AODV, AODVv2 makes some features optional, notably
