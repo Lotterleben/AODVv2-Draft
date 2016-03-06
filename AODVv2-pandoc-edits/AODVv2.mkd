@@ -657,11 +657,11 @@ access. -->
 ## Route Discovery, Retries and Buffering  {#route_discovery}
 
 AODVv2's RREQ and RREP messages are used for route discovery. RREQ messages are multicast to solicit an RREP, whereas
-RREP is unicast where possible. The constants used in this section are defined in [](#param).
+RREP are unicast where possible. The constants used in this section are defined in [](#param).
 
 When an AODVv2 router needs to forward an IP packet (with source address OrigAddr and destination address TargAddr) from
 one of its Router Clients, it needs a route to TargAddr in its Routing Information Base. If no route exists,
-the AODVv2 router generates and multicasts a Route Request message (RREQ) containing OrigAddr and TargAddr. The procedure for this
+the AODVv2 router generates (RREQ_Gen) and multicasts a Route Request message (RREQ), on all configured interfaces, containing OrigAddr and TargAddr. The procedure for this
 is described in [](#RREQ_gen). Each generated RREQ results in an increment to the router's sequence number. The AODVv2 router generating an
 RREQ is referred to as RREQ_Gen.
 
@@ -689,18 +689,13 @@ The router responsible for TargAddr responds by generating a Route Reply message
 on the potential route to OrigAddr. Each intermediate router learns the route to TargAddr (and other addresses as indicated by TargPrefixLen),
 regenerates the RREP and sends toward OrigAddr.
 
-Links which are not bidirectional cause problems. If a link is unavailable in the direction toward OrigAddr, an RREP is not received at
-the next hop, so cannot be regenerated, and it will never reach RREQ_Gen. However, since routers monitor bidirectionality to next hops
-([](#nexthopmonitoring)), the loss of the RREP will cause the last router which regenerated the RREP to blacklist the router which did
-not receive it. Later, a timeout occurs at RREQ_Gen, and a new RREQ is generated. If the new RREQ arrives via the blacklisted router,
-it will be ignored, enabling the RREQ, if also received from a different neighbor, to discover a different path toward TargAddr.
+Through the use of bidirectional link monitoring and blacklists (see [](#nexthopmonitoring)) uni-directional links on initial selected route will be ignored on subsequent route discovery attempts.
 
 Route discovery is considered to have failed after DISCOVERY_ATTEMPTS_MAX and the corresponding wait time for an RREP response to
 the final RREQ. After the attempted route discovery has failed, RREQ_Gen waits at least RREQ_HOLDDOWN_TIME before attempting another route
 discovery to the same destination, in order to avoid repeatedly generating control traffic that is unlikely to discover a route. Any IP
 packets buffered for TargAddr are also dropped and a Destination Unreachable ICMP message (Type 3) with a code of 1 (Host Unreachable Error)
-is delivered to the source of the packet, so that the application knows about the failure. The source might be an application on RREQ_Gen
-itself, or on a difference device.
+is delivered to the source of the packet, so that the application knows about the failure.
 
 If RREQ_Gen does receive a route message containing a route to TargAddr within the timeout, it processes the message according to
 [](#aodv_msgs). When a valid LocalRoute entry is created in the Local Route Set, the route is also installed in the Routing Information Base, and
@@ -725,7 +720,7 @@ this route does not correctly reflect the cost of their route to TargAddr.
 All AODVv2 route messages contain a route. A Route Request (RREQ) contains a route toward OrigAddr (and other addresses as indicated by OrigPrefixLen),
 and a Route Reply (RREP) contains a route toward TargAddr (and other addresses as indicated by TargPrefixLen). All AODVv2 routers that receive a route
 message are able to store the route contained within it in their Local Route Set. Incoming information is first checked to verify that it is both safe
-to use and offers an improvement to existing information, as explained in [](#test). The Local Route Set MAY then be updated according to [](#update_rte).
+to use and offers an improvement to existing information, as explained in [](#test). The Local Route Set MUST then be updated according to [](#update_rte).
 
 In the processes below, RteMsg is used to denote the route message, AdvRte is used to denote the route contained within it, and LocalRoute
 denotes an existing entry in the Local Route Set which matches AdvRte on address, prefix length, and metric type.
@@ -737,7 +732,7 @@ AdvRte has the following properties:
 * AdvRte.PrefixLength := RteMsg.OrigPrefixLen (in RREQ) or RteMsg.TargPrefixLen (in RREP). If no prefix length was
   included in RteMsg, prefix length is the address length, in bits, of RteMsg.OrigAddr (in RREQ) or RteMsg.TargAddr (in RREP)
 * AdvRte.SeqNum := RteMsg.OrigSeqNum (in RREQ) or RteMsg.TargSeqNum (in RREP)
-* AdvRte.NextHop := RteMsg.IPSourceAddress (an address of the router from which the RteMsg was received)
+* AdvRte.NextHop := RteMsg.IPSourceAddress (an address of the sending interface of the router from which the RteMsg was received)
 * AdvRte.MetricType := RteMsg.MetricType
 * AdvRte.Metric := RteMsg.Metric
 * AdvRte.Cost := Cost(R) using the cost function associated with the route's metric type,
@@ -841,7 +836,7 @@ The route update is applied as follows:
     value SHOULD be expunged.
 
 1.  If this update results in LocalRoute.State of Active or Idle, which matches a route request which is still in progress,
-    the associated route request retry timers can be cancelled.
+    the associated route request retry timers SHOULD be cancelled.
 
 If this update to the Local Route Set results in two LocalRoutes to the same address, the best LocalRoute will be
 Unconfirmed. In order to improve the route used for forwarding, the router SHOULD try to determine if the link to the
