@@ -1052,7 +1052,7 @@ ValidityTime
 An RREQ is generated when an IP packet needs to be forwarded for a Router Client, and no valid route
 currently exists for the packet's destination in the Routing Information Base.
 
-Before creating an RREQ, the router SHOULD check if an RREQ has recently been sent for the requested
+Before creating an RREQ, the router SHOULD check the Multicast Route Message Table to see if an RREQ has recently been sent for the requested
 destination. If so, and the wait time for a reply has not yet been reached, the router SHOULD
 continue to await a response without generating a new RREQ. If the timeout has been reached, a new
 RREQ MAY be generated. If buffering is configured, incoming IP packets awaiting this route SHOULD be buffered until the
