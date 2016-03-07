@@ -853,7 +853,7 @@ unnecessary signaling traffic and might generate unnecessary interference.
 Each AODVv2 router stores information about recently received route messages in the AODVv2
 Multicast Route Message Table ([](#rtemsgtable)).
 
-To create a Multicast Route Message Table Entry:
+Multicast Route Message Table Entries consist of:
 
 * RteMsg.MessageType := RREQ or RREP
 * RteMsg.OrigAddr := OrigAddr from the message
@@ -907,11 +907,9 @@ To update a Multicast Route Message Table entry, set:
 * RteMsg.Timestamp := CurrentTime
 * RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
 
-Where the message is determined not redundant before Step 3, it MUST be regenerated or responded to. Where the message is determined not redundant
-in Step 3, it MAY be suppressed to avoid extra control traffic. However, since the processing of the message will
+Where the message is determined not redundant before Step 3, it MUST be regenerated or responded to. When a message is determined to be not redundant in Step 3, it MAY be suppressed to avoid extra control traffic. However, since the processing of the message will
 result in an update to the Local Route Set, the message SHOULD be regenerated or responded to, to ensure other routers
-have up-to-date information and the best metrics. If not regenerated, the best route may not be found. Where necessary,
-regeneration or response is performed using the processes in [](#aodv_msgs).
+have up-to-date information and the best metrics. If the message is not regenerated, the best route may not be found. Regeneration or response is to be performed using the processes outlined in [](#aodv_msgs).
 
 
 ## Local Route Set Maintenance  {#route_maint}
@@ -937,7 +935,7 @@ Route timeout behaviour is as follows:
    stale or fresh.
 *  In all cases, if the time since LocalRoute.LastSeqNumUpdate exceeds MAX_SEQNUM_LIFETIME, LocalRoute.SeqNum must be set to
    zero. This is required to ensure that any AODVv2 routers following the initialization procedure can safely begin routing
-   functions using a new sequence number, and that their messages will not be classified as stale and ignored. A LocalRoute with
+   functions using a new sequence number. A LocalRoute with
    LocalRoute.State set to Active or Idle can remain in the Local Route Set after removing the sequence number, but if LocalRoute.State
    is Invalid, or later becomes Invalid, the LocalRoute MUST be expunged from the Local Route Set.
 
