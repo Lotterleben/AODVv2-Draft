@@ -1199,7 +1199,10 @@ ValidityTime
 
 ### RREP Generation  {#RREP_gen}
 
-A Route Reply message is generated when a Route Request arrives, requesting a route to an address which is configured as a Router Client of the AODVv2 router.
+A Route Reply message is generated when a Route Request for 
+a Router Client of the AODVv2 router arrives. This is the case when
+RteMsg.TargAddr matches an address which is configured as a Router
+Client of the AODVv2 router.
 
 Before creating an RREP, the router SHOULD check if the corresponding RREQ is redundant, i.e.,
 a Route Reply has already been generated in response to the RREQ, or if the limit for the rate of AODVv2 control message
