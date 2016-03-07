@@ -1293,12 +1293,6 @@ though this could decrease connectivity in the network or result in non-optimal 
 The RREP SHOULD NOT be regenerated if the limit for the rate of AODVv2 control message generation
 has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
 
-If the link to the next hop neighbor on the LocalRoute to OrigAddr is not yet confirmed as bidirectional (as
-described in [](#nexthopmonitoring)), the RREP MUST include AckReq set to the intended next hop address, in
-order to perform next hop monitoring. If bidirectionality is already confirmed, the AckReq can be omitted. The
-AckReq indicates that an acknowledgement to the RREP is requested in the form of a Route Reply Acknowledgement
-(RREP_Ack) from the intended next hop router, within RREP_Ack_SENT_TIMEOUT.
-
 The procedure for RREP regeneration is as follows:
 
 1.  If the link to the next hop router toward OrigAddr is not known to be bidirectional, include the
@@ -1398,9 +1392,7 @@ destination is not reachable. There are three events that cause this response:
     Routing Information Base for its destination, the source of the packet needs to be informed that the route to the destination of
     the packet does not exist. The RERR generated MUST include PktSource set to the source address of the IP packet,
     and MUST contain only one unreachable address in the AddressList, i.e., the destination address of the IP packet. RERR_Gen MUST discard the
-    IP packet that triggered generation of the RERR. The prefix length and sequence number MAY be included if known from an Invalid
-    LocalRoute entry to PktSource. The MetricTypeList MUST also be included if a MetricType can be determined from
-    the IP packet or an existing Invalid LocalRoute to the unreachable address.
+    IP packet that triggered generation of the RERR. The prefix length, sequence number and metric type SHOULD be included if known from an existing Invalid LocalRoute to the unreachable address.
 
 *   When an RREP message cannot be regenerated because the LocalRoute to OrigAddr has been lost or is Invalid, RREP_Gen needs
     to be informed that the route to OrigAddr does not exist. The RERR generated MUST include PktSource set to
