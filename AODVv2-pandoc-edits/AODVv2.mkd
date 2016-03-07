@@ -1485,10 +1485,8 @@ Upon receiving a Route Error, an AODVv2 router performs the following steps:
     *  Update the sequence number on the existing LocalRoute, if the reported sequence number is
        determined to be newer using the comparison technique described in [](#seqnum).
 
-1.  Check if there are unreachable addresses which MUST be reported in a regenerated RERR
-    *  If so, regenerate the RERR as detailed in [](#RERR_regen).
-    *  If not, take no further action.
-
+1.  If there are previously Active LocalRoutes that MUST be reported, as identified in step 2.:
+    *  Regenerate the RERR as detailed in [](#RERR_regen).
 
 ### RERR Regeneration  {#RERR_regen}
 
@@ -1499,7 +1497,7 @@ The procedure for RERR regeneration is as follows:
 
 1.  If PktSource was included in the original RERR, and PktSource is not a Router Client, copy it into the
     regenerated RERR
-1.  For each LocalRoute that needs to be reported:
+1.  For each LocalRoute that needs to be reported as identified in [](#RERR_gen):
     *  Insert LocalRoute.Address into the AddressList.
     *  Insert LocalRoute.PrefixLength into PrefixLengthList, if known and not equal to the address
        length.
