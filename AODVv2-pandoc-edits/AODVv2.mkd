@@ -957,10 +957,6 @@ LocalRoutes are also updated when Neighbor.State is updated:
 *  When a Neighbor Table entry is removed, all routes in the Local Route Set using that neighbor as next hop MUST have LocalRoute.State set to Invalid.
 
 <!-- SUGGESTED NEW TEXT -->
-In some cases, by setting LocalRoute.State to Confirmed when Neighbor.State is set to Confirmed, an issue can occur if data packets are forwarded to LocalRoute.Address
-before the links that form the rest of the route are confirmed as bidirectional. Intermediate routers will not have a valid route to forward these data packets, and
-will generate a Route Error message. This in turn results in routes to that destination being removed from other routers. However, subsequent data packets will cause
-a new route discovery attempt to be initiated by the router with the source address of the data packet configured as a Router Client.
 
 Memory constrained devices MAY choose to expunge routes from the AODVv2 Local Route Set before LocalRoute.ExpirationTime, but
 MUST adhere to the following rules:
