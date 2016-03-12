@@ -450,8 +450,8 @@ TargAddr to the regenerating router, combining the metric value from the receive
 sender to the receiver, i.e., the incoming link cost. This updated route cost is included when regenerating the Route Reply message,
 and used to install a route back toward TargAddr.
 
-Assuming link metrics are symmetric, the cost of the routes installed in the Local Route Set at each router will be correct. The route
-discovered is optimised for the requesting router, and the return path may not be the optimal route.
+Assuming link metrics are symmetric, the cost of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
+The route discovered is optimised for the requesting router, and the return path may not be the optimal route.
 
 <!-- if not symmetric...could be stored with MAX_METRIC..then if forwarding data from a Router Client on a route with MAX_METRIC maybe this could indicate that a route should be requested, to learn the best cost from us to them, rather than them to us which is what we would have installed.  -->
 <!-- Similarly cost on route to TargAddr is currently stored with metric from targ->current. The existing route to TargAddr is probably a good one, because it was found on a prev RREQ in that direction - its just that we dont know the accurate metric. OR, we could be adding up outgoing link costs back toward targaddr in a rrep, and also transporting the orig->targ metric unchanged, add up outgoing metrics to get correct cost for targaddr -->
