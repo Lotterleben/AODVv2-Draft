@@ -568,7 +568,12 @@ A new Neighbor Table entry is created as follows:
 * Neighbor.State := Unknown
 * Neighbor.ResetTime := INFINITY_TIME
 
-If the message is an RREP which answers a recently sent RREQ, or an RREP_Ack which answers a recently sent RREP, the link to the
+If the message is one of the following:
+
+* an RREP which answers a RREQ sent within RREQ_WAIT_TIME <!-- TODO? also check if it matches an existing unconfirmed route -->
+* an RREP_Ack which answers a RREP sent within RREP_Ack_SENT_TIMEOUT
+
+the link to the
 neighbor is bidirectional and the Neighbor Table entry is updated as follows:
 
 * Neighbor.State := Confirmed <!-- could set reset time when set state to confirmed, to re-test after certain time -->
