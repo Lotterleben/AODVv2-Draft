@@ -415,7 +415,7 @@ RteMsg.TargPrefixLen
 RteMsg.OrigSeqNum
 :   <vspace/>The sequence number associated with the route to OrigAddr, if RteMsg is an RREQ.
 RteMsg.TargSeqNum
-:   <vspace/>The sequence number associated with the route to TargAddr, if present in the RteMsg.
+:   <vspace/>The sequence number associated with the route to TargAddr, if RteMsg is an RREP.
 RteMsg.MetricType
 :   <vspace/>The metric type of the route requested.
 RteMsg.Metric
