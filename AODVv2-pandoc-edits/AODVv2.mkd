@@ -457,9 +457,7 @@ The route discovered is optimised for the requesting router, and the return path
 <!-- Similarly cost on route to TargAddr is currently stored with metric from targ->current. The existing route to TargAddr is probably a good one, because it was found on a prev RREQ in that direction - its just that we dont know the accurate metric. OR, we could be adding up outgoing link costs back toward targaddr in a rrep, and also transporting the orig->targ metric unchanged, add up outgoing metrics to get correct cost for targaddr -->
 
 AODVv2 enables the use of multiple metric types. Each route discovery attempt indicates the metric type which is requested for
-the route. Only one metric type MUST be used in each route discovery attempt. However, routes to a single destination might be
-requested and created in the Local Route Set for multiple metric types. The decision of which of these routes to install in the
-Routing Information Base to use for forwarding is outside the scope of AODVv2.
+the route. Only one metric type MUST be used in each route discovery attempt.
 
 For each MetricType, AODVv2 requires:
 
