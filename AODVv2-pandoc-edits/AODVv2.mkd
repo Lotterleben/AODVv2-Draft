@@ -378,7 +378,7 @@ is INFINITY_TIME. -->
 
 Note that multiple entries for the same address, prefix length and metric type may exist in the Local Route Set, but only
 one will be a valid entry. Any others will be Unconfirmed, but may offer improvement to the existing valid route, if they can
-be confirmed as valid routes (see [](#nexthopmonitoring)).
+be confirmed as valid routes (see [](#nexthopmonitoring)). [](#routestatechanges) also describes the appropriate changes in this situation.
 
 Multiple valid routes for the same address and prefix length but for different metric types may exist in the Local Route Set, but
 the decision of which of these routes to install in the Routing Information Base to use for forwarding is outside the scope of AODVv2.
