@@ -2091,160 +2091,376 @@ I picked these as the handiest strictly increasing values available for use.
 Other designs are possible.
   -->
 
-This section describes various security considerations and potential avenues to secure
-AODVv2 routing. The objective of the AODVv2 protocol is for each router to communicate
-reachability information about addresses for which it is responsible, and for routes it
-has learned from other AODVv2 routers. Positive routing information (i.e. a route exists)
-is distributed via RREQ and RREP messages.  AODVv2 routers store the information
-contained in these messages in order to properly forward IP packets, and they generally
-provide this information to other AODVv2 routers. Negative routing information (i.e. a route
-does not exist) is distributed via RERR messages. AODVv2 routers process these messages and
-remove routes, and forward this information to other AODVv2 routers.
+This section describes various security considerations and potential
+avenues to secure AODVv2 routing.  The main objective of the AODVv2
+protocol is for each router to communicate reachability information
+about addresses for which it is responsible, and for routes it has
+learned from other AODVv2 routers.
 
-Networks using AODVv2 to maintain connectivity and establish routes on demand may be
-vulnerable to certain well-known types of threats. Flooding attacks using RREQ amount
-to a denial of service for route discovery. Valid route table entries can be replaced
-by maliciously constructed RREQ and RREP messages.  Links could be erroneously treated
-as bidirectional if malicious unsolicited RREP or RREP_Ack messages were to be accepted.
-Replay attacks using RERR messages could, in some circumstances, be used to disrupt active
-routes. Passive inspection of AODVv2 control messages could enable unauthorized devices
-to gain information about the network topology, since exchanging such information is the
-main purpose of AODVv2.
-
-The on-demand nature of AODVv2 route discovery reduces the vulnerability to route disruption.
-Since control traffic for updating route tables is diminished, there is less opportunity
-for failure. Processing requirements for AODVv2 are typically quite small, and would
-typically be dominated by calculations to verify integrity. This has the effect of reducing
-(but by no means eliminating) AODVv2's vulnerability to denial of service attacks.
-
-Encryption MAY be used for AODVv2 messages. If the routers share a packet-level
-security association, the message data can be encrypted prior to message transmission.
-The establishment of such security associations is outside the scope of this specification.
-Encryption will not only protect against unauthorized devices obtaining information about
-network topology but will ensure that only trusted routers participate in routing operations.
-
-Message integrity checking is enabled by the Integrity Check Value mechanisms defined in
-[](#RFC7182). The data contained in AODVv2 routing protocol messages SHOULD be verified using
-ICV values, to avoid the use of message data if the message has been tampered with or replayed.
-Otherwise, it would be possible to disrupt communications by injecting nonexistent or malicious
-routes into the route tables of routers within the ad hoc network.  This can result in loss of
-data or message processing by unauthorized devices.
-
-The remainder of this section provides specific recommendations for the use of the integrity
-checking and timestamp functions defined in [](#RFC7182) to ensure the integrity of each
-AODVv2 message. The calculation used for the Integrity Check Value will depend on the message
-type. Sequence numbers can be used as timestamps to protect against replay, since they are
-known to be strictly increasing.
-
-RREQ messages advertise a route to OrigAddr, and impose very little processing requirement
-for receivers. The main threat presented by sending an RREQ message with false information
-is that traffic to OrigAddr could be disrupted.  Since RREQ is multicast and likely to be
-received by all routers in the ad hoc network, this threat could have serious impact on
-applications communicating by way of OrigAddr. The actual threat to disrupt routes to
-OrigAddr is reduced by the AODVv2 mechanism of marking RREQ-derived routes as "Unconfirmed"
-until the link to the next hop is confirmed.  If AODVv2 routers always verify the integrity
-of the RREQ message data, then the threat of disruption is minimized.  The ICV mechanisms
-offered in [](#RFC7182) are sufficient for this purpose.  Since OrigAddr is included in
-the RREQ, the ICV can be calculated and verified using message contents. The
-ICV SHOULD be verified at every step along the dispersal path of the RREQ to mitigate the
-threat. Since RREQ_Gen's sequence number is incremented for each new RREQ, replay protection
-is already afforded and no extra timestamp mechanism is required.
-
-RREP messages advertise a route to TargAddr, and impose very little processing requirement
-for receivers.  The main threat presented by sending an RREP message with false information
-is that traffic to TargAddr could be disrupted.  Since RREP is unicast, this threat is
-restricted to receivers along the path from OrigAddr to TargAddr. If AODVv2 routers always
-verify the integrity of the RREP message data, then this threat is minimized. This facility
-is offered by the ICV mechanisms in [](#RFC7182). Since TargAddr is included as a Data
-Element of the RREP, the ICV can be calculated and verified using message contents. The
-ICV SHOULD be verified at every step along the unicast path of the RREP. Since RREP_Gen's
-sequence number is incremented for each new RREP, replay protection is afforded and no extra
-timestamp mechanism is required.
-
-RREP_Ack messages are intended to verify bidirectional neighbor connectivity, and impose very
-little processing requirement for receivers.  The main threat presented by sending an RREP_Ack
-message with false information is that the route advertised to a target address in an RREP might
-be erroneously accepted even though the route would contain a unidirectional link and thus
-not be suitable for most traffic. Since RREP_Ack is unicast, this threat is strictly local to
-the RREP transmitter expecting the acknowledgement.  A malicious router could also attempt to
-send an unsolicited RREP_Ack to convince another router that a bidirectional link exists and
-subsequently use further messages to divert traffic along a route which is not valid. If AODVv2
-routers always verify the integrity of the RREP_Ack message data, then this threat is minimized.
-This facility is offered by the ICV mechanisms in [](#RFC7182). The RREP_Gen SHOULD use the
-source IP address of the RREP_Ack to identify the sender, and so the ICV SHOULD be calculated
-using the message contents and the IP source address.  The message must also include the
-Timestamp defined in [](#RFC7182) to protect against replay attacks, using TargSeqNum from the
-RREP as the value in the TIMESTAMP TLV.
-
-RERR messages remove routes, and impose very little processing requirement for receivers. The
-main threat presented by sending an RERR message with false information is that traffic to the
-advertised destinations could be disrupted.  Since RERR is multicast and can be received by
-many routers in the ad hoc network, this threat could have serious impact on applications
-communicating by way of the sender of the RERR message. However, since the sender of the RERR
-message with erroneous information MAY be presumed to be either malicious or broken, it is
-better that such routes not be used anyway.  Another threat is that a malicious RERR message
-MAY be sent with a PktSource included, to disrupt PktSource's ability to send to
-the addresses contained in the RERR. If AODVv2 routers always verify the integrity of the RERR
-message data, then this threat is reduced.  This facility is offered by the ICV mechanisms in
-[](#RFC7182). The receiver of the RERR SHOULD use the source IP address of the RERR to identify
-the sender. The message must also include the Timestamp defined in [](#RFC7182) to protect
-against replay attacks, using SeqNum from RERR_Gen as the value in the TIMESTAMP TLV.
-
-<!-- This "should" require new extension type 2 for the TIMESTAMP TLV  -->
-
-
-
-<!--  ================ OLD TEXT ================== -->
-<!-- CEP: this paragraph can be deleted, but I don't see the harm in including it... -->
-<!-- If a router transmits incorrect or false routing information, it will likely be stored and propagated.-->
-
-<!--  ================ OLD TEXT ================== -->
-<!--
- Security for authentication of AODVv2 routers, and/or encryption of traffic is dealt with by
- the underlying transport mechanism (e.g., by using the techniques for Authentication, Integrity,
- and Confidentiality documented in [](#RFC5444)). The most important security mechanism for AODVv2
- routing is integrity/authentication. -->
+Networks using AODVv2 to maintain connectivity and establish routes
+on demand may be vulnerable to certain well-known types of threats,
+which will be detailed in the following. Some of the threats described
+can be mitigated or eliminated. Tools to do so will be described also.
 
 <!--
- In situations where routing information are suspect, integrity and authentication techniques
- SHOULD be applied to AODVv2 messages. In these situations, routing information that is distributed
- over multiple hops SHOULD also verify the integrity of information based on originator of the
- routing information.
+TODO:
+   "The threat environment addressed by the Security Considerations
+   section MUST at a minimum include deployment across the global
+    Internet across multiple administrative boundaries without assuming
+    that firewalls are in place, even if only to provide justification
+    for why such consideration is out of scope for the protocol."
+-->
 
- In situations where confidentiality of AODVv2 messages is important, cryptographic techniques can be
- applied.
+Since route messages are regenerated at each router, AODVv2 assumes a security
+model of transitive trust. The sender of a message MUST be trusted in order
+for receiving one-hop neighbours to store the routing information it
+provides and regenerate the message to their own one-hop neighbours.
 
- In certain situations, for example sending an RREP or RERR, an AODVv2 router could include proof that
- it has previously received valid routing information to reach the destination, at one point of time
- in the past. In situations where routers are suspected of transmitting maliciously erroneous
- information, the original routing information along with its security credentials SHOULD be included.
+Routes are installed based on information received from trusted neighbours.
+Therefore a chain of trust back to the originator of a message is assumed
+by any router using the routing information received.
 
- Note that if multicast is used, any confidentiality and integrity algorithms used MUST permit
- multiple receivers to handle the message [](#RFC7182).
+Since messages are regenerated rather than forwarded, the message concepts
+known as RREQ, RREP and RERR do not travel as a single unchanged entity
+between source and destination, and therefore message integrity cannot be
+assured end-to-end between OrigAddr and TargAddr.
 
- Routing protocols, however, are prime targets for impersonation attacks.  In networks where the
- node membership is not known, it is difficult to determine the occurrence of impersonation
- attacks, and security prevention techniques are difficult at best. However, when the network
- membership is known and there is a danger of such attacks, AODVv2 messages must be protected by
- the use of authentication techniques, such as those involving generation of unforgeable and
- cryptographically strong message digests or digital signatures. -->
+The on-demand nature of AODVv2 route discovery automatically reduces
+the vulnerability to route disruption. Since control traffic for
+updating route tables is diminished, there is less opportunity for
+attack and failure.
 
-<!-- DEREK comments
-Some threats to the system could include an injection of RERR message either by an outside attacker,
-a rogue router, or a compromised router.  The TTL check protects against some injection techniques
-unless it's injected by an actual rogue or compromised router.
 
-In terms of source identification of a RREQ or RREP you might want to add a digital signature field
-(which also requires some nonce or timestamp to protect against replay attacks).  There's also a
-question of how you authorize a router to supply an RREP.  For example a rogue or compromised router
-could decide to "advertize" a route by responding with an RREP even though it's not necessarily the
-"best" route or it might not even have a route toward the destination.
+## Availability {#security-availability}
 
-When an intermediate router generates an RREP it needs to authenticate that it has the original route.
-Perhaps what needs to happen is that it includes the original RREP signed by the TargNode in order to
-prove that it HAD (at one point in the past) a valid route toward the TargAddr. This is particularly
-an issue in generating the RREP on the fly to the TargAddr from the OrigAddr because there IS no RREP.
-In this case it might want to include the original RREQ from the OrigAddr as the authentication token. -->
+Threats to AODVv2 which reduce availability are considered below.
+
+### Denial of Service {#security-availability-dos}
+
+Flooding attacks using RREQ amount to a (BLIND) denial of service for route discovery: By
+issuing RREQ messages for targets that don't exist, an attacker can flood the network, blocking
+resources and drowning out legitimate traffic. The effect of this attack is dampened by the
+fact that duplicate RREQ messages are dropped (preventing the network from DDoSing itself).
+Processing requirements for AODVv2 messages are typically quite small, however AODVv2 routers
+receiving RREQs do allocate resources in the form of Neighbor Table, Local Route Set and Multicast
+Route Message Table entries. The attacker can maximize their impact on table growth by changing
+OrigAddr for each RREQ. If a specific node is to be targeted, this attack may be carried out in
+a DISTRIBUTED fashion, either by compromising its direct neighbors or by specifying the target's
+address as TargAddr.
+
+Mitigation:
+
+*   If AODVv2 routers always verify that the sender of the RERR message is trusted, this threat is
+    reduced. Processing requirements would typically be dominated by calculations to verify integrity.
+    This has the effect of reducing (but by no means eliminating) AODVv2's vulnerability to denial of
+    service attacks.
+
+<!--
+TODO
+ "This description MUST
+   include the reasons it was either unreasonable or out of scope to
+   attempt to avoid these denial of service attacks.":
+   - Authentication of senders may prevent "foreign" nodes from DoSing, but does
+     not protect from rogue routers (note that we currently don't propose any
+     authentication mechanisms)
+   - In the corner case that network architecture is previously known, "legal"
+     addresses could be administratively configured?
+   (- is this sufficient? Am I overlooking a way to prevent this here?)
+-->
+
+### Malicious RERR messages {#security-availability-rerr}
+
+RERR messages are designed to cause removal of installed routes. A malicious node could
+send an RERR message with false information to attempt to get other routers to remove a
+route to one or more specific destinations, therefore disrupting traffic to the advertised
+destinations.
+
+Routes will be deleted if an RERR is received, withdrawing a route for which the sender is
+the receiver's next hop, and when the RERR includes the MetricType of the installed route,
+and includes either no sequence number for the route, or includes a greater sequence number
+than the sequence number stored with that route in the receiver's Local Route Set. Routes
+will also be deleted if a received RERR contains a PktSource address corresponding to a Router
+Client.
+
+The information necessary to construct a malicious RERR could be learned by eavesdropping,
+either by listening to AODVv2 messages or by watching data packet flows.
+
+Since the RERR is multicast, it can be received by many routers in the ad hoc network, and will
+be regenerated when processing results in an active route being removed. This threat could
+have serious impact on applications communicating by way of the sender of the RERR message.
+
+*  The set of routers which use the malicious router as a next hop may be targeted with
+    a malicious RERR with no PktSource address included, if the RERR contains routes for which
+    the malicious router is a next hop from the receiving router. However, since the sender of
+    the RERR message is either malicious or broken, it is better that it is not used as a next
+    hop for these routes anyway.
+*  A single router which does not use the malicious router as part of its route may be targeted
+    with a malicious RERR with a PktSource address included.
+*   Replayed RERR messages could be used to disrupt active routes.
+
+Mitigation:
+
+*   Protection against eavesdropping of AODVv2 messages would mitigate this attack to some extent,
+    but eavesdropping of data packets can also be used to deduce the information about which routes
+    could be targeted.
+*   Protection against a malicious router becoming part of a route will mitigate the attack where a
+    set of routers are targeted. This will not protect against the attack if a PktSource address is
+    included.
+*   By only regenerating RERR messages where active routes are removed, the spread of the malicious
+    RERR is limited.
+*   Including sequence numbers in RERR messages offers protection against attacks using replays of
+    these RERR messages.
+*   If AODVv2 routers always verify that the sender of the RERR message is trusted, this threat is
+    reduced.
+
+### False Confirmation of Link Bidirectionality {#security-availability-bidirectionality}
+
+Links could be erroneously treated as bidirectional if malicious unsolicited or spoofed RREP
+messages were to be accepted. This would result in a route being installed which could
+not in fact be used to forward data to the destination, and may divert data packets away from the
+intended destination.
+
+There is a window of RREQ_WAIT_TIME after an RREQ is sent, in which any malicious router could
+send an RREP in response, in order for the link to the malicious router to be deemed as
+bidirectional.
+
+Mitigation:
+
+*   Ignoring unsolicited RREP and RREP_Ack messages partially mitigates against this threat.
+*   If AODVv2 routers always verify that the sender of the RERR message is trusted, this threat is
+reduced.
+
+### Message Deletion {#security-availability-deletion}
+
+A malicious router could decide not to regenerate a RREQ or RREP or RERR message. Not regenerating a
+RERR or RREP message would disrupt route discovery. Not regenerating a RERR message would result in the
+source of data packets continuing to maintain and use the route, and further RERR messages being generated
+by the sender of the non-regenerated RERR. A malicious router could intentionally disrupt traffic flows by
+not allowing the source of data traffic to re-discover a new route when one breaks.
+
+Failing to send a RREP_Ack would also disrupt route establishment, by not allowing the reverse route to be
+validated. Return traffic which needs that route will prompt a new route discovery, wasting resources and
+incurring a slight delay but not disrupting the ability for applications to communicate.
+
+Mitigation:
+
+* None. also note that malicious router would have to wait for a route to break before it could perform this attack.
+
+## Confidentiality {#security-confidentiality}
+
+Passive inspection (eavesdropping) of AODVv2 control messages could enable unauthorized devices to gain
+information about the network topology, since exchanging such information is the main purpose of AODVv2.
+
+Eavesdropping of data traffic could allow a malicious device to obtain information about how data traffic
+is being routed. With knowledge of source and destination addresses, malicious messages could be constructed
+to disrupt normal operation.
+
+## Integrity {#security-integrity}
+
+Integrity of route information can be compromised in the following types of attack:
+
+### Message Insertion {#security-integrity-insertion}
+
+Valid route table entries can be replaced or modified by maliciously constructed AODVv2 messages, destroying
+existing routes and the network's integrity. Any router may pose as another router by sending RREQ, RREP,
+RREP_Ack and RERR messages in its name.
+
+*  Sending an RREQ message with false information can disrupt traffic to OrigAddr, if the sequence
+    number attached is not stale compared to any existing information about OrigAddr. Since RREQ
+    is multicast and likely to be received by all routers in the ad hoc network, this threat
+    could have serious impact on applications communicating with OrigAddr. The actual threat
+    to disrupt routes to OrigAddr is reduced by the AODVv2 mechanism of marking RREQ-derived
+    routes as "Unconfirmed" until the link to the next hop is confirmed.
+
+*  Sending an RREP message with false information can disrupt traffic to TargAddr. Since RREP
+    is unicast, and ignored if a corresponding RREQ was not recently sent, this threat is minimized,
+    and is restricted to receivers along the path from OrigAddr to TargAddr.
+
+*  Sending an RREP_Ack message with false information can cause the route advertised to a target
+    address in an RREP to be erroneously accepted even though the route would contain a unidirectional
+    link and thus not be suitable for most traffic. Since RREP_Ack is unicast, and ignored if a RREP was
+    not sent recently to the sender of the RREP_Ack, this threat is minimized and is strictly local
+    to the RREP transmitter expecting the acknowledgement. Unsolicited RREP_Acks are ignored.
+
+*  Sending an RERR message with false information is discussed in [](#security-availability-rerr).
+
+Mitigation:
+*   If AODVv2 routers always verify that the sender of a message is trusted, this threat is
+reduced.
+
+
+### Message Modification - Man in the Middle {#security-integrity-mitm}
+
+Any AODVv2 router can regenerate messages with modified data.
+
+Mitigation:
+
+*   If AODVv2 routers verify the integrity of AODVv2 messages, then the threat of disruption is minimized. A
+man in the middle with no knowledge of the shared secret key used to calculate an integrity check value
+MAY modify a message but the message will be rejected when it fails an integrity check.
+
+### Replay Attacks {#security-integrity-relay}
+
+Replaying of RREQ or RREP messages would be of less use to an attacker, since they would be
+dropped immediately due to their stale sequence number. RERR messages MAY or MAY NOT include
+sequence numbers and are therefore susceptible to replay attacks. RREP_Ack messages do not
+include sequence numbers and are therefore susceptible to replay attacks.
+
+Mitigation:
+
+*   Use of timestamps or sequence numbers prevents replay attacks.
+
+## Protection Mechanisms {#security-protection}
+
+### Confidentiality and Authentication {#security-protection-confidentiality}
+
+Encryption MAY be used for AODVv2 messages.  If the routers share a
+packet-level security association, the message data can be encrypted
+prior to message transmission.  The establishment of such security
+associations is outside the scope of this specification.  Encryption
+will not only protect against unauthorized devices obtaining
+information about network topology (eavesdropping) but will ensure that
+only trusted routers participate in routing operations.
+
+### Integrity and Trust using ICVs {#security-protection-integrity}
+
+Cryptographic Integrity Check Values (ICVs) can be used to ensure integrity of received messages,
+protecting against man in the middle attacks. Further, by using ICVs, only those routers with knowledge
+of a shared secret key are allowed to participate in routing information exchanges. [](#RFC7182) defines
+ICV TLVs for use with [](#RFC5444).
+
+The data contained in AODVv2 routing protocol messages MUST be verified using Integrity Check
+Values, to avoid the use of message data if the message has been tampered with.
+
+The method of distribution of shared secret keys is out of the scope of this protocol. Key
+management is not specified for the following reasons:
+
+<!--
+TODO (like OLSRv2 section 23.6)
+-->
+
+### Replay Protection using Timestamps {#security-protection-replay}
+
+Replay attacks MUST be prevented by using timestamps or sequence numbers in messages. [](#RFC7182) defines a
+TIMESTAMP TLV for use with [](#RFC5444).
+
+The data contained in AODVv2 routing protocol messages MUST be protected with a TIMESTAMP value
+to ensure the protection against replaying of the message. Sequence numbers can be used as
+timestamps, since they are known to be strictly increasing.
+
+### Application to AODVv2 {#security-protection-application}
+
+<!--
+TODO: choose HASH_FUNCTION and CRYPTOGRAPHIC_FUNCTION.
+-->
+
+Implementations of AODVv2 MUST support ICV TLVs using type-extensions 1 and 2,
+hash-function HASH_FUNCTION, and cryptographic function CRYPTOGRAPHIC_FUNCTION. An ICV
+MUST be included with every message. The ICV value MAY be truncated as specified in [](#RFC7182).
+
+Implementations of AODVv2 MUST support a TIMESTAMP TLV using type-extension 0. The timestamp used
+is a sequence number, and therefore the length of the \<TIMESTAMP-value\> field matches the AODVv2
+sequence number defined in [](#seqnum). The TIMESTAMP TLV MUST be included in RREP_Ack and RERR
+messages.
+
+When more than one message is included in an RFC5444 packet, using a single ICV Packet TLV or
+single TIMESTAMP Packet TLV is more efficient than including ICV and TIMESTAMP Message TLVs in
+each message created. In this case, the RFC5444 multiplexer MUST be instructed to include the
+Packet TLVs in packets containing AODVv2 messages, or MUST be selected because it always performs
+these additions. If the multiplexer is not capable of adding the Packet TLVs, the TLVs MUST be
+included as Message TLVs in each AODVv2 message in the packet.
+
+After message generation but before transmission, the ICV and TIMESTAMP TLVs MUST be added
+according to each message type as detailed in the following sections. The following steps list the
+generic procedure to be performed:
+
+1.  The considerations in Section 8 of [](#RFC7182) are followed, removing existing ICV TLVs
+    and adjusting the size and flags fields.
+
+2. The ICV is calculated over the fields specified below, depending on message type. This value
+    MAY be truncated (as specified in [](#RFC7182)).
+
+3. If the TIMESTAMP is to be included, add the TIMESTAMP TLV, updating size fields as necessary.
+
+4. Add the ICV TLV, updating size fields as necessary.
+
+5. The changes made in Step 1 are reversed to re-add any existing ICV TLVs and adjusting the
+    size and flags fields.
+
+The ICV MUST be verified at the receiver. Verification of a received ICV value is performed by
+repeating Step 1 and Step 2. If the ICV value calculated from the received message or packet does
+not match the value of \<ICV-data\> in the received message or packet, the validation fails and the
+AODVv2 message MUST be discarded.
+
+Verification of a received TIMESTAMP value is performed differently depending on message type.
+
+<!--
+TODO: "If the protocol incorporates cryptographic
+protection mechanisms, it should be clearly indicated which portions
+of the data are protected and what the protections are (i.e.,
+integrity only, confidentiality, and/or endpoint authentication,
+etc.). Some indication should also be given to what sorts of attacks
+the cryptographic protection is susceptible.   Data which should be
+held secret (keying material, random seeds, etc.) should be clearly
+labeled."
+
+TODO:
+"There should be a clear description of the residual risk to the user
+or operator of that protocol after threat mitigation has been
+deployed." (i.e. detail what happens if parts are compromised, weak cipher
+is deployed etc)
+-->
+
+#### RREQ Generation and Reception {#security-protection-application-rreq}
+
+Since OrigAddr is included in the RREQ, the ICV can be calculated and verified using all
+of the message contents. This provides message integrity and endpoint authentication,
+because trusted routers MUST hold the shared key in order to calculate the ICV value.
+The ICV TLV has type extension := 1.
+
+Since RREQ_Gen's sequence number is incremented for each new RREQ, replay protection is
+already afforded and no extra timestamp mechanism is required.
+
+#### RREP Generation and Reception {#security-protection-application-rrep}
+
+Since TargAddr is included in the RREP, the ICV can be calculated and verified using all
+of the message contents. This provides message integrity and endpoint authentication,
+because trusted routers MUST hold the shared key in order to calculate the ICV value.
+The ICV TLV has type extension := 1.
+
+Since RREP_Gen's sequence number is incremented for each new RREP, replay protection is
+afforded and no extra timestamp mechanism is required.
+
+#### RREP_Ack Generation and Reception {#security-protection-application-rrepack}
+
+The RREP_Gen uses the source IP address of the RREP_Ack to identify the sender to look up whether
+the RREP_Ack is expected and update the Neighbour Table, and so the ICV MUST be calculated using
+the message contents and the IP source address. The ICV TLV has type extension := 2 in order to
+accomplish this. This provides message integrity and endpoint authentication, because trusted routers
+MUST hold the shared key in order to calculate the ICV value.
+
+The message MUST also include a timestamp to protect against replay attacks, using TargSeqNum from
+the RREP as the value in the TIMESTAMP TLV. Verification of a received TIMESTAMP value is performed
+by comparing the sequence number in the \<TIMESTAMP-value\> field with the sequence number in a recently
+sent RREP awaiting acknowledgement from the sender of the RREP_Ack. If the sequence number is not
+equal, the AODVv2 message MUST be discarded.
+
+
+#### RERR Generation and Reception {#security-protection-application-rerr}
+
+The receiver of the RERR MUST use the source IP address of the RERR to identify the sender to look
+up routes using that sender as next hop, and so the ICV MUST be calculated using the message contents
+and the IP source address. The ICV TLV has type extension := 2 in order to accomplish this. This provides
+message integrity and endpoint authentication, because trusted routers MUST hold the shared key in order
+to calculate the ICV value.
+
+The message MUST also include a timestamp to protect against replay attacks, incrementing and using
+RERR_Gen's sequence number as the value in the TIMESTAMP TLV. Verification of a received TIMESTAMP
+value is performed by comparing the sequence number in the \<TIMESTAMP-value\> field with the last seen
+sequence number from the sender of the RERR. If the sequence number is not greater, the AODVv2
+message MUST be discarded.
+
+
 
 <!--
  Most AODVv2 messages are transmitted to the multicast address LL-MANET-Routers [](#RFC5498).  It is
