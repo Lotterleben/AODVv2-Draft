@@ -640,13 +640,11 @@ To avoid congestion, each AODVv2 router's rate of message generation SHOULD be l
 configurable. Messages SHOULD NOT be sent more frequently than one message per (1 / CONTROL_TRAFFIC_LIMIT)th of a second. If this threshold is reached, messages MUST be sent based on their priority:
 
 * Highest priority SHOULD be given to RREP_Ack messages. This allows links between routers to be confirmed as bidirectional and
-  avoids undesirable blacklisting of next hop routers.
-* Second priority SHOULD be given to RERR messages for undeliverable IP packets, so that broken routes that are still in use by other
-  AODVv2 routers can be reported to those routers, to avoid IP data packets being repeatedly forwarded to AODVv2 routers which cannot
-  forward them to their destination.
+  avoids undesired blacklisting of next hop routers.
+* Second priority SHOULD be given to RERR messages for undeliverable IP packets. This avoids repeated forwarding of packets over broken routes that are still in use by other routers.
 * Third priority SHOULD be given to RREP messages in order that RREQs do not time out.
-* RREQ messages SHOULD be given priority over RERR messages for newly invalidated routes, since the invalidated routes may not still be
-  in use, and if there is an attempt to use the route, a new RERR message will be generated.
+* Fourth priority should be given to RREQ messages.
+* Fifth priority should be given to RERR messages for newly invalidated routes.
 * Lowest priority SHOULD be given to RERR messages generated in response to RREP messages which cannot be regenerated. In this case the
   route request will be retried at a later point.
 
