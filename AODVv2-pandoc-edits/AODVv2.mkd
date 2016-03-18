@@ -652,7 +652,7 @@ configurable. Messages should be arranged in a queue by priority:
 * Lowest priority SHOULD be given to RERR messages generated in response to RREP messages which cannot be regenerated. In this case the
   route request will be retried at a later point.
 
-Messages SHOULD NOT be sent more frequently than one message per (1 / CONTROL_TRAFFIC_LIMIT)th of a second. If this threshold is reached, messages with the lowest priority MUST be dropped from the queue.
+Messages MUST NOT be sent more frequently than one message per (1 / CONTROL_TRAFFIC_LIMIT)th of a second. If this threshold is reached, messages with the lowest priority MUST be dropped from the queue.
 
 <!-- Messages may travel a maximum of MAX_HOPCOUNT hops. -->
 
