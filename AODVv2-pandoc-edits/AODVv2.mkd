@@ -613,7 +613,7 @@ AODVv2 needs to send signals to the forwarding plane:
 *   A route discovery failed: any buffered packets requiring that route should be discarded, and the source of the packet
     should be notified that the destination is unreachable (using an ICMP Destination Unreachable message). Route discovery fails
     if an RREQ cannot be generated because the control message generation limit has been reached, or if an RREP is not received
-    within the expected time.
+    within RREQ_WAIT_TIME (see [](#route_discovery)).
 *   A route discovery is not permitted: any buffered packets requiring that route should be discarded. A route discovery will
     not be attempted if the source address of the packet needing a route is not configured as a Router Client.
 *   A route discovery succeeded: install a corresponding route into the Routing Information Base and begin transmitting any buffered packets.
