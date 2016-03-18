@@ -639,7 +639,7 @@ is recommended. Employing [](#RFC6621) in a subset of the operational AODVv2 rou
 on different routers, will not cause interoperability issues, but will reduce the effectiveness of the multicast reduction scheme. -->
 
 To avoid congestion, each AODVv2 router's rate of message generation SHOULD be limited (CONTROL_TRAFFIC_LIMIT) and administratively
-configurable. To prioritize transmission of AODVv2 control messages in order to respect the CONTROL_TRAFFIC_LIMIT:
+configurable. Messages should be arranged in a queue by priority:
 
 * Highest priority SHOULD be given to RREP_Ack messages. This allows links between routers to be confirmed as bidirectional and
   avoids undesirable blacklisting of next hop routers.
@@ -651,6 +651,8 @@ configurable. To prioritize transmission of AODVv2 control messages in order to 
   in use, and if there is an attempt to use the route, a new RERR message will be generated.
 * Lowest priority SHOULD be given to RERR messages generated in response to RREP messages which cannot be regenerated. In this case the
   route request will be retried at a later point.
+
+Messages SHOULD NOT be sent more frequently than one message per (1 / CONTROL_TRAFFIC_LIMIT)th of a second. If this threshold is reached, messages with the lowest priority MUST be dropped from the queue.
 
 <!-- Messages may travel a maximum of MAX_HOPCOUNT hops. -->
 
