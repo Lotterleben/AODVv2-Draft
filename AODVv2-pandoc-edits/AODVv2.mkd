@@ -939,7 +939,7 @@ Route timeout behaviour is as follows:
 *  In all cases, if the time since LocalRoute.LastSeqNumUpdate exceeds MAX_SEQNUM_LIFETIME, LocalRoute.SeqNum must be set to
    zero. This is required to ensure that any AODVv2 routers following the initialization procedure can safely begin routing
    functions using a new sequence number. A LocalRoute with
-   LocalRoute.State set to Active or Idle can remain in the Local Route Set after removing the sequence number, but if LocalRoute.State
+   LocalRoute.State set to Active or Idle can remain in the Local Route Set after removing the sequence number, for exmple if the route is reliably carrying traffic. If LocalRoute.State
    is Invalid, or later becomes Invalid, the LocalRoute MUST be expunged from the Local Route Set.
 
 LocalRoutes can become Invalid before a timeout occurs:
