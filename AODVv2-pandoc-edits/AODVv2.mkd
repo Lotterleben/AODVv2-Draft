@@ -390,7 +390,7 @@ the decision of which of these routes to install in the Routing Information Base
 ## Multicast Route Message Table  {#rtemsgtable}
 
 A route message (RteMsg) is either a Route Request or Route Reply message. RREQ messages are multicast by default and regenerated
-multiple times, and RREP messages may be multicast when the link to the next router is not known to be bidirectional. Multiple similar
+multiple times, and RREP messages will be multicast when the link to the next router is not known to be bidirectional. Multiple similar
 route messages might be received by any one router during one route discovery attempt. The AODVv2 router does not need to regenerate or respond to every
 one of these messages.
 
@@ -1336,9 +1336,17 @@ The RREP_Ack is unicast, by default, to the source IP address of the RREP messag
 
 Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
 
-1.   Check if the RREP_Ack was expected from the IP source address of the RREP_Ack, in response to an RREP sent previously by this router
-     * If it was expected, the router cancels any associated timeouts and processing continues to Step 2.
-     * If it was not expected, no actions are required and processing ends.
+1.   Check if the RREP_Ack was expected:
+
+    * Check if the Multicast Route Message Table contains an entry where:
+        * RteMsg.MessageType == RREP
+        <!--
+        * TODO: how do I check that the IP source address of the RREP_Ack matches the address the RREP was sent to?
+        -->
+        * RteMsg.Timestamp > CurrentTime - RREP_Ack_SENT_TIMEOUT
+
+     * If it does, the router cancels any associated timeouts and processing continues to Step 2.
+     * Otherwise no actions are required and processing ends.
 1.   Update the Neighbor Table according to [](#nbrupdate)
 
 <!-- CEP: Need to define RREP_Ack_timeout.  To avoid handling extra
