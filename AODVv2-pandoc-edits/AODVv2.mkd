@@ -853,21 +853,19 @@ messages. Regenerating every one of these gives little additional benefit, and g
 unnecessary signaling traffic and might generate unnecessary interference.
 
 Each AODVv2 router stores information about recently received route messages in the AODVv2
-Multicast Route Message Table ([](#rtemsgtable)).
+Multicast Route Message Table ([](#rtemsgtable)). Its Entries consist of:
 
-Multicast Route Message Table Entries consist of:
-
-* RteMsg.MessageType := RREQ or RREP
-* RteMsg.OrigAddr := OrigAddr from the message
-* RteMsg.OrigPrefixLen := the prefix length associated with OrigAddr
-* RteMsg.TargAddr := TargAddr from the message
-* RteMsg.TargPrefixLen := the prefix length associated with TargAddr
-* RteMsg.OrigSeqNum := the sequence number associated with OrigAddr, if present in the message
-* RteMsg.TargSeqNum := the sequence number associated with TargAddr, if present in the message
-* RteMsg.MetricType := the metric type of the route requested
-* RteMsg.Metric := the metric value associated with OrigAddr in an RREQ or TargAddr in an RREP
-* RteMsg.Timestamp := CurrentTime
-* RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
+* RteMsg.MessageType
+* RteMsg.OrigAddr
+* RteMsg.OrigPrefixLen
+* RteMsg.TargAddr
+* RteMsg.TargPrefixLen
+* RteMsg.OrigSeqNum
+* RteMsg.TargSeqNum
+* RteMsg.MetricType
+* RteMsg.Metric
+* RteMsg.Timestamp
+* RteMsg.RemoveTime
 
 Entries in the Multicast Route Message Table SHOULD be maintained for at least RteMsg_ENTRY_TIME after
 the last Timestamp update in order to account for long-lived RREQs traversing the network. An entry MUST
@@ -903,9 +901,15 @@ If the message is not redundant, create an entry or update the existing entry.
 
 To update a Multicast Route Message Table entry, set:
 
+* RteMsg.MessageType := the message type of the received message
+* RteMsg.OrigAddr := OrigAddr from the message
+* RteMsg.OrigPrefixLen := the prefix length associated with OrigAddr
+* RteMsg.TargAddr := TargAddr from the message
+* RteMsg.TargPrefixLen := the prefix length associated with TargAddr
 * RteMsg.OrigSeqNum := the sequence number associated with OrigAddr, if present in the received message
 * RteMsg.TargSeqNum := the sequence number associated with TargAddr, if present in the received message
 * RteMsg.Metric := the metric value associated with OrigAddr in a received RREQ or TargAddr in a received RREP
+* RteMsg.MetricType := the metric type associated with RteMsg.Metric
 * RteMsg.Timestamp := CurrentTime
 * RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
 
