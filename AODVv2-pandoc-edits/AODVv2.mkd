@@ -191,9 +191,7 @@ AODVv2 is designed for stub or disconnected mobile ad hoc networks, i.e., non-tr
 networks or those not connected to the internet. AODVv2 can, however, be configured to perform gateway functions when attached to external
 networks, as discussed in [](#gateway).
 
-AODVv2 handles a wide variety of mobility and traffic patterns by determining routes on-demand. In networks with a large number of routers,
-AODVv2 is best suited for relatively sparse traffic scenarios where each router forwards IP packets to a small percentage of other AODVv2
-routers in the network. In this case fewer routes are needed, and therefore less control traffic is produced.
+AODVv2 handles a wide variety of mobility and traffic patterns by determining routes on-demand. In networks with a large number of routers, AODVv2 is best suited for relatively sparse traffic scenarios where each router forwards IP packets to a small percentage of other AODVv2 routers in the network. In this case fewer routes are needed, and therefore less control traffic is produced. Data packets may be buffered until a route to their destination is available, as described in [](#route_discovery).
 
 <!-- AODVv2 is well suited to reactive scenarios such as emergency and disaster relief, where the ability to communicate might be more important than being assured of
 secure operations.  For other ad hoc networking applications, in which insecure operation could negate the value of establishing communication paths, it is
