@@ -555,8 +555,7 @@ value of Neighbor.State MAY be changed to Blacklisted, e.g. notification of a TC
 
 ## Neighbor Table Update {#nbrupdate}
 
-On receipt of an RREQ or RREP message, the Neighbor Table MUST be checked for an entry with Neighbor.IPAddress which matches the source IP address
-of packet containing the AODVv2 message. If no matching entry is found, a new entry is created.
+On receipt of an RREQ or RREP message, the Neighbor Table MUST be checked for an entry with Neighbor.IPAddress which matches the source IP address of a packet containing the AODVv2 message. If no matching entry is found, a new entry is created.
 
 A new Neighbor Table entry is created as follows:
 
@@ -569,8 +568,7 @@ If the message is one of the following:
 * an RREP which answers a RREQ sent within RREQ_WAIT_TIME <!-- TODO? also check if it matches an existing unconfirmed route -->
 * an RREP_Ack which answers a RREP sent within RREP_Ack_SENT_TIMEOUT
 
-the link to the
-neighbor is bidirectional and the Neighbor Table entry is updated as follows:
+the link to the neighbor is bidirectional and the Neighbor Table entry is updated as follows:
 
 * Neighbor.State := Confirmed <!-- could set reset time when set state to confirmed, to re-test after certain time -->
 * Neighbor.ResetTime := INFINITY_TIME
