@@ -427,6 +427,8 @@ RteMsg.RemoveTime
 :   <vspace/>The time at which this entry MUST be removed from the Multicast Route Message Table. This is set
     to CurrentTime + MAX_SEQNUM_LIFETIME, whenever the sequence number of this entry (RteMsg.OrigSeqNum for an
     RREQ, or RteMsg.TargSeqNum for an RREP) is updated.
+RteMsg.AckReqAddr
+:   <vspace/>The address from which a RREP_Ack is expected, if RteMsg is a RREP that contains an AckReq.
 
 The Multicast Route Message Table is maintained so that no two entries have the same MessageType, OrigAddr,
 TargAddr, and MetricType. See [](#suppress) for details about updating this table.
@@ -1341,9 +1343,7 @@ Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
 
     * Check if the Multicast Route Message Table contains an entry where:
         * RteMsg.MessageType == RREP
-        <!--
-        * TODO: how do I check that the IP source address of the RREP_Ack matches the address the RREP was sent to?
-        -->
+        * RteMsg.AckReqAddr matches the source IP address of the RREP_Ack
         * RteMsg.Timestamp > CurrentTime - RREP_Ack_SENT_TIMEOUT
 
      * If it does, the router cancels any associated timeouts and processing continues to Step 2.
