@@ -96,6 +96,8 @@ CurrentTime
      (eg NTP or tlsdate) is necessary? I think it would be wrong to mandate a particular method but I believe we need to say something -->
 ENAR (External Network Access Router)
 :   <vspace/>An AODVv2 router with an interface to an external, non-AODVv2 network.
+InterfaceSet
+: <vspace/>The set of all network interfaces supporting AODVv2.
 Invalid route
 :   <vspace/>A route that cannot be used for forwarding but still contains useful sequence number information.
 LocalRoute
@@ -228,10 +230,10 @@ The routing algorithm in AODVv2 MAY be operated at layers other than the network
 
 # Data Structures
 
-## Interface List {#interfaceslist}
-If multiple interfaces of the AODVv2 router are configured for use by AODVv2, a list of the interfaces
-MUST be configured in the AODVv2_INTERFACES list.
+## Interface Set {#interfaceslist}
+If multiple interfaces of the AODVv2 router are configured for use by AODVv2, a set of the interfaces MUST be configured in an InterfaceSet. 
 
+<!-- TODO when I resolve this see also TODO in {#gateway}-->
 
 ## Router Client Table {#clients}
 An AODVv2 router provides route discovery services for its own local applications and for other non-routing devices that are reachable
@@ -629,7 +631,7 @@ this may occur for certain link-types (non-broadcast media), for manually config
 improve robustness.
 
 When multiple interfaces are available, an AODVv2 router transmitting a multicast message to LL-MANET-Routers MUST send the
-message on all interfaces that have been configured for AODVv2 operation, as given in the AODVv2_INTERFACES list ([](#interfaceslist)).
+message on all interfaces that have been configured for AODVv2 operation, as given in the InterfaceSet ([](#interfaceslist)).
 
 <!-- Implementations MAY choose to employ techniques to reduce the number of multicast messages sent. Use of [](#RFC6621) in deployments
 is recommended. Employing [](#RFC6621) in a subset of the operational AODVv2 routers in a network, or configuring different algorithms
@@ -1742,7 +1744,7 @@ MetricTypeList            PATH_METRIC  MetricType     None. Extension Type set t
 
 [](#net_top) shows a stub (i.e., non-transit) network of AODVv2 routers which is attached to
 an external network via a single External Network Access Router (ENAR). The interface to the
-external network MUST NOT be configured in the AODVv2_INTERFACES list.
+external network MUST NOT be configured in the InterfaceSet <!-- TODO: if there's only one Interface, is this a MUST?-->
 
 As in any externally-attached network, AODVv2 routers and Router Clients that wish to be
 reachable from the external network MUST have IP addresses within the ENAR's routable and
@@ -1978,7 +1980,7 @@ The following table lists AODVv2 parameters which SHOULD be administratively con
 
 Name                      Default Value             Description
 ---                       ------------              --------------
-AODVv2_INTERFACES                                   [](#interfaceslist)
+InterfaceSet                                   [](#interfaceslist)
 BUFFER_SIZE_PACKETS       2                         [](#route_discovery)
 BUFFER_SIZE_BYTES         MAX_PACKET_SIZE [TBD]     [](#route_discovery)
 CONTROL_TRAFFIC_LIMIT     [TBD - 50 pkts/sec?]      [](#aodv_msgs)
