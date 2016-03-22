@@ -159,9 +159,6 @@ TargPrefixLen
 :   <vspace/>The prefix length, in bits, configured in the Router Client entry which includes TargAddr.
 TargSeqNum
 :   <vspace/>The sequence number of the AODVv2 router which originated the Route Reply on behalf of TargAddr.
-Valid route
-:   <vspace/>A route that can be used for forwarding, which has been confirmed as having a bidirectional link to the next hop, and has
-    not timed out or been made invalid by a route error.
 Unreachable Address
 :   <vspace/>An address reported in a Route Error message, either the address on a LocalRoute which became Invalid, or the destination address of an IP
     packet that could not be forwarded because a valid LocalRoute to the destination is not known, and will not be requested.
@@ -169,6 +166,10 @@ Upstream
 :   <vspace/>In the direction from destination to source (from TargAddr to OrigAddr).
 ValidityTime
 :   <vspace/>The length of time the route described by the message is offered.
+Valid route
+:   <vspace/>A route that can be used for forwarding, which has been confirmed as having a bidirectional link to the next hop, and has
+    not timed out or been made invalid by a route error.
+
 
 This document uses the notational conventions in [](#conventions) to simplify the text.
 
