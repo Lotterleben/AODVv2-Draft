@@ -1291,7 +1291,7 @@ included in the given prefix length) according to the information enclosed. The 
 not to regenerate the RREP, in the same way it MAY choose not to regenerate an RREQ (see [](#RREQ_regen)),
 though this could decrease connectivity in the network or result in non-optimal paths.
 
-The RREP SHOULD NOT be regenerated if the limit for the rate of AODVv2 control message generation
+The RREP SHOULD NOT be regenerated if CONTROL_TRAFFIC_LIMIT
 has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
 
 The procedure for RREP regeneration is as follows:
@@ -1420,7 +1420,7 @@ In order to avoid flooding the network with RERR messages when a stream of IP pa
 router SHOULD determine whether an RERR has recently been sent with the same unreachable address and PktSource, and SHOULD avoid
 creating duplicate RERR messages.
 
-The RERR SHOULD NOT be generated if the limit for the rate of AODVv2 control message generation
+The RERR SHOULD NOT be generated if CONTROL_TRAFFIC_LIMIT
 has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
 
 Incidentally, if an AODVv2 router receives an ICMP error packet to or from the address of one of
@@ -1497,8 +1497,7 @@ Upon receiving a Route Error, an AODVv2 router performs the following steps:
 
 ### RERR Regeneration  {#RERR_regen}
 
-The Route Error message SHOULD NOT be regenerated if the limit for the rate of AODVv2 control message generation
-has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
+The Route Error message SHOULD NOT be regenerated if CONTROL_TRAFFIC_LIMIT has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
 
 The procedure for RERR regeneration is as follows:
 
