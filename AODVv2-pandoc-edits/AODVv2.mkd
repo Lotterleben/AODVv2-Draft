@@ -411,7 +411,7 @@ RteMsg.OrigPrefixLen
 RteMsg.TargAddr
 :   <vspace/>The destination address of the IP packet triggering the route request.
 RteMsg.TargPrefixLen
-:   <vspace/>The prefix length associated with RteMsg.TargAddr, originally from the Router Client entry on RREP_Gen which includes RteMsg.TargAddr. If RteMsg is a RREQ, RteMsg.TargPrefixLen SHOULD equal address length.
+:   <vspace/>The prefix length associated with RteMsg.TargAddr, originally from the Router Client entry on RREP_Gen which includes RteMsg.TargAddr. If RteMsg is a RREQ, RteMsg.TargPrefixLen MUST equal address length.
 RteMsg.OrigSeqNum
 :   <vspace/>The sequence number associated with the route to OrigAddr, if RteMsg is an RREQ.
 RteMsg.TargSeqNum
