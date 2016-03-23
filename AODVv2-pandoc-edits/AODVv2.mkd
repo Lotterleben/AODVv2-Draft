@@ -764,8 +764,7 @@ update the AODVv2 Local Route Set. The incoming route information MUST be proces
     *   If AdvRte is better than all matching LocalRoutes, it SHOULD be used to update the Local Route Set because it offers improvement. If it is not used to update the Local Route Set, the existing non-optimal LocalRoute will continue to be used, causing data traffic to use a non-optimal route.
     *   If AdvRte is equal in cost and LocalRoute is valid, AdvRte SHOULD NOT be used to update the Local Route Set because it will offer no improvement.
     *   If AdvRte is worse and LocalRoute is valid, ignore AdvRte for further processing. AdvRte MUST NOT be used to update the Local Route Set because it does not offer any improvement.
-    *   If AdvRte is not better (i.e., it is worse or equal) but LocalRoute is Invalid, AdvRte SHOULD be used to update the Local Route Set because
-        it can safely repair the existing Invalid LocalRoute.
+    *   If AdvRte is not better (i.e., it is worse or equal) but LocalRoute is Invalid, AdvRte SHOULD be used to update the Local Route Set because it can safely repair the existing Invalid LocalRoute.
 
 If the advertised route is to be used to update the Local Route Set, the procedure in [](#update_rte) MUST be
 followed. If not, non-optimal routes will remain in the Local Route Set.
