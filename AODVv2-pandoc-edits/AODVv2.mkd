@@ -351,7 +351,7 @@ There are four possible states for a LocalRoute:
 
 Unconfirmed
 :   <vspace/>A route learned from a Route Request message, which has not yet been confirmed as bidirectional. It MUST NOT
-    be used for forwarding IP packets, and therefore it is not referred to as a valid route.
+    be used for forwarding IP packets, and therefore it is not referred to as a valid route. This state only applies to routes learned through RREQ messages.
 Idle
 :   <vspace/>A route which has been learned from a route message, and has also been confirmed, but has not been used in
     the last ACTIVE_INTERVAL. It is able to be used for forwarding IP packets, and therefore it is referred to as a valid
