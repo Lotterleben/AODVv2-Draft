@@ -943,8 +943,15 @@ Route timeout behaviour is as follows:
 LocalRoutes can become Invalid before a timeout occurs:
 
 *  If an external mechanism reports a link as broken, all LocalRoutes using that link for LocalRoute.NextHop MUST immediately have LocalRoute.State set to Invalid.
-*  If a Route Error (RERR) message containing the route is received, either from LocalRoute.NextHop, or with PktSource set
-   to a Router Client address, LocalRoute.State MUST immediately be set to Invalid.
+
+* LocalRoute.State MUST immediately be set to Invalid if a Route Error (RERR) message is received where:
+    * The sender is LocalRoute.NextHop or PktSource is a Router Client address
+    * There is an Address in AddressList which matches LocalRoute.Address, and:
+        * The prefix length associated with this Address, if any, matches LocalRoute.PrefixLength
+        * The sequence number associated with this Address, if any, is newer or equal to LocalRoute.SeqNum (see [](#seqnum))
+        * The metric type associated with this Address matches LocalRoute.MetricType
+
+
 
 LocalRoutes are also updated when Neighbor.State is updated:
 
