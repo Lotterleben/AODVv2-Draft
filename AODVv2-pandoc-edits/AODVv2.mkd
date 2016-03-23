@@ -769,6 +769,7 @@ update the AODVv2 Local Route Set. The incoming route information MUST be proces
 If the advertised route is to be used to update the Local Route Set, the procedure in [](#update_rte) MUST be
 followed. If not, non-optimal routes will remain in the Local Route Set.
 
+For information on how to apply these changes to the Routing Information Base, see [](#rte).
 
 ### Applying Route Updates  {#update_rte}
 
