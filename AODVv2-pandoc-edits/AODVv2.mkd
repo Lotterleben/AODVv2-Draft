@@ -313,8 +313,7 @@ routing operations with a new sequence number.
 
 ## Local Route Set  {#rte}
 
-All AODVv2 routers MUST maintain a Local Route Set, containing information about routes learned from AODVv2 route messages. The Local Route Set is
-stored separately from the Routing Information Base, and the Routing Information Base is updated using information from the Local Route Set.
+All AODVv2 routers MUST maintain a Local Route Set, containing information about routes learned from AODVv2 route messages. The Local Route Set is stored separately from the Routing Information Base, which may be updated by other routing protocols operating on the AODVv2 router as well. The Routing Information Base is updated using information from the Local Route Set.
 Alternatively, implementations MAY choose to modify the Routing Information Base directly.
 
 Routes learned from AODVv2 route messages are referred to in this document as LocalRoutes, and MUST contain the following information:
