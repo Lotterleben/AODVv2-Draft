@@ -101,7 +101,7 @@ InterfaceSet
 Invalid route
 :   <vspace/>A route that cannot be used for forwarding but still contains useful sequence number information.
 LocalRoute
-:   <vspace/>An entry in the Local Route Set.
+:   <vspace/>An entry in the Local Route Set as defined in [](#rte).
 MANET
 :   <vspace/>A Mobile Ad Hoc Network as defined in [](#RFC2501).
 MetricType
