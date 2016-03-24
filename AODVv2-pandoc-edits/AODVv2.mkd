@@ -1287,15 +1287,12 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 
 ### RREP Regeneration  {#RREP_regen}
 
-A received Route Reply message is regenerated toward OrigAddr. Unless the router is prepared to
-advertise the route contained within the received RREP, it halts processing. By regenerating a
-RREP, a router advertises that it will forward IP packets to TargAddr (and any other addresses
-included in the given prefix length) according to the information enclosed. The router MAY choose
-not to regenerate the RREP, in the same way it MAY choose not to regenerate an RREQ (see [](#RREQ_regen)),
-though this could decrease connectivity in the network or result in non-optimal paths.
+A received Route Reply message is regenerated toward OrigAddr. 
+By regenerating a RREP, a router advertises that it will forward IP packets to TargAddr.
+<!--(and any other addresses included in the given prefix length) TODO: I've deleted this bc we don't support routes for entire prefixes, correct?--> 
 
 The RREP SHOULD NOT be regenerated if CONTROL_TRAFFIC_LIMIT
-has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
+has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it. Otherwise, the router MUST regenerate the RREP.
 
 The procedure for RREP regeneration is as follows:
 
