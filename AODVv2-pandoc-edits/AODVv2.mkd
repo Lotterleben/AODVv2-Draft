@@ -658,7 +658,7 @@ access. -->
 ## Route Discovery, Retries and Buffering  {#route_discovery}
 
 AODVv2's RREQ and RREP messages are used for route discovery. RREQ messages are multicast to solicit an RREP, whereas
-RREP are unicast where possible. The constants used in this section are defined in [](#param).
+RREP are unicast where possible. The constants used in{#test} this section are defined in [](#param).
 
 When an AODVv2 router needs to forward an IP packet (with source address OrigAddr and destination address TargAddr) from
 one of its Router Clients, it needs a route to TargAddr in its Routing Information Base. If no route exists,
@@ -720,15 +720,15 @@ this route does not correctly reflect the cost of their route to TargAddr.
 All AODVv2 route messages contain a route. A Route Request (RREQ) contains a route toward OrigAddr (and other addresses as indicated by OrigPrefixLen),
 and a Route Reply (RREP) contains a route toward TargAddr (and other addresses as indicated by TargPrefixLen). All AODVv2 routers that receive a route
 message are able to store the route contained within it in their Local Route Set. Incoming information is first checked to verify that it is both safe
-to use and offers an improvement to existing information, as explained in [](#test). The Local Route Set MUST then be updated according to [](#update_rte).
+to use and offers an improvement to existing information, as explained in [](#test).
+If these checks pass, the Local Route Set MUST be updated according to [](#update_rte).
 
 In the processes below, RteMsg is used to denote the route message, AdvRte is used to denote the route contained within it, and LocalRoute
 denotes an existing entry in the Local Route Set which matches AdvRte on address, prefix length, and metric type.
 
 AdvRte has the following properties:
 
-* AdvRte.Address := network address given by combining RteMsg.OrigAddr and RteMsg.OrigPrefixLen (in RREQ)
-  or RteMsg.TargAddr and RteMsg.TargPrefixLen (in RREP)
+* AdvRte.Address := network address given by combining RteMsg.OrigAddr and RteMsg.OrigPrefixLen (in RREQ) or RteMsg.TargAddr and RteMsg.TargPrefixLen (in RREP)
 * AdvRte.PrefixLength := RteMsg.OrigPrefixLen (in RREQ) or RteMsg.TargPrefixLen (in RREP). If no prefix length was
   included in RteMsg, prefix length is the address length, in bits, of RteMsg.OrigAddr (in RREQ) or RteMsg.TargAddr (in RREP)
 * AdvRte.SeqNum := RteMsg.OrigSeqNum (in RREQ) or RteMsg.TargSeqNum (in RREP)
@@ -744,16 +744,15 @@ AdvRte has the following properties:
 
 ### Evaluating Route Information  {#test}
 
-An incoming advertised route (AdvRte) is compared to existing LocalRoutes to determine whether the advertised route is to be used to
-update the AODVv2 Local Route Set. The incoming route information MUST be processed as follows:
+An incoming advertised route (AdvRte) is compared to existing LocalRoutes to determine whether the advertised route is to be used to update the AODVv2 Local Route Set. The incoming route information MUST be processed as follows:
 
 1.  Search for LocalRoutes in the Local Route Set matching AdvRte's address, prefix length and metric type
-    *   If no matching LocalRoute exists, AdvRte MUST be used to update the Local Route Set.
+    *   If no matching LocalRoute exists, AdvRte MUST be used to update the Local Route Set and no further checks are required.
     *   If matching LocalRoutes are found, continue to Step 2.
 
 1.  Compare sequence numbers using the technique described in [](#seqnum)
-    *   If AdvRte is more recent than all matching LocalRoutes, AdvRte MUST be used to update the Local Route Set.
-    *   If AdvRte is stale, AdvRte MUST NOT be used to update the Local Route Set.
+    *   If AdvRte is more recent than all matching LocalRoutes, AdvRte MUST be used to update the Local Route Set and no further checks are required.
+    *   If AdvRte is stale, AdvRte MUST NOT be used to update the Local Route Set. Ignore AdvRte for further processing.
     *   If the sequence numbers are equal, continue to Step 3.
 
 1.  Check that AdvRte is safe against routing loops compared to all matching LocalRoutes (see [](#metrics))
@@ -766,8 +765,7 @@ update the AODVv2 Local Route Set. The incoming route information MUST be proces
     *   If AdvRte is worse and LocalRoute is valid, ignore AdvRte for further processing. AdvRte MUST NOT be used to update the Local Route Set because it does not offer any improvement.
     *   If AdvRte is not better (i.e., it is worse or equal) but LocalRoute is Invalid, AdvRte SHOULD be used to update the Local Route Set because it can safely repair the existing Invalid LocalRoute.
 
-If the advertised route is to be used to update the Local Route Set, the procedure in [](#update_rte) MUST be
-followed. If not, non-optimal routes will remain in the Local Route Set.
+If the advertised route is to be used to update the Local Route Set, the procedure in [](#update_rte) MUST be followed. If not, non-optimal routes will remain in the Local Route Set.
 
 For information on how to apply these changes to the Routing Information Base, see [](#rte).
 
@@ -775,34 +773,24 @@ For information on how to apply these changes to the Routing Information Base, s
 
 After determining that AdvRte is to be used to update the Local Route Set (as described in [](#test)), the following procedure applies.
 
-If AdvRte is learned from an RREQ message, the link to the next hop neighbor may not be confirmed as bidirectional (see [](#nbrlist)). The route will
-offer improvement to the Local Route Set if the neighbor can be confirmed. If there is no existing matching route, AdvRte allows
-a corresponding RREP to be sent. If a matching entry already exists, AdvRte offers potential improvement.
+If AdvRte is learned from an RREQ message, the link to the next hop neighbor may not be confirmed as bidirectional (see [](#nbrlist)). The route will offer improvement to the Local Route Set if the neighbor can be confirmed. If there is no existing matching route, AdvRte allows a corresponding RREP to be sent. If a matching entry already exists, AdvRte offers potential improvement.
 
 The route update is applied as follows:
 
-1.  If no existing entry in the Local Route Set matches AdvRte's address, prefix length and metric type, continue to
-    Step 4 and create a new entry in the Local Route Set.
+1.  If no existing entry in the Local Route Set matches AdvRte's address, prefix length and metric type, continue to Step 4 and create a new entry in the Local Route Set.
 
-1.  If two matching LocalRoutes exist in the Local Route Set, one is a valid route, and one is an Unconfirmed route. AdvRte may offer further
-    improvement to the Unconfirmed route, or may offer an update to the valid route.
+1.  If two matching LocalRoutes exist in the Local Route Set, one is a valid route, and one is an Unconfirmed route. AdvRte may offer further improvement to the Unconfirmed route, or may offer an update to the valid route.
 
-    * If AdvRte.NextHop's Neighbor.State is Unknown, the advertised route may offer improvement to the existing valid route, if the link to the
-      next hop can be confirmed as bidirectional. Continue processing from Step 5 to update the existing Unconfirmed LocalRoute.
-    * If AdvRte.NextHop's Neighbor.State is Confirmed, the advertised route offers an update or improvement to the existing valid route. Continue
-      processing from Step 5 to update the existing valid LocalRoute.
+    * If AdvRte.NextHop's Neighbor.State is Unknown, the advertised route may offer improvement to the existing valid route, if the link to the next hop can be confirmed as bidirectional. Continue processing from Step 5 to update the existing Unconfirmed LocalRoute.
+    * If AdvRte.NextHop's Neighbor.State is Confirmed, the advertised route offers an update or improvement to the existing valid route. Continue processing from Step 5 to update the existing valid LocalRoute.
 
 1.  If only one matching LocalRoute exists in the Local Route Set:
 
     * If AdvRte.NextHop's Neighbor.State is Confirmed, continue processing from Step 5 to update the existing LocalRoute.
-    * If AdvRte.NextHop's Neighbor.State is Unknown, AdvRte may offer improvement the existing LocalRoute, if the link to
-      AdvRte.NextHop can be confirmed as bidirectional.
-    * If LocalRoute.State is Unconfirmed, AdvRte is an improvement to an existing Unconfirmed route. Continue processing
-      from Step 5 to update the existing LocalRoute.
-    * If LocalRoute.State is Invalid, AdvRte can replace the existing LocalRoute. Continue processing from Step 5 to update
-      the existing LocalRoute.
-    * If LocalRoute.State is Active or Idle, AdvRte SHOULD be stored as an additional entry in the Local Route Set, with
-      LocalRoute.State set to Unconfirmed. Continue processing from Step 4 to create a new LocalRoute.
+    * If AdvRte.NextHop's Neighbor.State is Unknown, AdvRte may offer improvement the existing LocalRoute, if the link to AdvRte.NextHop can be confirmed as bidirectional.
+    * If LocalRoute.State is Unconfirmed, AdvRte is an improvement to an existing Unconfirmed route. Continue processing from Step 5 to update the existing LocalRoute.
+    * If LocalRoute.State is Invalid, AdvRte can replace the existing LocalRoute. Continue processing from Step 5 to update the existing LocalRoute.
+    * If LocalRoute.State is Active or Idle, AdvRte SHOULD be stored as an additional entry in the Local Route Set, with LocalRoute.State set to Unconfirmed. Continue processing from Step 4 to create a new LocalRoute.
 
 1.  Create an entry in the Local Route Set and initialize as follows:
 
@@ -1475,13 +1463,10 @@ Upon receiving a Route Error, an AODVv2 router performs the following steps:
     *  The unreachable address' sequence number is either unknown, or is greater than the
        LocalRoute's sequence number
 
-    If any of the above are false, a matching LocalRoute MUST NOT be made Invalid and the
-    unreachable address MUST NOT be advertised in a regenerated RERR.
+    If any of the above are false the address does not match a LocalRoute and MUST NOT be processed or regenerated in a RERR.
 
-    If all of the above are true, the LocalRoute is no longer valid. If the LocalRoute was
-    previously Active, it MUST be reported in a regenerated RERR. If the LocalRoute was
-    previously Idle, it MAY be reported in a regenerated RERR, if ENABLE_IDLE_IN_RERR is
-    configured. The Local Route Set MUST be updated according to these rules:
+    If all of the above are true, the LocalRoute which matches the address is no longer valid. If the LocalRoute was previously Active, it MUST be reported in a regenerated RERR. If the LocalRoute was previously Idle, it MAY be reported in a regenerated RERR, if ENABLE_IDLE_IN_RERR is configured. The Local Route Set MUST be updated according to these rules:
+
     *  If the LocalRoute's prefix length is the same as the unreachable address' prefix length,
        set LocalRoute.State to Invalid.
     *  If the LocalRoute's prefix length is longer than the unreachable address' prefix length,
@@ -1489,6 +1474,7 @@ Upon receiving a Route Error, an AODVv2 router performs the following steps:
        route which is reported to be Invalid.
     *  If the prefix length is different, create a new LocalRoute with the unreachable address,
        and its prefix length and sequence number, and set LocalRoute.State to Invalid.
+       These Invalid routes are retained to avoid processing stale messages.
     *  Update the sequence number on the existing LocalRoute, if the reported sequence number is
        determined to be newer using the comparison technique described in [](#seqnum).
 
