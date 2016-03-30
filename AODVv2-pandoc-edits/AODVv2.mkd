@@ -231,7 +231,14 @@ The routing algorithm in AODVv2 MAY be operated at layers other than the network
 # Data Structures
 
 ## Interface Set {#interfaceslist}
-If multiple interfaces of the AODVv2 router are configured for use by AODVv2, a set of the interfaces MUST be configured in an InterfaceSet. 
+
+The InterfaceSet is a conceptual data structure which contains information about all interfaces available to AODVv2. Each element in the InterfaceSet MUST contain the following:
+
+* Interface.Id: An identifier that is unique in node-local scope and that allows the AODVv2 implementation to identify exactly one local network interface.
+
+If multiple interfaces of the AODVv2 router are configured for use by AODVv2, they MUST be configured in the InterfaceSet.
+
+Otherwise the InterfaceSet MAY be empty.
 
 <!-- TODO when I resolve this see also TODO in {#gateway}-->
 
