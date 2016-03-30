@@ -97,7 +97,7 @@ CurrentTime
 ENAR (External Network Access Router)
 :   <vspace/>An AODVv2 router with an interface to an external, non-AODVv2 network.
 InterfaceSet
-: <vspace/>The set of all network interfaces supporting AODVv2.
+:   <vspace/>The set of all network interfaces supporting AODVv2.
 Invalid route
 :   <vspace/>A route that cannot be used for forwarding but still contains useful sequence number information.
 LocalRoute
