@@ -230,7 +230,7 @@ The routing algorithm in AODVv2 MAY be operated at layers other than the network
 
 # Data Structures
 
-## Interface Set {#interfaceslist}
+## InterfaceSet {#interfaceslist}
 
 The InterfaceSet is a conceptual data structure which contains information about all interfaces available to AODVv2. Each element in the InterfaceSet MUST contain the following:
 
@@ -1972,7 +1972,7 @@ The following table lists AODVv2 parameters which SHOULD be administratively con
 
 Name                      Default Value             Description
 ---                       ------------              --------------
-InterfaceSet                                   [](#interfaceslist)
+InterfaceSet                                        [](#interfaceslist)
 BUFFER_SIZE_PACKETS       2                         [](#route_discovery)
 BUFFER_SIZE_BYTES         MAX_PACKET_SIZE [TBD]     [](#route_discovery)
 CONTROL_TRAFFIC_LIMIT     [TBD - 50 pkts/sec?]      [](#aodv_msgs)
