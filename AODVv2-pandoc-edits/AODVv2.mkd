@@ -440,6 +440,20 @@ RteMsg.AckReqAddr
 The Multicast Route Message Table is maintained so that no two entries have the same MessageType, OrigAddr,
 TargAddr, and MetricType. See [](#suppress) for details about updating this table.
 
+## Route Error (RERR) Table  {#rerrtable}
+
+Each sent RERR message SHOULD be recorded in a conceptual table called the Route Error (RERR) Table. Each entry contains the following information:
+
+RteMsg.Timeout
+:   <vspace/>The time after which the entry SHOULD be deleted.
+RteMsg.AddressList
+:   <vspace/>The AddressList of the RERR to be recorded.
+RteMsg.PktSource:
+:   <vspace/>The PktSource of the RERR to be recorded, if any.
+RteMsg.MetricTypeList:
+:   <vspace/>The MetricTypeList of the RERR to be recorded.
+
+See section [](#suppressrerr) for instructions on how to update the table.
 
 # Metrics  {#metrics}
 
@@ -908,6 +922,25 @@ Where the message is determined not redundant before Step 3, it MUST be regenera
 result in an update to the Local Route Set, the message SHOULD be regenerated or responded to, to ensure other routers
 have up-to-date information and the best metrics. If the message is not regenerated, the best route may not be found. Regeneration or response is to be performed using the processes outlined in [](#aodv_msgs).
 
+## Suppressing Redundant Route Error Messages using the Route Error Table {#suppressrerr}
+
+In order to avoid flooding the network with RERR messages when a stream of IP packets to an unreachable address arrives, an AODVv2
+router SHOULD avoid creating duplicate messages by determining whether an equivalent RERR has recently been sent. This is achieved with the help of the Route Error Table (see [](#rerrtable)).
+
+To determine if a received RERR is redundant:
+
+1.  Search for an entry in the Route Error Table where:
+    * RteMsg.AddressList == RERR.AdressList
+    * RteMsg.PktSource == RERR.PktSource
+    * RteMsg.MetricTypeList == RERR.MetricTypeList
+
+    If a matching entry is found, no further processing is required and the RERR SHOULD NOT be sent.
+
+2.  If no matching entry is found, a new entry with the following properties is created:
+    * RteMsg.Timeout := CurrentTime + RERR_TIMEOUT
+    * RteMsg.AddressList == RERR.AdressList
+    * RteMsg.PktSource == RERR.PktSource
+    * RteMsg.MetricTypeList == RERR.MetricTypeList
 
 ## Local Route Set Maintenance  {#route_maint}
 
@@ -1412,12 +1445,9 @@ destination is not reachable. There are three events that cause this response:
 
     <!-- CEP: To reconsider if we re-specify local repair.. -->
 
-In order to avoid flooding the network with RERR messages when a stream of IP packets to an unreachable address arrives, an AODVv2
-router SHOULD determine whether an RERR has recently been sent with the same unreachable address and PktSource, and SHOULD avoid
-creating duplicate RERR messages.
-
 The RERR SHOULD NOT be generated if CONTROL_TRAFFIC_LIMIT
 has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
+The RERR also SHOULD NOT be generated if it is a duplicate, as determined by [](#suppressrerr).
 
 Incidentally, if an AODVv2 router receives an ICMP error packet to or from the address of one of
 its Router Clients, it forwards the ICMP packet in the same way as any other IP packet,
@@ -1909,6 +1939,7 @@ ACTIVE_INTERVAL                        5 second
 MAX_IDLETIME                           200 seconds
 MAX_BLACKLIST_TIME                     200 seconds
 MAX_SEQNUM_LIFETIME                    300 seconds
+RERR_TIMEOUT                           3 seconds
 RteMsg_ENTRY_TIME                      12 seconds
 RREQ_WAIT_TIME                         2 seconds
 RREP_Ack_SENT_TIMEOUT                  1 second
