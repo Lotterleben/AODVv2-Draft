@@ -930,14 +930,14 @@ router SHOULD avoid creating duplicate messages by determining whether an equiva
 To determine if a received RERR is redundant:
 
 1.  Search for an entry in the Route Error Table where:
-    * RerrMsg.AddressList == RERR.AdressList
+    * RerrMsg.AddressList == RERR.AddressList
     * RerrMsg.PktSource == RERR.PktSource
 
     If a matching entry is found, no further processing is required and the RERR SHOULD NOT be sent.
 
 2.  If no matching entry is found, a new entry with the following properties is created:
     * RerrMsg.Timeout := CurrentTime + RERR_TIMEOUT
-    * RerrMsg.AddressList == RERR.AdressList
+    * RerrMsg.AddressList == RERR.AddressList
     * RerrMsg.PktSource == RERR.PktSource
 
 ## Local Route Set Maintenance  {#route_maint}
