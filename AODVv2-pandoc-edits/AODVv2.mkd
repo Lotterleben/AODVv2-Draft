@@ -130,6 +130,8 @@ RERR (Route Error)
 :   <vspace/>The AODVv2 message type used to indicate that an AODVv2 router does not have a valid LocalRoute toward one or more particular destinations.
 RERR_Gen (RERR Generating Router)
 :   <vspace/>The AODVv2 router generating a Route Error message.
+RerrMsg (RERR Message)
+:   <vspace/>A Route Error (RERR) message.
 Routable Unicast IP Address
 :   <vspace/>A routable unicast IP address is a unicast IP address that is scoped sufficiently to be forwarded by a router.  Globally-scoped unicast
     IP addresses and Unique Local Addresses (ULAs) [](#RFC4193) are examples of routable unicast IP addresses.
@@ -444,14 +446,12 @@ TargAddr, and MetricType. See [](#suppress) for details about updating this tabl
 
 Each sent RERR message SHOULD be recorded in a conceptual table called the Route Error (RERR) Table. Each entry contains the following information:
 
-RteMsg.Timeout
+RerrMsg.Timeout
 :   <vspace/>The time after which the entry SHOULD be deleted.
-RteMsg.AddressList
+RerrMsg.AddressList
 :   <vspace/>The AddressList of the RERR to be recorded.
-RteMsg.PktSource:
+RerrMsg.PktSource:
 :   <vspace/>The PktSource of the RERR to be recorded, if any.
-RteMsg.MetricTypeList:
-:   <vspace/>The MetricTypeList of the RERR to be recorded.
 
 See section [](#suppressrerr) for instructions on how to update the table.
 
@@ -930,17 +930,15 @@ router SHOULD avoid creating duplicate messages by determining whether an equiva
 To determine if a received RERR is redundant:
 
 1.  Search for an entry in the Route Error Table where:
-    * RteMsg.AddressList == RERR.AdressList
-    * RteMsg.PktSource == RERR.PktSource
-    * RteMsg.MetricTypeList == RERR.MetricTypeList
+    * RerrMsg.AddressList == RERR.AdressList
+    * RerrMsg.PktSource == RERR.PktSource
 
     If a matching entry is found, no further processing is required and the RERR SHOULD NOT be sent.
 
 2.  If no matching entry is found, a new entry with the following properties is created:
-    * RteMsg.Timeout := CurrentTime + RERR_TIMEOUT
-    * RteMsg.AddressList == RERR.AdressList
-    * RteMsg.PktSource == RERR.PktSource
-    * RteMsg.MetricTypeList == RERR.MetricTypeList
+    * RerrMsg.Timeout := CurrentTime + RERR_TIMEOUT
+    * RerrMsg.AddressList == RERR.AdressList
+    * RerrMsg.PktSource == RERR.PktSource
 
 ## Local Route Set Maintenance  {#route_maint}
 
