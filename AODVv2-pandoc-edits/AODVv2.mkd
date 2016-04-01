@@ -545,11 +545,10 @@ a different route can be discovered. Further, a route is not to be used for forw
 hop is confirmed. AODVv2 routers do not need to monitor bidirectionality for links to neighboring routers which are not used as next hops
 on routes in the Local Route Set.
 
-*  For the next hop router on the route toward OrigAddr, the approach for testing bidirectional connectivity is to request acknowledgement of
-   Route Reply messages. Receipt of an acknowledgement proves that bidirectional connectivity exists. All AODVv2 routers MUST support this process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs). A link to a neighbor is determined to be unidirectional if a requested acknowledgement is not received within RREP_Ack_SENT_TIMEOUT, or bidirectional if the acknowledgement is received within the timeout.
-*  For the next hop router on the route toward TargAddr, receipt of the Route Reply message containing the route to TargAddr is confirmation
-   of bidirectionality, since a Route Reply message is a reply to a Route Request message which previously crossed the link in the opposite
-   direction.
+*  Bidirectional connectivity to upstream routers is tested by
+   requesting acknowledgement of RREP messages by including an AckReq. Receipt of an RREP_Ack within RREP_Ack_SENT_TIMEOUT proves that bidirectional connectivity exists. Oherwise, a link is determined to be unidirectional. All AODVv2 routers MUST support this process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs).
+*  For the downstream router, receipt of an RREP message
+   containing the route to TargAddr is confirmation of bidirectionality , since an RREP message is a reply to a RREQ message which previously crossed the link in the opposite direction.
 
 To assist with next hop monitoring, a Neighbor Table ([](#nbrlist)) is maintained. When an RREQ or RREP is received from an IP address which does not already have an entry in the Neighbor Table, a new entry is created as described in [](#nbrupdate). While the value of Neighbor.State is Unknown, acknowledgement of RREP messages sent to that neighbor MUST be requested. If an acknowledgement is not received within the timeout period, the neighbor MUST have Neighbor.State set to Blacklisted. If an acknowledgement is received within the timeout period, Neighbor.State is set to Confirmed. While the value of Neighbor.State is Confirmed, the request for an acknowledgement of any other RREP message is unnecessary.
 <!-- While Neighbor.State is Blacklisted, RREQs received from that router MUST be disregarded.-->
