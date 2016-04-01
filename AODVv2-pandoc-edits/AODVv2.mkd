@@ -1243,8 +1243,8 @@ MUST be considered to have failed after the wait time for an RREP_Ack response t
 
 To generate the RREP, the router (also referred to as RREP_Gen) follows this procedure:
 
-1.  If the link to the next hop router toward OrigAddr is not known to be bidirectional, include the
-    AckReq with the address of the intended next hop router
+1.  If the link to the next hop router toward OrigAddr is not known to
+    be bidirectional, include the AckReq with the address of the intended next hop router (see [](#5444_rrep_addrblk))
 1.  Set Address List := {OrigAddr, TargAddr}
 1.  For the PrefixLengthList:
     *  If TargAddr is part of an address range configured as a Router Client, set PrefixLengthList :=
@@ -1639,7 +1639,7 @@ None            \<msg-type\>       RREP
 
 An RREP contains no Message TLVs.
 
-### Address Block
+### Address Block {#5444_rrep_addrblk}
 
 An RREP contains a minimum of two addresses, OrigAddr and TargAddr, and each address has an associated prefix length. If the prefix length
 has not been included in the AODVv2 message, it is equal to the address length in bits.
