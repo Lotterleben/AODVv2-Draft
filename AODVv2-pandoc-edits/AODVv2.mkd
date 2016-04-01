@@ -691,7 +691,7 @@ RREQ is referred to as RREQ_Gen.
 Buffering might be configured for IP packets awaiting a route for forwarding by RREQ_Gen, if sufficient memory is available. 
 Buffering of IP packets might have both positive and negative effects. Real-time traffic, voice, and scheduled delivery may suffer if packets are
 buffered and subjected to delays, but TCP connection establishment will benefit if packets are queued while route discovery is performed [](#Koodli01).
-If packets are not queued, no notification should be sent to the source. Recommendations for appropriate buffer methods are out of scope for this specification. Determining which packets to discard first when the buffer is full is a matter of policy at each AODVv2 router. Note that using different or no buffer methods does not affect interoperability.
+Recommendations for appropriate buffer methods are out of scope for this specification. Determining which packets to discard first when the buffer is full is a matter of policy at each AODVv2 router. Note that using different or no buffer methods does not affect interoperability.
 
 RREQ_Gen awaits reception of a Route Reply message (RREP) containing a route toward TargAddr. If a valid route to TargAddr is not learned
 within RREQ_WAIT_TIME, RREQ_Gen will retry the route discovery. To reduce congestion in a network, repeated attempts at route discovery for
