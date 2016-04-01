@@ -1244,7 +1244,7 @@ MUST be considered to have failed after the wait time for an RREP_Ack response t
 To generate the RREP, the router (also referred to as RREP_Gen) follows this procedure:
 
 1.  If the link to the next hop router toward OrigAddr is not known to
-    be bidirectional, include the AckReq with the address of the intended next hop router (see [](#5444_rrep_addrblk))
+    be bidirectional, include the AckReq with the address of the intended next hop router (see [](#rrep_addrblk))
 1.  Set Address List := {OrigAddr, TargAddr}
 1.  For the PrefixLengthList:
     *  If TargAddr is part of an address range configured as a Router Client, set PrefixLengthList :=
@@ -1280,11 +1280,9 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 1.  Verify that the cost of the advertised route does not exceed the maximum allowed metric
     value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
     *  If it does, ignore this RREP for further processing.
-1.  If the AckReq is present, check the intended recipient of the received RREP
-    *  If the receiving router is the intended recipient, send an acknowledgement as specified
-       in [](#rrep_ack_msgs) and continue processing.
-    *  If the receiving router is not the intended recipient, ignore this RREP for
-       further processing.
+1.  If the AckReq is present, check the intended recipient of the received RREP:
+    *  If there is an entry in the Router Client Table where RouterClient.IPAddress matches the address associated with the AckReq (see [](#rrep_addrblk)), the receiving router is the intended recipient. Send an acknowledgement as specified in [](#rrep_ack_msgs) and continue processing.
+    *  Otherwise, ignore this RREP for further processing.
 1.  Process the route to TargAddr (and any other addresses included in the
     given prefix length) as specified in [](#processingrte)
 1.  Check if the message is redundant by comparing to entries in the Multicast Route Message table ([](#suppress))
@@ -1639,7 +1637,7 @@ None            \<msg-type\>       RREP
 
 An RREP contains no Message TLVs.
 
-### Address Block {#5444_rrep_addrblk}
+### Address Block {#rrep_addrblk}
 
 An RREP contains a minimum of two addresses, OrigAddr and TargAddr, and each address has an associated prefix length. If the prefix length
 has not been included in the AODVv2 message, it is equal to the address length in bits.
