@@ -546,7 +546,7 @@ hop is confirmed. AODVv2 routers do not need to monitor bidirectionality for lin
 on routes in the Local Route Set.
 
 *  Bidirectional connectivity to upstream routers is tested by
-   requesting acknowledgement of RREP messages by including an AckReq. Receipt of an RREP_Ack within RREP_Ack_SENT_TIMEOUT proves that bidirectional connectivity exists. Oherwise, a link is determined to be unidirectional. All AODVv2 routers MUST support this process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs).
+   requesting acknowledgement of RREP messages by including an AckReq, which MUST be answered by sending an RREP_Ack. Receipt of an RREP_Ack within RREP_Ack_SENT_TIMEOUT proves that bidirectional connectivity exists. Otherwise, a link is determined to be unidirectional. All AODVv2 routers MUST support this process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs).
 *  For the downstream router, receipt of an RREP message
    containing the route to TargAddr is confirmation of bidirectionality , since an RREP message is a reply to a RREQ message which previously crossed the link in the opposite direction.
 
