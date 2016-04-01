@@ -164,8 +164,7 @@ TargPrefixLen
 TargSeqNum
 :   <vspace/>The sequence number of the AODVv2 router which originated the Route Reply on behalf of TargAddr.
 Unreachable Address
-:   <vspace/>An address reported in a Route Error message, either the address on a LocalRoute which became Invalid, or the destination address of an IP
-    packet that could not be forwarded because a valid LocalRoute to the destination is not known, and will not be requested.
+:   <vspace/>An address reported in a Route Error message, either the address on a LocalRoute which became Invalid, or the destination address of an IP packet that could not be forwarded because a valid LocalRoute to the destination is not known, and will not be requested.
 Upstream
 :   <vspace/>In the direction from destination to source (from TargAddr to OrigAddr).
 ValidityTime
@@ -286,7 +285,8 @@ Neighbor.ResetTime
 :   <vspace/>When the value of Neighbor.State is Blacklisted, this indicates the time at which the value of Neighbor.State
     will revert to Unknown. By default this value is calculated at the time the router is blacklisted and is equal to CurrentTime +
     MAX_BLACKLIST_TIME. When the value of Neighbor.State is not Blacklisted, this time is set to INFINITY_TIME.
-
+Neighbor.Interface
+:   <vspace/>The interface on which the link to the neighbor was established.
 
 
 ## Sequence Numbers  {#seqnum}
@@ -545,18 +545,12 @@ hop is confirmed. AODVv2 routers do not need to monitor bidirectionality for lin
 on routes in the Local Route Set.
 
 *  For the next hop router on the route toward OrigAddr, the approach for testing bidirectional connectivity is to request acknowledgement of
-   Route Reply messages. Receipt of an acknowledgement proves that bidirectional connectivity exists. All AODVv2 routers MUST support this
-   process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs). A link to a neighbor is determined to be unidirectional if a
-   requested acknowledgement is not received within RREP_Ack_SENT_TIMEOUT, or bidirectional if the acknowledgement is received within the timeout.
+   Route Reply messages. Receipt of an acknowledgement proves that bidirectional connectivity exists. All AODVv2 routers MUST support this process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs). A link to a neighbor is determined to be unidirectional if a requested acknowledgement is not received within RREP_Ack_SENT_TIMEOUT, or bidirectional if the acknowledgement is received within the timeout.
 *  For the next hop router on the route toward TargAddr, receipt of the Route Reply message containing the route to TargAddr is confirmation
    of bidirectionality, since a Route Reply message is a reply to a Route Request message which previously crossed the link in the opposite
    direction.
 
-To assist with next hop monitoring, a Neighbor Table ([](#nbrlist)) is maintained. When an RREQ or RREP is received from an IP address which
-does not already have an entry in the Neighbor Table, a new entry is created as described in [](#nbrupdate). While the value of Neighbor.State is Unknown,
-acknowledgement of RREP messages sent to that neighbor MUST be requested. If an acknowledgement is not received within the timeout period, the neighbor
-MUST have Neighbor.State set to Blacklisted. If an acknowledgement is received within the timeout period, Neighbor.State is set to Confirmed.
-While the value of Neighbor.State is Confirmed, the request for an acknowledgement of any other RREP message is unnecessary.
+To assist with next hop monitoring, a Neighbor Table ([](#nbrlist)) is maintained. When an RREQ or RREP is received from an IP address which does not already have an entry in the Neighbor Table, a new entry is created as described in [](#nbrupdate). While the value of Neighbor.State is Unknown, acknowledgement of RREP messages sent to that neighbor MUST be requested. If an acknowledgement is not received within the timeout period, the neighbor MUST have Neighbor.State set to Blacklisted. If an acknowledgement is received within the timeout period, Neighbor.State is set to Confirmed. While the value of Neighbor.State is Confirmed, the request for an acknowledgement of any other RREP message is unnecessary.
 <!-- While Neighbor.State is Blacklisted, RREQs received from that router MUST be disregarded.-->
 <!-- if a previously confirmed link goes uni-directional...we think it still works... if route was established and route goes unidirectional, do we
 get a notification? i.e. would route break, send RERR etc? if we establish other routes over this link (but it no longer unidirectional) this is baaad....-->
@@ -588,6 +582,7 @@ A new Neighbor Table entry is created as follows:
 * Neighbor.IPAddress := Source IP address of the received route message
 * Neighbor.State := Unknown
 * Neighbor.ResetTime := INFINITY_TIME
+* Neighbor.Interface := Interface on which the RREQ or RREP was received. MUST equal Interface.Id of one of the entries in the InterfaceSet (see [](#interfaceslist)).
 
 If the message is one of the following:
 
