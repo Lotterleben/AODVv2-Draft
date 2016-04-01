@@ -699,12 +699,6 @@ a particular target address utilize a binary exponential backoff: for each addit
 multiplied by 2. If the requested route is not learned within the wait period, another RREQ is sent, up to a total of DISCOVERY_ATTEMPTS_MAX.
 This is the same technique used in AODV [](#RFC3561).
 
-The RREQ is received by neighboring AODVv2 routers, and processed and regenerated as described in [](#RREQ_msgs). Routers
-learn a potential route to OrigAddr (and other addresses as indicated by OrigPrefixLen) from the RREQ and store it in the Local Route Set.
-The router responsible for TargAddr responds by generating a Route Reply message (RREP) and sends it back toward RREQ_Gen via the next hop
-on the potential route to OrigAddr. Each intermediate router learns the route to TargAddr (and other addresses as indicated by TargPrefixLen),
-regenerates the RREP and sends toward OrigAddr.
-
 Through the use of bidirectional link monitoring and blacklists (see [](#nexthopmonitoring)) uni-directional links on initial selected route will be ignored on subsequent route discovery attempts.
 
 Route discovery is considered to have failed after DISCOVERY_ATTEMPTS_MAX and the corresponding wait time for an RREP response to
