@@ -550,9 +550,15 @@ on routes in the Local Route Set.
 *  For the downstream router, receipt of an RREP message
    containing the route to TargAddr is confirmation of bidirectionality , since an RREP message is a reply to a RREQ message which previously crossed the link in the opposite direction.
 
-To assist with next hop monitoring, a Neighbor Table ([](#nbrlist)) is maintained. When an RREQ or RREP is received from an IP address which does not already have an entry in the Neighbor Table, a new entry is created as described in [](#nbrupdate). While the value of Neighbor.State is Unknown, acknowledgement of RREP messages sent to that neighbor MUST be requested. If an acknowledgement is not received within the timeout period, the neighbor MUST have Neighbor.State set to Blacklisted. If an acknowledgement is received within the timeout period, Neighbor.State is set to Confirmed. While the value of Neighbor.State is Confirmed, the request for an acknowledgement of any other RREP message is unnecessary.
+To assist with next hop monitoring, a Neighbor Table ([](#nbrlist)) is maintained. When an RREQ or RREP is received, search for an entry in the Neighbor Table where all of the following conditions are met:
+
+* Neighbor.IPAddress == IP address from which the RREQ or RREP was received
+* Neighbor.Interface == Interface on which the RREQ or RREP was received.
+
+If such an entry does not exist, a new entry is created as described in [](#nbrupdate). While the value of Neighbor.State is Unknown, acknowledgement of RREP messages sent to that neighbor MUST be requested. If an acknowledgement is not received within the timeout period, the neighbor MUST have Neighbor.State set to Blacklisted. If an acknowledgement is received within the timeout period, Neighbor.State is set to Confirmed. While the value of Neighbor.State is Confirmed, the request for an acknowledgement of any other RREP message is unnecessary.
+
 <!-- While Neighbor.State is Blacklisted, RREQs received from that router MUST be disregarded.-->
-<!-- if a previously confirmed link goes uni-directional...we think it still works... if route was established and route goes unidirectional, do we
+<!-- TODO if a previously confirmed link goes uni-directional...we think it still works... if route was established and route goes unidirectional, do we
 get a notification? i.e. would route break, send RERR etc? if we establish other routes over this link (but it no longer unidirectional) this is baaad....-->
 
 When routers perform other operations such as those from the list below, these MAY be used as additional indications of connectivity:
@@ -586,8 +592,8 @@ A new Neighbor Table entry is created as follows:
 
 If the message is one of the following:
 
-* an RREP which answers a RREQ sent within RREQ_WAIT_TIME <!-- TODO? also check if it matches an existing unconfirmed route -->
-* an RREP_Ack which answers a RREP sent within RREP_Ack_SENT_TIMEOUT
+* an RREP which answers a RREQ sent within RREQ_WAIT_TIME over the same interface as Neighbor.Interface <!-- TODO? also check if it matches an existing unconfirmed route -->
+* an RREP_Ack which answers a RREP sent within RREP_Ack_SENT_TIMEOUT over the same interface as Neighbor.Interface
 
 the link to the neighbor is bidirectional and the Neighbor Table entry is updated as follows:
 
@@ -1261,7 +1267,7 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Table
 contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the RREP is
-sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers.
+sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
 
 
 ### RREP Reception  {#RREP_rcv}
@@ -1323,7 +1329,7 @@ The procedure for RREP regeneration is as follows:
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Table
 contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the RREP is
 sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers.
-
+The RREP MUST be sent over the same interface on which the previous RREP was received.
 
 ## Route Reply Acknowledgement (RREP_Ack) Message  {#rrep_ack_msgs}
 
@@ -1344,7 +1350,7 @@ one of the receiving router's IP addresses. The RREP_Ack SHOULD NOT be generated
 control message generation has been reached.
 
 There is no further data in an RREP_Ack. The [](#RFC5444) representation is discussed in [](#represent).
-The RREP_Ack is unicast, by default, to the source IP address of the RREP message that requested it.
+The RREP_Ack is unicast, by default, to the source IP address of the RREP message that requested it. It MUST be sent over the same interface on which the RREP that triggered it was received.
 
 <!-- Include the SeqNum := TargAddr's SeqNum from the RREP.  -->
 
@@ -1450,7 +1456,7 @@ To generate the RERR, the router follows this procedure:
 The AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)).
 
 If the RERR is sent in response to an undeliverable IP packet or RREP message, i.e., if PktSource is included, the RERR SHOULD be
-sent unicast to the next hop on the route to PktSource, or alternatively, if there is no route to PktSource, the RERR MUST be
+sent unicast to the next hop on the route to PktSource. It MUST be sent over the same interface on which the undeliverable IP packet was received. If there is no route to PktSource, the RERR MUST be
 multicast to LL-MANET-Routers. If the RERR is sent in response to a broken link, i.e., PktSource is not included, the RERR is,
 by default, multicast to LL-MANET-Routers.
 
@@ -1519,11 +1525,9 @@ The procedure for RERR regeneration is as follows:
     *  Insert LocalRoute.MetricType into MetricTypeList.
 
 The AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the RERR contains
-PktSource, the regenerated RERR SHOULD be sent unicast to the next hop on the LocalRoute to PktSource,
-or alternatively if there is no route to PktSource, or PktSource is a Router Client, it MUST be multicast to LL-MANET-Routers.
+PktSource, the regenerated RERR SHOULD be sent unicast to the next hop on the LocalRoute to PktSource. It MUST be sent over the same interface on which the undeliverable IP packet was received.
+If there is no route to PktSource, or PktSource is a Router Client, it MUST be multicast to LL-MANET-Routers.
 If the RERR is sent in response to a broken link, the RERR is, by default, multicast to LL-MANET-Routers.
-
-
 
 # RFC 5444 Representation  {#represent}
 
