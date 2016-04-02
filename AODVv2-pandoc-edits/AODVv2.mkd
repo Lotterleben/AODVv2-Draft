@@ -667,8 +667,8 @@ configurable. Messages SHOULD NOT be sent more frequently than one message per (
   avoids undesired blacklisting of next hop routers.
 * Second priority SHOULD be given to RERR messages for undeliverable IP packets. This avoids repeated forwarding of packets over broken routes that are still in use by other routers.
 * Third priority SHOULD be given to RREP messages in order that RREQs do not time out.
-* Fourth priority should be given to RREQ messages.
-* Fifth priority should be given to RERR messages for newly invalidated routes.
+* Fourth priority SHOULD be given to RREQ messages.
+* Fifth priority SHOULD be given to RERR messages for newly invalidated routes.
 * Lowest priority SHOULD be given to RERR messages generated in response to RREP messages which cannot be regenerated. In this case the
   route request will be retried at a later point.
 
