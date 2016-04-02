@@ -7,7 +7,20 @@ This section lists the changes between AODVv2 revisions ...-13.txt and ...-14.tx
 * Moved Address Type TLV Value definitions to IANA section.
 * Removed use of MAX_HOPCOUNT and [](#RFC5444) msg-hop-limit, msg-hop-count.
 * Allow only one Unconfirmed route.
-* Incorporate changes from Justin Dean's review.
+* Incorporated changes from Justin Dean's review, including removing, moving, extending and clarifying text.
+* Extended Introduction.
+* Clarified wording such as "recently sent", "the expected time", or "the expected RREP_Ack" or substituted it with instructions.
+* Extended and reorganized Security Considerations.
+* Updated text regarding message prioritization.
+* Updated text regarding buffering.
+* Added references to other sections where needed for clarity.
+* Added RteMsg.AckReqAddr to the Multicast Route Message Table to check whether an RREP_Ack was expected.
+* Renamed AODVv2_INTERFACES to InterfaceSet, extended its definition.
+* Added Route Error Table to check for duplicate RERR messages.
+* Turned SHOULDs into MUSTs where appropriate.
+* Updated forwarding plane text.
+* RREPs MUST be regenerated if CONTROL_TRAFFIC_LIMIT is not reached
+* Explained why you'd want to keep routes with a lost sequence number
 
 <!--
 This section lists the changes between AODVv2 revisions ...-12.txt
