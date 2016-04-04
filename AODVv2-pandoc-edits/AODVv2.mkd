@@ -1753,14 +1753,9 @@ MetricTypeList            PATH_METRIC  MetricType     None. Extension Type set t
 
 # Simple External Network Attachment  {#gateway}
 
-[](#net_top) shows a stub (i.e., non-transit) network of AODVv2 routers which is attached to
-an external network via a single External Network Access Router (ENAR). The interface to the
-external network MUST NOT be configured in the InterfaceSet <!-- TODO: if there's only one Interface, is this a MUST?-->
+[](#net_top) shows a stub (i.e., non-transit) network of AODVv2 routers which is attached to an external network via a single External Network Access Router (ENAR). The interface to the external network MUST NOT be configured in the InterfaceSet. <!-- TODO: if there's only one Interface, is this a MUST?-->
 
-As in any externally-attached network, AODVv2 routers and Router Clients that wish to be
-reachable from the external network MUST have IP addresses within the ENAR's routable and
-topologically correct prefix (e.g., 191.0.2.0/24 in [](#net_top)). This AODVv2 network and networks attached to routers within it will
-be advertised to the external network using procedures which are out of scope for this specification.
+As in any externally-attached network, AODVv2 routers and Router Clients that wish to be reachable from the external network MUST have IP addresses within the ENAR's routable and topologically correct prefix (e.g., 191.0.2.0/24 in [](#net_top)). This AODVv2 network and networks attached to routers within it will be advertised to the external network using procedures which are out of scope for this specification.
 
 
       /-------------------------\
@@ -1783,12 +1778,7 @@ be advertised to the external network using procedures which are out of scope fo
       \-------------------------/
 ^[net_top::Simple External Network Attachment Example]
 
-When an AODVv2 router within the AODVv2 MANET wants to discover a route toward an address on the
-external network, it uses the normal AODVv2 route discovery for that IP Destination Address. The ENAR
-MUST respond to RREQ on behalf of all external network destinations, e.g., destinations not on the
-configured 191.0.2.0/24 network. RREQs for addresses inside the AODVv2 network, e.g. destinations
-on the configured 191.0.2.0/24 network, are handled using the standard processes described
-in [](#aodv_msgs).
+When an AODVv2 router within the AODVv2 MANET wants to discover a route toward an address on the external network, it uses the normal AODVv2 route discovery for that IP Destination Address. The ENAR MUST respond to RREQ on behalf of all external network destinations, e.g., destinations not on the configured 191.0.2.0/24 network. RREQs for addresses inside the AODVv2 network, e.g. destinations on the configured 191.0.2.0/24 network, are handled using the standard processes described in [](#aodv_msgs). Note that AODvv2 does not support RREQs for prefixes that do not equal address length.
 
 When an IP packet from an address on the external network destined for an address in the AODVv2 MANET reaches the
 ENAR, if the ENAR does not have a route toward that destination in its Routing Information Base, it will perform normal
