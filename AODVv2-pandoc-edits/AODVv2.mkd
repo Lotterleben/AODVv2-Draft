@@ -1328,8 +1328,8 @@ The procedure for RREP regeneration is as follows:
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Table
 contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the RREP is
-sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers.
-The RREP MUST be sent over the same interface on which the previous RREP was received.
+sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigAddr].NextHopInterface.
+
 
 ## Route Reply Acknowledgement (RREP_Ack) Message  {#rrep_ack_msgs}
 

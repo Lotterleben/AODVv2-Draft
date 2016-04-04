@@ -21,7 +21,7 @@ This section lists the changes between AODVv2 revisions ...-13.txt and ...-14.tx
 * Updated forwarding plane text.
 * RREPs MUST be regenerated if CONTROL_TRAFFIC_LIMIT is not reached
 * Explained why you'd want to keep routes with a lost sequence number
-* Included interfaces in the Neighbor Table and next hop neighbor monitoring
+* Included interfaces in the Neighbor Table, next hop neighbor monitoring and message transmission
 
 <!--
 This section lists the changes between AODVv2 revisions ...-12.txt
