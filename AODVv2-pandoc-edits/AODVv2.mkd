@@ -795,7 +795,7 @@ The route update is applied as follows:
 
 1.  If no existing entry in the Local Route Set matches AdvRte's address, prefix length and metric type, continue to Step 4 and create a new entry in the Local Route Set.
 
-1.  If two matching LocalRoutes exist in the Local Route Set, one is a valid route, and one is an Unconfirmed route. AdvRte may offer further improvement to the Unconfirmed route, or may offer an update to the valid route.
+1.  If two matching LocalRoutes exist in the Local Route Set, one is a valid route, and one is an Unconfirmed route, AdvRte may offer further improvement to the Unconfirmed route, or may offer an update to the valid route.
 
     * If AdvRte.NextHop's Neighbor.State is Unknown, the advertised route may offer improvement to the existing valid route, if the link to the next hop can be confirmed as bidirectional. Continue processing from Step 5 to update the existing Unconfirmed LocalRoute.
     * If AdvRte.NextHop's Neighbor.State is Confirmed, the advertised route offers an update or improvement to the existing valid route. Continue processing from Step 5 to update the existing valid LocalRoute.
