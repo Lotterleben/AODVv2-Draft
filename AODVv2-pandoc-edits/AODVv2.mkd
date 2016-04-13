@@ -1591,7 +1591,7 @@ None           \<msg-type\>       RREQ
 
 ### Message TLV Block
 
-An RREQ contains no Message TLVs.
+AODVv2 does not define any Message TLVs for an RREQ message.
 
 ### Address Block
 An RREQ contains two addresses, OrigAddr and TargAddr, and each address has an associated prefix length. If the prefix length
@@ -1635,7 +1635,7 @@ None            \<msg-type\>       RREP
 
 ### Message TLV Block
 
-An RREP contains no Message TLVs.
+AODVv2 does not define any Message TLVs for an RREP message.
 
 ### Address Block {#rrep_addrblk}
 
@@ -1687,13 +1687,13 @@ None           \<msg-type\>       RREP_Ack
 
 ### Message TLV Block
 
-An RREP_Ack contains no Message TLVs.
+AODVv2 does not define any Message TLVs for an RREP_ack message.
 
 ### Address Block
-An RREP_Ack contains no Address Block.
+AODVv2 does not define an Address Block for an RREP_Ack message.
 
 ### Address Block TLV Block
-An RREP_Ack contains no Address Block TLV Block.
+AODVv2 does not define any Address Block TLVs for an RREP_Ack message.
 
 
 
@@ -1711,7 +1711,7 @@ Data           Header Field       Value
 None           \<msg-type\>       RERR
 
 ### Message TLV Block
-An RERR contains no Message TLVs.
+AODVv2 does not define any Message TLVs for an RERR message.
 
 ### Address Block
 The Address Block in an RERR MAY contain PktSource, the source address of the IP packet triggering
