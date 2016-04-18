@@ -164,13 +164,13 @@ TargPrefixLen
 TargSeqNum
 :   <vspace/>The sequence number of the AODVv2 router which originated the Route Reply on behalf of TargAddr.
 Unreachable Address
-:   <vspace/>An address reported in a Route Error message, as described in {#RERR_gen}.
+:   <vspace/>An address reported in a Route Error message, as described in [](#rte).
 Upstream
 :   <vspace/>In the direction from destination to source (from TargAddr to OrigAddr).
 ValidityTime
 :   <vspace/>The length of time the route described by the message is offered.
 Valid route
-:   <vspace/>A route that can be used for forwarding, as described in {#RERR_gen}.
+:   <vspace/>A route that can be used for forwarding, as described in [](#RERR_gen). <!-- TODO: while I couldn’t really find a suitable place for it in 7.4.1.  RERR Generation, it wasn’t defined elsewhere either (apart from the terminology section, of course)– maybe that could be done in 4.5.  Local Route Set-->
 
 
 This document uses the notational conventions in [](#conventions) to simplify the text.
