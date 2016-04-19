@@ -2004,7 +2004,6 @@ protocol overhead in certain situations. The default behavior is to leave these 
 Name                       Default     Description
 ------                     --------    ----------
 PRECURSOR_LISTS            Disabled    Local setting ([](#precursor))
-MSG_AGGREGATION            Disabled    Local setting ([](#aggreg))
 ENABLE_IRREP               Disabled    Network-wide setting ([](#iRREP))
 EXPANDING_RINGS_MULTICAST  Disabled    Network-wide setting ([](#rings))
 
