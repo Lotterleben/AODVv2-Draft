@@ -1120,8 +1120,8 @@ is multicast, by default, to LL-MANET-Routers on all interfaces configured for A
 
 Upon receiving a Route Request, an AODVv2 router performs the following steps:
 
-1.  Update the Neighbor Set according to [](#nbrupdate)
-    *  If the sender has Neighbor.State set to Blacklisted after the update, ignore this RREQ for further processing.
+1.  Check and update the Neighbor Set according to [](#nbrupdate)
+    *  If the sender has Neighbor.State set to Blacklisted, ignore this RREQ for further processing.
 1.  Verify that the message contains the required data: OrigAddr,
     TargAddr, OrigSeqNum, and OrigMetric, and that OrigAddr and TargAddr are
     valid addresses (routable and unicast)
