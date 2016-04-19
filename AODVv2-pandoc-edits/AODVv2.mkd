@@ -1449,7 +1449,7 @@ To generate the RERR, the router follows this procedure:
 The AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)).
 
 If the RERR is sent in response to an undeliverable IP packet or RREP message, i.e., if PktSource is included, the RERR SHOULD be
-sent unicast to the next hop on the route to PktSource. It MUST be sent over the same interface on which the undeliverable IP packet was received. If there is no route to PktSource, the RERR MUST be
+sent unicast to the next hop on the route to PktSource. It MUST be sent over the same interface on which the undeliverable IP packet was received. If there is no route to PktSource, the RERR SHOULD be
 multicast to LL-MANET-Routers. If the RERR is sent in response to a broken link, i.e., PktSource is not included, the RERR is,
 by default, multicast to LL-MANET-Routers.
 
@@ -1928,7 +1928,7 @@ delay route discovery from and to the re-initializing router.
 * Routers with lower values for RREP_Ack_SENT_TIMEOUT may wrongly determine links to neighbors to be unidirectional if an RREP_Ack is delayed longer than this timeout.
 * Routers with lower values for RREQ_HOLDDOWN_TIME will retry failed route discoveries sooner than routers with higher values. This may be an advantage if the network topology is frequently changing, or may unnecessarily cause more routing protocol traffic.
 
-MAX_SEQNUM_LIFETIME, ACTIVE_INTERVAL and MAX_IDLETIME MUST be configured to have the same values for all AODVv2 routers in the network.
+MAX_SEQNUM_LIFETIME MUST be configured to have the same values for all AODVv2 routers in the network.
 
 
 ## Protocol Constants  {#constants}
