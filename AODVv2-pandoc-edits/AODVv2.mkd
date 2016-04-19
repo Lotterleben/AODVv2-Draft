@@ -1878,14 +1878,6 @@ published as a separate Internet Draft [](#I-D.perkins-irrep).
 
  <!-- CEP: issue #40 should be revisited!!  -->
 
-## Message Aggregation Delay  {#aggreg}
-The aggregation of multiple messages into a packet is specified in [](#RFC5444).
-
-Implementations MAY choose to briefly delay transmission of messages for the purpose of
-aggregation (into a single packet) or to improve performance by using jitter [](#RFC5148).
-
-
-
 # Configuration  {#param}
 
 AODVv2 uses various parameters which can be grouped into the following categories:
