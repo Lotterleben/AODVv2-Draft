@@ -2012,14 +2012,14 @@ EXPANDING_RINGS_MULTICAST  Disabled    Network-wide setting ([](#rings))
 
 ## MetricType Allocation  {#metric-type}
 
-The metric types used by AODVv2 are identified according to the assignments in [](#RFC6551).
-All implementations MUST use these values.
+The metric types used by AODVv2 are identified according to a new table to be created and maintained by IANA.  All implementations MUST use these values.
+
 
 Name of MetricType        Type                     Metric Value Size
 --------------------      ------                   -------------
 Unassigned                0                        Undefined
-Hop Count                 3 [TBD]                  1 octet
-Unallocated               9 - 254                  TBD
+Hop Count                 1                        1 octet
+Unallocated               2 - 254                  TBD
 Reserved                  255                      Undefined
 
 ^[metric-tbl::AODVv2 Metric Types]
