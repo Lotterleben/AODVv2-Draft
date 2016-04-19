@@ -2,6 +2,21 @@
 
 # AODVv2 Draft Updates
 
+This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
+
+* Shortened Terminology descriptions of Unreachable Address, Unreachable Route, Valid Route and add references to sections explaining the details.
+* Clarified language regarding empty Message TLV Blocks and Address Blocks.
+* Removed reference to RFC6551 from MetricType Allocation.
+* Removed Message Aggregation Delay extension.
+* Detailed what happens if the specified timers aren't the same across the network.
+* RERRs SHOULD be MULTICAST instead of MUST (which enables precursor lists).
+* RREP_Ack Reception: clarified wording regarding blacklist check.
+* Removed "approaching the limit" verbiage.
+* Added instructions on which messages to drop on congestion.
+* Revised set vs. table wording
+* Added note that AODVv2 was intended for use in mobile ad hoc wireless networks.
+
+<!--
 This section lists the changes between AODVv2 revisions ...-13.txt and ...-14.txt.
 
 * Moved Address Type TLV Value definitions to IANA section.
@@ -24,7 +39,7 @@ This section lists the changes between AODVv2 revisions ...-13.txt and ...-14.tx
 * Included interfaces in the Neighbor Table, next hop neighbor monitoring and message transmission
 * Clarified that AODVv2 currently doesn’t support RREQs for prefixes.
 
-<!--
+
 This section lists the changes between AODVv2 revisions ...-12.txt
 and ...-13.txt.
 
