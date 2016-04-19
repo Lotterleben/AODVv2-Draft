@@ -672,6 +672,8 @@ configurable. Messages SHOULD NOT be sent more frequently than one message per (
 <!-- IP packets containing AODVv2 protocol messages SHOULD be given priority queuing and channel
 access. -->
 
+To implement the congestion control, a queue length is set. If the queue is full, in order to queue a new message, a message of lower priority must be removed from the queue. If this is not possible, the new message MUST be discarded. The queue should be sorted in order of message priority
+
 ## Route Discovery, Retries and Buffering  {#route_discovery}
 
 AODVv2's RREQ and RREP messages are used for route discovery. RREQ messages are multicast to solicit an RREP, whereas
