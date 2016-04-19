@@ -1519,7 +1519,7 @@ The procedure for RERR regeneration is as follows:
 
 The AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the RERR contains
 PktSource, the regenerated RERR SHOULD be sent unicast to the next hop on the LocalRoute to PktSource. It MUST be sent over the same interface on which the undeliverable IP packet was received.
-If there is no route to PktSource, or PktSource is a Router Client, it MUST be multicast to LL-MANET-Routers.
+If there is no route to PktSource, or PktSource is a Router Client, it SHOULD be multicast to LL-MANET-Routers.
 If the RERR is sent in response to a broken link, the RERR is, by default, multicast to LL-MANET-Routers.
 
 # RFC 5444 Representation  {#represent}
