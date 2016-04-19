@@ -604,7 +604,7 @@ When the Neighbor.ResetTime is reached, the Neighbor Set entry is updated as fol
 
 * Neighbor.State := Unknown
 
-When a link to a neighbor is determined to be broken, the Neighbor Set entry SHOULD be removed.
+If an external mechanism reports a link as broken, the Neighbor Set entry SHOULD be removed.
 
 Route requests from neighbors with Neighbor.State set to Blacklisted are ignored to avoid persistent IP packet
 loss or protocol failures. Neighbor.ResetTime allows the neighbor to again be allowed to participate in route discoveries after MAX_BLACKLIST_TIME, in case the link between the routers has become bidirectional.
