@@ -1913,13 +1913,23 @@ RREQ_HOLDDOWN_TIME                     10 seconds
 The above timing parameter values have worked well for small and medium well-connected
 networks with moderate topology changes. The timing parameters SHOULD be administratively
 configurable. Ideally, for networks with frequent topology changes the AODVv2 parameters
-SHOULD be adjusted using experimentally determined values or dynamic adaptation. For example,
-in networks with infrequent topology changes MAX_IDLETIME MAY be set to a much larger value.
+SHOULD be adjusted using experimentally determined values or dynamic adaptation. For example, in networks with infrequent topology changes MAX_IDLETIME MAY be set to a much larger value.
+If the values were configured differently, the following consequences may be observed:
 
-If MAX_SEQNUM_LIFETIME was configured differently across the network, and any of the routers
-lost their sequence number or rebooted, this could result in their next route messages being
+* If MAX_SEQNUM_LIFETIME was configured differently across the network, and any of the routers lost their sequence number or rebooted, this could result in their next route messages being
 classified as stale at any AODVv2 router using a greater value for MAX_SEQNUM_LIFETIME. This would
 delay route discovery from and to the re-initializing router.
+* Routers with lower values for ACTIVE_INTERVAL + MAX_IDLETIME will invalidate routes more quickly and free resources used to maintain them. This can affect bursty traffic flows which have quiet periods longer than ACTIVE_INTERVAL + MAX_IDLETIME. A route which has timed out due to perceived inactivity is not reported. When the bursty traffic resumes, it would cause a RERR to be generated, and the traffic itself would be dropped. This route would be removed from all upstream routers, even if those upstream routers had larger ACTIVE_INTERVAL or MAX_IDLETIME values. A new route discovery would be required to re-establish the route, causing extra routing protocol traffic and disturbance to the bursty traffic.
+* Routers with lower values for MAX_BLACKLIST_TIME would allow neighboring routers to participate in route discovery sooner than routers with higher values. This could result in failed route discoveries if un-blacklisted links are still uni-directional. Since RREQs are retried, this would not affect success of route discovery unless this value was so small as to un-blacklist the router before the RREQ is retried. This value need not be consistent across the network since it is used for maintaining a 1-hop blacklist. However it MUST be greater than RREQ_WAIT_TIME.
+<!-- TODO: [and probably a good idea to be at least a multiple of RREQ_WAIT_TIME?] -->
+* Routers with lower values for RERR_TIMEOUT may create more RERR messages than routers with higher values. This value should be large enough that a RERR will reach all routers using the route reported within it before the timer expires, so that no further data traffic will arrive, and no duplicated RERR messages will be generated.
+* Routers with lower values for RteMsg_ENTRY_TIME may not consider received redundant multicast route messages as redundant, and may regenerate these messages unnecessarily.
+* Routers with lower values for RREQ_WAIT_TIME may send more frequent RREQ messages and wrongly determine that a route does not exist, if the delay in receiving an RREP is greater than this interval.
+* Routers with lower values for RREP_Ack_SENT_TIMEOUT may wrongly determine links to neighbors to be unidirectional if an RREP_Ack is delayed longer than this timeout.
+* Routers with lower values for RREQ_HOLDDOWN_TIME will retry failed route discoveries sooner than routers with higher values. This may be an advantage if the network topology is frequently changing, or may unnecessarily cause more routing protocol traffic.
+
+MAX_SEQNUM_LIFETIME, ACTIVE_INTERVAL and MAX_IDLETIME MUST be configured to have the same values for all AODVv2 routers in the network.
+
 
 ## Protocol Constants  {#constants}
 
@@ -1951,10 +1961,9 @@ network.  If the values were configured differently, the following consequences 
 
 *  DISCOVERY_ATTEMPTS_MAX: Routers with higher values are likely to be more successful at finding
    routes, at the cost of additional control traffic.
-*  RREP_RETRIES: Routers with lower values are more likely to blacklist neighbors when there is a
+*  RREP_RETRIES: Routers with lower values are more likely to blacklist neighbors when there is a temporary fluctuation in link quality.
 *  MAX_METRIC[MetricType]: No interoperability problems due to variations on different routers, but
    routers with lower values may exhibit overly restrictive behavior during route comparisons.
-   temporary fluctuation in link quality.
 <!-- *  MAX_HOPCOUNT: Routers with a value too small would not be able to discover routes to distant addresses. -->
 *  INFINITY_TIME: No interoperability problems due to variations on different routers, but if a
    lower value is used, route state management may exhibit overly restrictive behavior.
