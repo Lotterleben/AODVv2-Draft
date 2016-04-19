@@ -186,7 +186,7 @@ RteMsg.Field                           A field in either RREQ or RREP
 # Applicability Statement  {#apply}
   <!-- The nets do not have to be mobile, and AODVv2 may be applicable in low power lossy sensor networks. -->
 
-The AODVv2 routing protocol is a reactive routing protocol. A reactive protocol only sends messages to discover a route when there is data to send on that route. Therefore, a reactive routing protocol requires certain interactions with the forwarding plane (for example, to indicate when a packet is to be forwarded,
+The AODVv2 routing protocol is a reactive routing protocol intended for use in mobile ad hoc wireless networks. A reactive protocol only sends messages to discover a route when there is data to send on that route. Therefore, a reactive routing protocol requires certain interactions with the forwarding plane (for example, to indicate when a packet is to be forwarded,
 in order to initiate route discovery). The set of signals exchanged between AODVv2 and the forwarding
 plane are discussed in [](#fwdplane).
 
