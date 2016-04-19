@@ -1080,8 +1080,7 @@ continue to await a response without generating a new RREQ. If the timeout has b
 RREQ MAY be generated. If buffering is configured, incoming IP packets awaiting this route SHOULD be buffered until the
 route discovery is completed.
 
-If the limit for the rate of AODVv2 control message generation has been reached, no message SHOULD be
-generated. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
+If the limit for the rate of AODVv2 control message generation has been reached, no message SHOULD be generated.
 
 To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedure:
 
@@ -1148,8 +1147,7 @@ to other addresses included in the given prefix length) according to the informa
 regenerate the RREQ, for example if the router is heavily loaded or low on energy and therefore unwilling to advertise
 routing capability for more traffic. This could, however, decrease connectivity in the network or result in non-optimal paths.
 
-The RREQ SHOULD NOT be regenerated if the limit for the rate of AODVv2 control message generation has been reached. If
-approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
+The RREQ SHOULD NOT be regenerated if the limit for the rate of AODVv2 control message generation has been reached.
 
 The procedure for RREQ regeneration is as follows:
 
@@ -1227,8 +1225,7 @@ Client of the AODVv2 router.
 
 Before creating an RREP, the router SHOULD check if the corresponding RREQ is redundant, i.e.,
 a Route Reply has already been generated in response to the RREQ, or if the limit for the rate of AODVv2 control message
-generation has been reached. If so, the RREP SHOULD NOT be created. If approaching the limit,
-the message should be sent if the priorities in [](#MsgXmit) allow it.
+generation has been reached. If so, the RREP SHOULD NOT be created.
 
 The RREP will follow the path of the route to OrigAddr. If the best route to OrigAddr in the Local
 Route Set is Unconfirmed, the link to the next hop neighbor is not yet confirmed as bidirectional (as described
@@ -1307,7 +1304,7 @@ By regenerating a RREP, a router advertises that it will forward IP packets to T
 <!--(and any other addresses included in the given prefix length) TODO: I've deleted this bc we don't support routes for entire prefixes, correct?--> 
 
 The RREP SHOULD NOT be regenerated if CONTROL_TRAFFIC_LIMIT
-has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it. Otherwise, the router MUST regenerate the RREP.
+has been reached. Otherwise, the router MUST regenerate the RREP.
 
 The procedure for RREP regeneration is as follows:
 
@@ -1432,7 +1429,7 @@ destination is not reachable. There are three events that cause this response:
     <!-- CEP: To reconsider if we re-specify local repair.. -->
 
 The RERR SHOULD NOT be generated if CONTROL_TRAFFIC_LIMIT
-has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
+has been reached.
 The RERR also SHOULD NOT be generated if it is a duplicate, as determined by [](#suppressrerr).
 
 Incidentally, if an AODVv2 router receives an ICMP error packet to or from the address of one of
@@ -1507,7 +1504,7 @@ Upon receiving a Route Error, an AODVv2 router performs the following steps:
 
 ### RERR Regeneration  {#RERR_regen}
 
-The Route Error message SHOULD NOT be regenerated if CONTROL_TRAFFIC_LIMIT has been reached. If approaching the limit, the message should be sent if the priorities in [](#MsgXmit) allow it.
+The Route Error message SHOULD NOT be regenerated if CONTROL_TRAFFIC_LIMIT has been reached.
 
 The procedure for RERR regeneration is as follows:
 
