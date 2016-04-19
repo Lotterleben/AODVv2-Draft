@@ -243,12 +243,12 @@ Otherwise the InterfaceSet MAY be empty.
 
 <!-- TODO when I resolve this see also TODO in {#gateway}-->
 
-## Router Client Table {#clients}
+## Router Client Set {#clients}
 An AODVv2 router provides route discovery services for its own local applications and for other non-routing devices that are reachable
 without traversing another AODVv2 router. The addresses used by these devices, and the AODVv2 router itself, are configured in the
-Router Client Table. An AODVv2 router will only originate Route Request and Route Reply messages on behalf of configured Router Client addresses.
+Router Client Set. An AODVv2 router will only originate Route Request and Route Reply messages on behalf of configured Router Client addresses.
 
-Router Client Table entries MUST contain:
+Router Client Set entries MUST contain:
 
 RouterClient.IPAddress
 :   <vspace/>An IP address or the start of an address range that requires route discovery services from the AODVv2 router.
@@ -265,13 +265,13 @@ existing routing information about this Router Client to be purged from the netw
 update on the router which is removing this Router Client.
 
 
-## Neighbor Table  {#nbrlist}
+## Neighbor Set  {#nbrlist}
 
-A Neighbor Table MUST be maintained with information about neighboring AODVv2 routers. Neighbor Table entries are stored when AODVv2 messages
+A Neighbor Set MUST be maintained with information about neighboring AODVv2 routers. Neighbor Set entries are stored when AODVv2 messages
 are received. If the Neighbor is chosen as a next hop on an installed route, the link to the Neighbor MUST be tested for bidirectionality and
-the result stored in this table. A route will only be considered valid when the link is confirmed to be bidirectional.
+the result stored in this set. A route will only be considered valid when the link is confirmed to be bidirectional.
 
-Neighbor Table entries MUST contain:
+Neighbor Set entries MUST contain:
 
 Neighbor.IPAddress
 :   <vspace/>An IP address of the neighboring router, learned from the source IP address of a received route message.
@@ -395,18 +395,18 @@ the decision of which of these routes to install in the Routing Information Base
      to route. -->
 
 
-## Multicast Route Message Table  {#rtemsgtable}
+## Multicast Route Message Set  {#rtemsgtable}
 
 A route message (RteMsg) is either a Route Request or Route Reply message. RREQ messages are multicast by default and regenerated
 multiple times, and RREP messages will be multicast when the link to the next router is not known to be bidirectional. Multiple similar
 route messages might be received by any one router during one route discovery attempt. The AODVv2 router does not need to regenerate or respond to every
 one of these messages.
 
-The Multicast Route Message Table is a conceptual table which contains information about previously received multicast route messages, so that
+The Multicast Route Message Set is a conceptual set which contains information about previously received multicast route messages, so that
 incoming route messages can be compared with previously received messages to determine if the incoming information is redundant or stale, and the router can
 avoid sending redundant control traffic.
 
-Multicast Route Message Table entries MUST contain the following information:
+Multicast Route Message Set entries MUST contain the following information:
 
 RteMsg.MessageType
 :   <vspace/>Either RREQ or RREP.
@@ -427,20 +427,20 @@ RteMsg.MetricType
 RteMsg.Metric
 :   <vspace/>The metric value received in the RteMsg.
 RteMsg.Timestamp
-:   <vspace/>The last time this Multicast Route Message Table entry was updated.
+:   <vspace/>The last time this Multicast Route Message Set entry was updated.
 RteMsg.RemoveTime
-:   <vspace/>The time at which this entry MUST be removed from the Multicast Route Message Table. This is set
+:   <vspace/>The time at which this entry MUST be removed from the Multicast Route Message Set. This is set
     to CurrentTime + MAX_SEQNUM_LIFETIME, whenever the sequence number of this entry (RteMsg.OrigSeqNum for an
     RREQ, or RteMsg.TargSeqNum for an RREP) is updated.
 RteMsg.AckReqAddr
 :   <vspace/>The address from which a RREP_Ack is expected, if RteMsg is a RREP that contains an AckReq.
 
-The Multicast Route Message Table is maintained so that no two entries have the same MessageType, OrigAddr,
-TargAddr, and MetricType. See [](#suppress) for details about updating this table.
+The Multicast Route Message Set is maintained so that no two entries have the same MessageType, OrigAddr,
+TargAddr, and MetricType. See [](#suppress) for details about updating this set.
 
-## Route Error (RERR) Table  {#rerrtable}
+## Route Error (RERR) Set  {#rerrtable}
 
-Each sent RERR message SHOULD be recorded in a conceptual table called the Route Error (RERR) Table. Each entry contains the following information:
+Each sent RERR message SHOULD be recorded in a conceptual set called the Route Error (RERR) Set. Each entry contains the following information:
 
 RerrMsg.Timeout
 :   <vspace/>The time after which the entry SHOULD be deleted.
@@ -449,7 +449,7 @@ RerrMsg.AddressList
 RerrMsg.PktSource:
 :   <vspace/>The PktSource of the RERR to be recorded, if any.
 
-See section [](#suppressrerr) for instructions on how to update the table.
+See section [](#suppressrerr) for instructions on how to update the set.
 
 # Metrics  {#metrics}
 
@@ -507,9 +507,9 @@ interoperability issues need to be considered.
 
 # AODVv2 Protocol Operations  {#aodv_ops}
 
-The AODVv2 protocol's operations include managing sequence numbers, monitoring next hop AODVv2 routers on discovered routes and updating the Neighbor Table,
+The AODVv2 protocol's operations include managing sequence numbers, monitoring next hop AODVv2 routers on discovered routes and updating the Neighbor Set,
 performing route discovery and dealing with requests from other routers, processing incoming route information and updating the Local
-Route Set, updating the Multicast Route Message Table and suppressing redundant messages, and reporting broken routes. These processes
+Route Set, updating the Multicast Route Message Set and suppressing redundant messages, and reporting broken routes. These processes
 are discussed in detail in the following sections.
 
 ## Initialization {#boot}
@@ -545,7 +545,7 @@ on routes in the Local Route Set.
 *  For the downstream router, receipt of an RREP message
    containing the route to TargAddr is confirmation of bidirectionality , since an RREP message is a reply to a RREQ message which previously crossed the link in the opposite direction.
 
-To assist with next hop monitoring, a Neighbor Table ([](#nbrlist)) is maintained. When an RREQ or RREP is received, search for an entry in the Neighbor Table where all of the following conditions are met:
+To assist with next hop monitoring, a Neighbor Set ([](#nbrlist)) is maintained. When an RREQ or RREP is received, search for an entry in the Neighbor Set where all of the following conditions are met:
 
 * Neighbor.IPAddress == IP address from which the RREQ or RREP was received
 * Neighbor.Interface == Interface on which the RREQ or RREP was received.
@@ -567,18 +567,18 @@ When routers perform other operations such as those from the list below, these M
 
 If such an external process signals that the link to a neighbor is
 bidirectional, the AODVv2 router MAY update the matching Neighbor
-Table entry by changing the value of Neighbor.State to Confirmed, e.g. receipt of a Neighborhood Discovery
+Set entry by changing the value of Neighbor.State to Confirmed, e.g. receipt of a Neighborhood Discovery
 Protocol HELLO message with the receiving router listed as a neighbor.  If
 an external process signals that a link is not bidirectional, the the
 value of Neighbor.State MAY be changed to Blacklisted, e.g. notification of a TCP timeout.
 
 
 
-## Neighbor Table Update {#nbrupdate}
+## Neighbor Set Update {#nbrupdate}
 
-On receipt of an RREQ or RREP message, the Neighbor Table MUST be checked for an entry with Neighbor.IPAddress which matches the source IP address of a packet containing the AODVv2 message. If no matching entry is found, a new entry is created.
+On receipt of an RREQ or RREP message, the Neighbor Set MUST be checked for an entry with Neighbor.IPAddress which matches the source IP address of a packet containing the AODVv2 message. If no matching entry is found, a new entry is created.
 
-A new Neighbor Table entry is created as follows:
+A new Neighbor Set entry is created as follows:
 
 * Neighbor.IPAddress := Source IP address of the received route message
 * Neighbor.State := Unknown
@@ -590,21 +590,21 @@ If the message is one of the following:
 * an RREP which answers a RREQ sent within RREQ_WAIT_TIME over the same interface as Neighbor.Interface <!-- TODO? also check if it matches an existing unconfirmed route -->
 * an RREP_Ack which answers a RREP sent within RREP_Ack_SENT_TIMEOUT over the same interface as Neighbor.Interface
 
-the link to the neighbor is bidirectional and the Neighbor Table entry is updated as follows:
+the link to the neighbor is bidirectional and the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Confirmed <!-- could set reset time when set state to confirmed, to re-test after certain time -->
 * Neighbor.ResetTime := INFINITY_TIME
 
-If an RREP_Ack is not received within RREP_Ack_SENT_TIMEOUT, the link is considered to be uni-directional and the Neighbor Table entry is updated as follows:
+If an RREP_Ack is not received within RREP_Ack_SENT_TIMEOUT, the link is considered to be uni-directional and the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Blacklisted
 * Neighbor.ResetTime := CurrentTime + MAX_BLACKLIST_TIME
 
-When the Neighbor.ResetTime is reached, the Neighbor Table entry is updated as follows:
+When the Neighbor.ResetTime is reached, the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Unknown
 
-When a link to a neighbor is determined to be broken, the Neighbor Table entry SHOULD be removed.
+When a link to a neighbor is determined to be broken, the Neighbor Set entry SHOULD be removed.
 
 Route requests from neighbors with Neighbor.State set to Blacklisted are ignored to avoid persistent IP packet
 loss or protocol failures. Neighbor.ResetTime allows the neighbor to again be allowed to participate in route discoveries after MAX_BLACKLIST_TIME, in case the link between the routers has become bidirectional.
@@ -840,14 +840,14 @@ next hop of that LocalRoute is bidirectional, by using that LocalRoute to forwar
 (see [](#RREP_gen)).
 
 
-## Suppressing Redundant Messages Using the Multicast Route Message Table  {#suppress}
+## Suppressing Redundant Messages Using the Multicast Route Message Set  {#suppress}
 
 When route messages are flooded in a MANET, an AODVv2 router may receive multiple similar
 messages. Regenerating every one of these gives little additional benefit, and generates
 unnecessary signaling traffic and might generate unnecessary interference.
 
 Each AODVv2 router stores information about recently received route messages in the AODVv2
-Multicast Route Message Table ([](#rtemsgtable)). Its Entries consist of:
+Multicast Route Message Set ([](#rtemsgtable)). Its Entries consist of:
 
 * RteMsg.MessageType
 * RteMsg.OrigAddr
@@ -861,7 +861,7 @@ Multicast Route Message Table ([](#rtemsgtable)). Its Entries consist of:
 * RteMsg.Timestamp
 * RteMsg.RemoveTime
 
-Entries in the Multicast Route Message Table SHOULD be maintained for at least RteMsg_ENTRY_TIME after
+Entries in the Multicast Route Message Set SHOULD be maintained for at least RteMsg_ENTRY_TIME after
 the last Timestamp update in order to account for long-lived RREQs traversing the network. An entry MUST
 be deleted when the sequence number is no longer valid, i.e., after MAX_SEQNUM_LIFETIME. Memory-constrained
 devices MAY remove the entry before this time.
@@ -871,7 +871,7 @@ redundant, regeneration or response can be avoided.
 
 To determine if a received message is redundant:
 
-1.  Search for an entry in the Multicast Route Message Table with the same MessageType, OrigAddr, TargAddr, and
+1.  Search for an entry in the Multicast Route Message Set with the same MessageType, OrigAddr, TargAddr, and
     MetricType
     *   If there is no entry, the message is not redundant.
     *   If there is an entry, continue to Step 2.
@@ -893,7 +893,7 @@ responded to.
 
 If the message is not redundant, create an entry or update the existing entry.
 
-To update a Multicast Route Message Table entry, set:
+To update a Multicast Route Message Set entry, set:
 
 * RteMsg.MessageType := the message type of the received message
 * RteMsg.OrigAddr := OrigAddr from the message
@@ -911,14 +911,14 @@ Where the message is determined not redundant before Step 3, it MUST be regenera
 result in an update to the Local Route Set, the message SHOULD be regenerated or responded to, to ensure other routers
 have up-to-date information and the best metrics. If the message is not regenerated, the best route may not be found. Regeneration or response is to be performed using the processes outlined in [](#aodv_msgs).
 
-## Suppressing Redundant Route Error Messages using the Route Error Table {#suppressrerr}
+## Suppressing Redundant Route Error Messages using the Route Error Set {#suppressrerr}
 
 In order to avoid flooding the network with RERR messages when a stream of IP packets to an unreachable address arrives, an AODVv2
-router SHOULD avoid creating duplicate messages by determining whether an equivalent RERR has recently been sent. This is achieved with the help of the Route Error Table (see [](#rerrtable)).
+router SHOULD avoid creating duplicate messages by determining whether an equivalent RERR has recently been sent. This is achieved with the help of the Route Error Set (see [](#rerrtable)).
 
 To determine if a received RERR is redundant:
 
-1.  Search for an entry in the Route Error Table where:
+1.  Search for an entry in the Route Error Set where:
     * RerrMsg.AddressList == RERR.AddressList
     * RerrMsg.PktSource == RERR.PktSource
 
@@ -978,7 +978,7 @@ LocalRoutes are also updated when Neighbor.State is updated:
    MUST be expunged from the Local Route Set.
 *  When the value of Neighbor.State is set to Blacklisted, any valid routes in the Local Route Set using that neighbor for their next hop MUST have
    LocalRoute.State set to Invalid.
-*  When a Neighbor Table entry is removed, all routes in the Local Route Set using that neighbor as next hop MUST have LocalRoute.State set to Invalid.
+*  When a Neighbor Set entry is removed, all routes in the Local Route Set using that neighbor as next hop MUST have LocalRoute.State set to Invalid.
 
 <!-- SUGGESTED NEW TEXT -->
 
@@ -1072,7 +1072,7 @@ ValidityTime
 An RREQ is generated when an IP packet needs to be forwarded for a Router Client, and no valid route
 currently exists for the packet's destination in the Routing Information Base.
 
-Before creating an RREQ, the router SHOULD check the Multicast Route Message Table to see if an RREQ has recently been sent for the requested
+Before creating an RREQ, the router SHOULD check the Multicast Route Message Set to see if an RREQ has recently been sent for the requested
 destination. If so, and the wait time for a reply has not yet been reached, the router SHOULD
 continue to await a response without generating a new RREQ. If the timeout has been reached, a new
 RREQ MAY be generated. If buffering is configured, incoming IP packets awaiting this route SHOULD be buffered until the
@@ -1119,7 +1119,7 @@ is multicast, by default, to LL-MANET-Routers on all interfaces configured for A
 
 Upon receiving a Route Request, an AODVv2 router performs the following steps:
 
-1.  Update the Neighbor Table according to [](#nbrupdate)
+1.  Update the Neighbor Set according to [](#nbrupdate)
     *  If the sender has Neighbor.State set to Blacklisted after the update, ignore this RREQ for further processing.
 1.  Verify that the message contains the required data: OrigAddr,
     TargAddr, OrigSeqNum, and OrigMetric, and that OrigAddr and TargAddr are
@@ -1132,8 +1132,7 @@ Upon receiving a Route Request, an AODVv2 router performs the following steps:
     *  If it will, ignore this RREQ for further processing.
 1.  Process the route to OrigAddr (and any other addresses included in the given
     prefix length) as specified in [](#processingrte)
-1.  Check if the information in the message is redundant by comparing to entries in the Multicast Route Message
-    table, following the procedure in [](#suppress)
+1.  Check if the information in the message is redundant by comparing to entries in the Multicast Route Message Set, following the procedure in [](#suppress)
     *  If redundant, ignore this RREQ for further processing.
     *  If not redundant, continue processing.
 1.  Check if the TargAddr belongs to one of the Router Clients
@@ -1260,7 +1259,7 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
 1.  Include ValidityTime if advertising that the route to TargAddr (and any other addresses included in the
     given prefix length) via this router is offered for a limited time, and set ValidityTime accordingly
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Table
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Set
 contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the RREP is
 sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
 
@@ -1276,19 +1275,19 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 1.  Check that the MetricType is supported and configured for use
     *  If not, ignore this RREP for further processing.
 1.  If this RREP does not correspond to a RREQ generated or regenerated in the last RREQ_WAIT_TIME, ignore for further processing.
-1.  Update the Neighbor Table according to [](#nbrupdate)
+1.  Update the Neighbor Set according to [](#nbrupdate)
 <!--    *  If the sender has Neighbor.State set to Blacklisted after the update, ignore this RREP for further processing. -->
 1.  Verify that the cost of the advertised route does not exceed the maximum allowed metric
     value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
     *  If it does, ignore this RREP for further processing.
 1.  If the AckReq is present, check the intended recipient of the received RREP:
-    *  If there is an entry in the Router Client Table where RouterClient.IPAddress matches the address associated with the AckReq (see [](#rrep_addrblk)), the receiving router is the intended recipient. Send an acknowledgement as specified in [](#rrep_ack_msgs) and continue processing.
+    *  If there is an entry in the Router Client Set where RouterClient.IPAddress matches the address associated with the AckReq (see [](#rrep_addrblk)), the receiving router is the intended recipient. Send an acknowledgement as specified in [](#rrep_ack_msgs) and continue processing.
     *  Otherwise, ignore this RREP for further processing.
 1.  Process the route to TargAddr (and any other addresses included in the
     given prefix length) as specified in [](#processingrte)
-1.  Check if the message is redundant by comparing to entries in the Multicast Route Message table ([](#suppress))
+1.  Check if the message is redundant by comparing to entries in the Multicast Route Message Set ([](#suppress))
     *  If redundant, ignore this RREP for further processing.
-    *  If not redundant, save the information in the Multicast Route Message table to identify future redundant
+    *  If not redundant, save the information in the Multicast Route Message Set to identify future redundant
        RREP messages and continue processing.
 1.  Check if the OrigAddr belongs to one of the Router Clients
     *  If so, no further processing is necessary.
@@ -1321,7 +1320,7 @@ The procedure for RREP regeneration is as follows:
     *  The ValidityTime is either the time limit the previous AODVv2 router
        specified, or the time limit this router wishes to impose, whichever is lower.
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Table
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Set
 contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the RREP is
 sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigAddr].NextHopInterface.
 
@@ -1355,14 +1354,14 @@ Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
 
 1.   Check if the RREP_Ack was expected:
 
-    * Check if the Multicast Route Message Table contains an entry where:
+    * Check if the Multicast Route Message Set contains an entry where:
         * RteMsg.MessageType == RREP
         * RteMsg.AckReqAddr matches the source IP address of the RREP_Ack
         * RteMsg.Timestamp > CurrentTime - RREP_Ack_SENT_TIMEOUT
 
      * If it does, the router cancels any associated timeouts and processing continues to Step 2.
      * Otherwise no actions are required and processing ends.
-1.   Update the Neighbor Table according to [](#nbrupdate)
+1.   Update the Neighbor Set according to [](#nbrupdate)
 
 <!-- CEP: Need to define RREP_Ack_timeout.  To avoid handling extra
      timeouts, should specify that the RREP_Ack_timeout is verified prior
@@ -1468,7 +1467,7 @@ by default, multicast to LL-MANET-Routers.
 
 Upon receiving a Route Error, an AODVv2 router performs the following steps:
 
-<!-- 1.  Update the Neighbor Table according to [](#nbrupdate) -->
+<!-- 1.  Update the Neighbor Set according to [](#nbrupdate) -->
 <!-- If the sender is blacklisted ([](#nbrlist)), check the entry's remove time
     *  If CurrentTime \< Remove Time, ignore this RERR for further processing.
     *  If CurrentTime >= Remove Time, reset the neighbor state to Unknown and continue to Step 2. -->
@@ -2143,7 +2142,7 @@ Threats to AODVv2 which reduce availability are considered below.
 ### Denial of Service {#security-availability-dos}
 
 Flooding attacks using RREQ amount to a (BLIND) denial of service for route discovery: By issuing RREQ messages for targets that don't exist, an attacker can flood the network, blocking resources and drowning out legitimate traffic. The effect of this attack is dampened by the
-fact that duplicate RREQ messages are dropped (preventing the network from DDoSing itself). Processing requirements for AODVv2 messages are typically quite small, however AODVv2 routers receiving RREQs do allocate resources in the form of Neighbor Table, Local Route Set and Multicast Route Message Table entries. The attacker can maximize their impact on table growth by changing OrigAddr for each RREQ. If a specific node is to be targeted, this attack may be carried out in a DISTRIBUTED fashion, either by compromising its direct neighbors or by specifying the target's address as TargAddr.
+fact that duplicate RREQ messages are dropped (preventing the network from DDoSing itself). Processing requirements for AODVv2 messages are typically quite small, however AODVv2 routers receiving RREQs do allocate resources in the form of Neighbor Set, Local Route Set and Multicast Route Message Set entries. The attacker can maximize their impact on set growth by changing OrigAddr for each RREQ. If a specific node is to be targeted, this attack may be carried out in a DISTRIBUTED fashion, either by compromising its direct neighbors or by specifying the target's address as TargAddr.
 Note that it might be more economical for the attacker to simply jam the medium; an attack which AODVv2 cannot defend itself against.
 
 Mitigation:
@@ -2247,7 +2246,7 @@ Integrity of route information can be compromised in the following types of atta
 
 ### Message Insertion {#security-integrity-insertion}
 
-Valid route table entries can be replaced or modified by maliciously constructed AODVv2 messages, destroying
+Valid route set entries can be replaced or modified by maliciously constructed AODVv2 messages, destroying
 existing routes and the network's integrity. Any router may pose as another router by sending RREQ, RREP,
 RREP_Ack and RERR messages in its name.
 
@@ -2420,7 +2419,7 @@ afforded and no extra timestamp mechanism is required.
 #### RREP_Ack Generation and Reception {#security-protection-application-rrepack}
 
 The RREP_Gen uses the source IP address of the RREP_Ack to identify the sender to look up whether
-the RREP_Ack is expected and update the Neighbour Table, and so the ICV MUST be calculated using
+the RREP_Ack is expected and update the Neighbor Set, and so the ICV MUST be calculated using
 the message contents and the IP source address. The ICV TLV has type extension := 2 in order to
 accomplish this. This provides message integrity and endpoint authentication, because trusted routers
 MUST hold the shared key in order to calculate the ICV value.
