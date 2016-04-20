@@ -164,7 +164,7 @@ TargPrefixLen
 TargSeqNum
 :   <vspace/>The sequence number of the AODVv2 router which originated the Route Reply on behalf of TargAddr.
 Unreachable Address
-:   <vspace/>An address reported in a Route Error message, as described in [](#rte).
+:   <vspace/>An address reported in a Route Error message, as described in [](#RERR_gen).
 Upstream
 :   <vspace/>In the direction from destination to source (from TargAddr to OrigAddr).
 ValidityTime
