@@ -40,6 +40,8 @@ to message elements using the Generalized MANET Packet/Message Format
 defined in [](#RFC5444) and sent using the parameters in [](#RFC5498).
 Verification of link bidirectionality has been substantially improved, and additional refinements made for route timeouts and state management.
 
+AODVv2 is an Experimental protocol. The purpose of the experiment with AODVv2 is to gain information on the behavior of the protocol in real-world deployments, furthering the knowledge base of both reactive protocols in general, and with AODVv2 in particular. Another goal of the experiment is to determine if sufficient demand exists for the AODVv2 protocol to prompt an effort to bring the protocol to Standards Track.
+
 The basic operations of the AODVv2 protocol are route discovery and route maintenance.
 
 An AODVv2 router is configured to perform route discovery on behalf of a configured set of IP addresses known as Router Clients.

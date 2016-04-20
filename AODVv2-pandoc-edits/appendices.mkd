@@ -18,6 +18,7 @@ This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.tx
 * Changed language to clarify that the RFC5444 multiplexer sends the messages, not AODVv2.
 * Added instructions on how to use the Multicast Route Message Set to check whether an RREP_Ack or RREP was received in time.
 * Removed optional features.
+* Moved AODVv2 to the Experimental Track.
 
 <!--
 This section lists the changes between AODVv2 revisions ...-13.txt and ...-14.txt.
