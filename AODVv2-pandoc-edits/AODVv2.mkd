@@ -1103,8 +1103,7 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
 1.  Include ValidityTime if advertising that the route to OrigAddr (and any other addresses included in the given
     prefix length) via this router is offered for a limited time, and set ValidityTime accordingly
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which
-is multicast, by default, to LL-MANET-Routers on all interfaces configured for AODVv2 operation.
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET- Routers on all interfaces configured for AODVv2 operation.
 
 <!-- CEP: Issue # to be generated for moving DestOnly to the irrep draft...
   <t>If RREQ_Gen requires that only the router providing connectivity
@@ -1160,10 +1159,7 @@ The procedure for RREQ regeneration is as follows:
     *  The ValidityTime is either the time limit the previous AODVv2 router
        specified, or the time limit this router wishes to impose, whichever is lower.
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent))
-which is multicast, by default, to LL-MANET-Routers on all interfaces configured for AODVv2
-operation. However, the regenerated RREQ can be unicast to the next hop address of the LocalRoute
-toward TargAddr, if known.
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  However, the regenerated RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.
 
 
 ## Route Reply (RREP) Message  {#RREP_msgs}
@@ -1258,9 +1254,8 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
 1.  Include ValidityTime if advertising that the route to TargAddr (and any other addresses included in the
     given prefix length) via this router is offered for a limited time, and set ValidityTime accordingly
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Set
-contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the RREP is
-sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set
+contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigAddr].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
 
 
 ### RREP Reception  {#RREP_rcv}
@@ -1319,9 +1314,7 @@ The procedure for RREP regeneration is as follows:
     *  The ValidityTime is either the time limit the previous AODVv2 router
        specified, or the time limit this router wishes to impose, whichever is lower.
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)). If the Neighbor Set
-contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the RREP is
-sent by unicast to LocalRoute[OrigAddr].NextHop. Otherwise, the RREP is sent multicast to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigAddr].NextHopInterface.
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigAddr].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigAddr].NextHopInterface.
 
 
 ## Route Reply Acknowledgement (RREP_Ack) Message  {#rrep_ack_msgs}
@@ -1528,8 +1521,7 @@ AODVv2 specifies that all control messages between routers MUST use the Generali
 Mobile Ad Hoc Network Packet/Message Format [](#RFC5444), and therefore AODVv2's route messages
 comprise data which is mapped to message elements in [](#RFC5444).
 
-[](#RFC5444) provides a multiplexed transport for multiple protocols. An [](#RFC5444) multiplexer MAY
-choose to optimize the content of certain message elements to reduce control message overhead.
+[](#RFC5444) provides a multiplexed transport for multiple protocols. An [](#RFC5444) implementation MAY choose to optimize the content of certain elements during message creation to reduce control message overhead.
 
 A brief summary of the [](#RFC5444) format:
 
