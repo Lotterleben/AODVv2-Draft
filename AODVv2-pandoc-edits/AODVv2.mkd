@@ -434,6 +434,8 @@ RteMsg.RemoveTime
     RREQ, or RteMsg.TargSeqNum for an RREP) is updated.
 RteMsg.AckReqAddr
 :   <vspace/>The address from which a RREP_Ack is expected, if RteMsg is a RREP that contains an AckReq.
+RteMsg.Interface
+:   <vspace/>The interface on which the message was received.
 
 The Multicast Route Message Set is maintained so that no two entries have the same MessageType, OrigAddr,
 TargAddr, and MetricType. See [](#suppress) for details about updating this set.
@@ -595,7 +597,14 @@ the link to the neighbor is bidirectional and the Neighbor Set entry is updated 
 * Neighbor.State := Confirmed <!-- could set reset time when set state to confirmed, to re-test after certain time -->
 * Neighbor.ResetTime := INFINITY_TIME
 
-If an RREP_Ack is not received within RREP_Ack_SENT_TIMEOUT, the link is considered to be uni-directional and the Neighbor Set entry is updated as follows:
+If the Multicast Route Message Set contains an entry where:
+
+* RteMsg.MessageType == RREP
+* RteMsg.AckReqAddr == Neighbor.IPAddress
+* RteMsg.Interface == Neighbor.Interface
+* RteMsg.Timestamp + RREP_Ack_SENT_TIMEOUT < CurrentTime
+
+the link is considered to be uni-directional and the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Blacklisted
 * Neighbor.ResetTime := CurrentTime + MAX_BLACKLIST_TIME
@@ -696,9 +705,9 @@ Buffering of IP packets might have both positive and negative effects. Real-time
 buffered and subjected to delays, but TCP connection establishment will benefit if packets are queued while route discovery is performed [](#Koodli01).
 Recommendations for appropriate buffer methods are out of scope for this specification. Determining which packets to discard first when the buffer is full is a matter of policy at each AODVv2 router. Note that using different or no buffer methods does not affect interoperability.
 
-RREQ_Gen awaits reception of a Route Reply message (RREP) containing a route toward TargAddr. If a valid route to TargAddr is not learned
-within RREQ_WAIT_TIME, RREQ_Gen will retry the route discovery. To reduce congestion in a network, repeated attempts at route discovery for
-a particular target address utilize a binary exponential backoff: for each additional attempt, the time to wait for receipt of the RREP is
+RREQ_Gen awaits reception of a Route Reply message (RREP) containing a route toward TargAddr. This can be achieved by monitoring the entry in the Multicast Route Message Table that corresponds to the generated RREP. When CurrentTime exceeds RteMsg.Timestamp + RREQ_WAIT_TIME and no RREP has been received, RREQ_Gen will retry the route discovery.
+
+To reduce congestion in a network, repeated attempts at route discovery for a particular target address utilize a binary exponential backoff: for each additional attempt, the time to wait for receipt of the RREP is
 multiplied by 2. If the requested route is not learned within the wait period, another RREQ is sent, up to a total of DISCOVERY_ATTEMPTS_MAX.
 This is the same technique used in AODV [](#RFC3561).
 
@@ -860,8 +869,7 @@ redundant, regeneration or response can be avoided.
 
 To determine if a received message is redundant:
 
-1.  Search for an entry in the Multicast Route Message Set with the same MessageType, OrigAddr, TargAddr, and
-    MetricType
+1.  Search for an entry in the Multicast Route Message Set with the same MessageType, OrigAddr, TargAddr, Interface and MetricType
     *   If there is no entry, the message is not redundant.
     *   If there is an entry, continue to Step 2.
 2.  Compare sequence numbers using the technique described in [](#seqnum)
@@ -1337,6 +1345,7 @@ Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
         * RteMsg.MessageType == RREP
         * RteMsg.AckReqAddr matches the source IP address of the RREP_Ack
         * RteMsg.Timestamp > CurrentTime - RREP_Ack_SENT_TIMEOUT
+        * RteMsg.Interface matches the interface on which the RREP_Ack was received
 
      * If it does, the router cancels any associated timeouts and processing continues to Step 2.
      * Otherwise no actions are required and processing ends.
