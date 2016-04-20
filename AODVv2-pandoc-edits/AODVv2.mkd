@@ -32,25 +32,13 @@ sequence numbers ensures loop freedom and is simple to program.
 Given the choice between two routes to a destination, a requesting
 node is required to select the one with the greatest sequence number.
 
-Compared to AODV [](#RFC3561), AODVv2 makes some features optional,
-notably intermediate route replies, expanding ring search, and
-precursor lists.  Hello messages and local repair have been removed.
+Compared to AODV [](#RFC3561), AODVv2 has moved some features out of the scope of the document, notably intermediate route replies, expanding ring search, and precursor lists. However, the document has been designed to allow their specification in a separate document. Hello messages and local repair have been removed.
 AODVv2 provides a mechanism for the use of multiple metric types.
 Message formats have been updated and made compliant with [](#RFC5444).
 AODVv2 control messages are defined as sets of data, which are mapped
 to message elements using the Generalized MANET Packet/Message Format
 defined in [](#RFC5444) and sent using the parameters in [](#RFC5498).
-Verification of link bidirectionality has been substantially improved, and
-additional refinements made for route timeouts and state management.
-
-Although AODVv2 is closely related to AODV [](#RFC3561), and shares some features of DSR [](#RFC4728), AODVv2 is not
-interoperable with either of those protocols. Compared to AODV, AODVv2 makes some features optional, notably
-intermediate route replies, expanding ring search, and precursor lists. Hello messages and local repair have been removed.
-AODVv2 provides a mechanism for the use of multiple metric types. Message formats have been updated and made compliant
-with [](#RFC5444).
-
-AODVv2 control messages are defined as sets of data, which are mapped to messages using the Generalized MANET
-Packet/Message Format defined in [](#RFC5444) and sent using the parameters in [](#RFC5498).
+Verification of link bidirectionality has been substantially improved, and additional refinements made for route timeouts and state management.
 
 The basic operations of the AODVv2 protocol are route discovery and route maintenance.
 
@@ -354,8 +342,6 @@ LocalRoute.Metric
 :   <vspace/>The cost of the route toward LocalRoute.Address expressed in units consistent with LocalRoute.MetricType.
 LocalRoute.State
 :   <vspace/>The last known state (Unconfirmed, Idle, Active, or Invalid) of the route.
-LocalRoute.Precursors (optional feature)
-:   <vspace/>A list of upstream neighbors using the route (see [](#precursor)).
 
 There are four possible states for a LocalRoute:
 
@@ -1054,7 +1040,7 @@ OrigSeqNum
 :   <vspace/>The sequence number associated with OrigAddr.
 TargSeqNum
 :   <vspace/>A sequence number associated with an existing Invalid route to TargAddr. This MAY be included
-    if available, and is useful for the optional Intermediate RREP feature (see [](#iRREP)).
+    if available.
 MetricType
 :   <vspace/>The metric type associated with OrigMetric.
 OrigMetric
@@ -1442,8 +1428,6 @@ sent unicast to the next hop on the route to PktSource. It MUST be sent over the
 multicast to LL-MANET-Routers. If the RERR is sent in response to a broken link, i.e., PktSource is not included, the RERR is,
 by default, multicast to LL-MANET-Routers.
 
-[](#precursor) describes processing steps when the optional precursor lists feature is enabled.
-
 <!-- NOTE:  CEP:  Verify unicast delivery of IP multicast packets ... -->
 <!--
     If the neighbor's IP address is
@@ -1767,105 +1751,6 @@ AODVv2 route discovery for that destination.
 
 Configuring the ENAR as a default router is outside the scope of this specification.
 
-
-# Optional Features  {#optional}
-A number of optional features for AODVv2, associated initially with AODV, may be useful in
-networks with greater mobility or larger populations, or networks requiring reduced
-latency for application launches. These features are not required by minimal implementations.
-
-## Expanding Rings Multicast  {#rings}
-For multicast RREQ, the [](#RFC5444) message may initially be limited to a low number of hops to limit the
-RREQ propagation to a subset of the local network and possibly reduce route discovery overhead. If the route
-is not discovered, the number of hops allowed for distribution of the RREQ is increased, in accordance with
-an expanding ring search, as described in [](#RFC3561).
-
-
-## Precursor Lists  {#precursor}
-This section specifies an interoperable enhancement to AODVv2 enabling more economical Route Error
-notifications.
-<!-- Issue #22 -->
-
-<!-- NOTE!  CEP: TODO:  Precursors should NOT be notified if
-     Precursor.LastUsed < (MAX_IDLETIME + ACTIVE_INTERVAL)   -->
-<!--
-    , then for
-    the IP.SourceAddress of the packet, Precursor[LastHop].LastUsed := CurrentTime.
-    the packet is forwarded to the route's next hop.
-  -->
-
-There can be several sources of traffic for a certain destination.  Each source of traffic
-and each upstream router between the forwarding AODVv2 router and the traffic source is known
-as a "precursor" for the destination. For each destination, an AODVv2 router MAY choose to keep
-track of precursors that have provided traffic for that destination. Route Error
-messages about that destination can be sent unicast to these precursors instead of multicast to
-all AODVv2 routers.
-
-Since an RERR will be regenerated if it comes from a next hop on a valid LocalRoute, the RERR SHOULD ideally
-be sent backwards along the route that the source of the traffic uses, to ensure it is regenerated
-at each hop and reaches the traffic source. If the reverse path is unknown, the RERR SHOULD be sent
-toward the source along some other route. Therefore, the options for saving precursor information are
-as follows:
-
-* Save the next hop on an existing route to the IP packet's source address as the precursor. In this case,
-  it is not guaranteed that an RERR that is sent will follow the reverse of the source's route. In
-  rare situations, this may prevent the route from being invalidated at the source of the data traffic.
-* Save the IP packet's source address as the precursor. In this case, the RERR can be sent along any existing
-  route to the source of the data traffic, and SHOULD include PktSource to ensure that the
-  route will be invalidated at the source of the traffic, in case the RERR does not follow the reverse of
-  the source's route.
-* By inspecting the MAC address of each forwarded IP packet, determine which router forwarded the packet,
-  and save the router address as a precursor. This ensures that when an RERR is sent to the precursor router,
-  the route will be invalidated at that router, and the RERR will be regenerated toward the source
-  of the IP packet.
-
-During normal operation, each AODVv2 router maintaining precursor lists for a LocalRoute must update the
-precursor list whenever it uses this route to forward traffic to the destination.  Precursors are
-classified as Active if traffic has recently been forwarded by the precursor. The precursor is
-marked with a timestamp to indicate the time it last forwarded traffic on this route.
-
-When an AODVv2 router detects that one or more LocalRoutes are broken, it MAY notify each Active
-precursor using a unicast Route Error message instead of creating multicast traffic. Unicast
-is applicable when there are few Active precursors compared to the number of neighboring AODVv2
-routers. However, the default multicast behavior is still preferable when there are many
-precursors, since fewer message transmissions are required.
-
-When an AODVv2 router supporting precursor lists receives an RERR message, it MAY identify the list
-of its own affected Active precursors for the routes in the RERR, and choose to send a unicast RERR
-to those, rather than send a multicast RERR.
-
-When a LocalRoute is expunged, any precursor list associated with it MUST also be expunged.
-
-<!-- ## Multicast RREP  {#mcast-to-RREQ}
-An AODVv2 router creating a Route Reply (RREP) message MAY be configured to use multicast
-to distribute the RREP. The RREP is created as described in [](#RREP_gen), but is multicast
-to the link-local MANET routers address [](#RFC5498) in the same way as a Route Request. Routers
-receiving the multicast RREP must perform RteMsg suppression (see [](#suppress)).
-
-Multicast RREP was originally specified to handle unidirectional links, but it is
-expensive.  Due to the significant overhead, AODVv2 routers MUST NOT use multicast RREP unless
-configured to do so by setting the administrative parameter USE_MULTICAST_RREP.  This technique
-can be used to find the best return path rather than follow the RREQ path in reverse.
-
--in optional feature settings-
-USE_MULTICAST_RREP         Disabled    Network-wide ([](#mcast-to-RREQ))
-
--in suppressing redundant messages-
-[](#mcast-to-RREQ) describes an optional feature for AODVv2 where RREP messages are sent using
-multicast. If this feature is enabled, regeneration of redundant RREP messages SHOULD be
-avoided using an analogous process, substituting RREP for RREQ, TargSeqNum for OrigSeqNum, and
-[](#RREP_regen) for [](#RREQ_regen).
-
--->
-
-
-
-## Intermediate RREP  {#iRREP}
-Without iRREP, only the AODVv2 router responsible for the target address can respond to an RREQ. Using
-iRREP, route discoveries can be faster and create less control traffic. This specification has been
-published as a separate Internet Draft [](#I-D.perkins-irrep).
-
- <!-- CEP: issue #40 should be revisited!!  -->
-
 # Configuration  {#param}
 
 AODVv2 uses various parameters which can be grouped into the following categories:
@@ -1981,22 +1866,6 @@ Name                       Default               Description
 ENABLE_IDLE_IN_RERR        Disabled              [](#RERR_gen)
 
 ^[suggestedoptions::Configuration for Network-Wide Settings]
-
-
-
-## Optional Feature Settings
-
-These options are not required for correct routing behavior, although they may reduce AODVv2
-protocol overhead in certain situations. The default behavior is to leave these options disabled.
-
-Name                       Default     Description
-------                     --------    ----------
-PRECURSOR_LISTS            Disabled    Local setting ([](#precursor))
-ENABLE_IRREP               Disabled    Network-wide setting ([](#iRREP))
-EXPANDING_RINGS_MULTICAST  Disabled    Network-wide setting ([](#rings))
-
-^[optionsettings:: Configuration for Optional Features]
-
 
 ## MetricType Allocation  {#metric-type}
 
