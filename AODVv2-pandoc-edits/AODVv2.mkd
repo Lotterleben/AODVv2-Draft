@@ -848,20 +848,7 @@ When route messages are flooded in a MANET, an AODVv2 router may receive multipl
 messages. Regenerating every one of these gives little additional benefit, and generates
 unnecessary signaling traffic and might generate unnecessary interference.
 
-Each AODVv2 router stores information about recently received route messages in the AODVv2
-Multicast Route Message Set ([](#rtemsgtable)). Its Entries consist of:
-
-* RteMsg.MessageType
-* RteMsg.OrigAddr
-* RteMsg.OrigPrefixLen
-* RteMsg.TargAddr
-* RteMsg.TargPrefixLen
-* RteMsg.OrigSeqNum
-* RteMsg.TargSeqNum
-* RteMsg.MetricType
-* RteMsg.Metric
-* RteMsg.Timestamp
-* RteMsg.RemoveTime
+Each AODVv2 router stores information about recently received route messages in the AODVv2 Multicast Route Message Set ([](#rtemsgtable)).
 
 Entries in the Multicast Route Message Set SHOULD be maintained for at least RteMsg_ENTRY_TIME after
 the last Timestamp update in order to account for long-lived RREQs traversing the network. An entry MUST
