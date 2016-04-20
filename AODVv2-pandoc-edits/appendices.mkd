@@ -2,6 +2,11 @@
 
 # AODVv2 Draft Updates
 
+This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.txt.
+
+* Changed 'regeneration' language in favor of 'forwarding'
+
+<!--
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
 
 * Shortened Terminology descriptions of Unreachable Address, Unreachable Route, Valid Route and add references to sections explaining the details.
@@ -20,7 +25,6 @@ This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.tx
 * Removed optional features.
 * Moved AODVv2 to the Experimental Track.
 
-<!--
 This section lists the changes between AODVv2 revisions ...-13.txt and ...-14.txt.
 
 * Moved Address Type TLV Value definitions to IANA section.
