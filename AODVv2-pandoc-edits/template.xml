@@ -23,7 +23,7 @@
 <!-- keep one blank line between list items -->
 <?rfc strict="yes" ?>
 <!-- give errors regarding ID-nits and DTD validation -->
-<rfc category="exp" docName="draft-ietf-manet-aodvv2-15" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-manet-aodvv2-16" ipr="trust200902">
   <front>
     <title abbrev="AODVv2">Ad Hoc On-demand Distance Vector Version 2 (AODVv2) Routing</title>
 
