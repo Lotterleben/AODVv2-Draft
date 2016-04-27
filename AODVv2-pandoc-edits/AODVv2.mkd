@@ -2010,20 +2010,7 @@ TODO:
     for why such consideration is out of scope for the protocol."
 -->
 
-<!-- TOOD: this doesn't apply any more since forwading enabls e2e sec. will change this language in one of the next commits.-->
-Since route messages are forwarded at each router, AODVv2 assumes a security model of transitive trust. The sender of a message MUST be trusted in order for receiving one-hop neighbours to store the routing information it provides and forward the message to their own one-hop neighbours.
-
-Routes are installed based on information received from trusted neighbours.
-Therefore a chain of trust back to the originator of a message is assumed
-by any router using the routing information received.
-
-<!--
-TODO reword this (see above)
-Since messages are regenerated rather than forwarded, the message concepts
-known as RREQ, RREP and RERR do not travel as a single unchanged entity
-between source and destination, and therefore message integrity cannot be
-assured end-to-end between OrigAddr and TargAddr.
--->
+With the exception of metric values, AODVv2 assures the integrity of all RteMsg data end-to-end though the use of ICVs (see [](#security-protection-integrity).
 
 The on-demand nature of AODVv2 route discovery automatically reduces
 the vulnerability to route disruption. Since control traffic for
