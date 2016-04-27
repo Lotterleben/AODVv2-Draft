@@ -2166,6 +2166,7 @@ RREP_Ack and RERR messages in its name.
 *  Sending an RERR message with false information is discussed in [](#security-availability-rerr).
 
 Mitigation:
+
 *   If AODVv2 routers always verify that the sender of a message is trusted, this threat is
 reduced.
 
