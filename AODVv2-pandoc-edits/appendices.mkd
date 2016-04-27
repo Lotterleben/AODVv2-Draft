@@ -4,7 +4,8 @@
 
 This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.txt.
 
-* Changed 'regeneration' language in favor of 'forwarding'
+* Changed 'regeneration' language in favor of 'forwarding'.
+* Reintroduced msg hop limit and msg hop count.
 
 <!--
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
