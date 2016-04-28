@@ -655,7 +655,7 @@ To implement the congestion control, a queue length is set. If the queue is full
 ## Route Discovery, Retries and Buffering  {#route_discovery}
 
 AODVv2's RREQ and RREP messages are used for route discovery. RREQ messages are multicast to solicit an RREP, whereas
-RREP are unicast where possible. The constants used in[](#test) this section are defined in [](#param).
+RREP are unicast where possible. The constants used in this section are defined in [](#param).
 
 When an AODVv2 router needs to forward an IP packet (with source address OrigAddr and destination address TargAddr) from
 one of its Router Clients, it needs a route to TargAddr in its Routing Information Base. If no route exists,
