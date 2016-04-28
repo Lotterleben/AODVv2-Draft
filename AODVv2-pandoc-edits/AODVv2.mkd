@@ -392,9 +392,9 @@ RteMsg.OrigPrefix
 RteMsg.OrigPrefixLen
 :   <vspace/>The prefix length associated with RteMsg.OrigPrefix, originally from the Router Client entry on RREQ_Gen which includes OrigAddr.
 RteMsg.TargPrefix
-:   <vspace/>The prefix associated with TargAddr, the destination address of the IP packet triggering the route request. In a RREQ this MUST be set to TargAddr.
+:   <vspace/>The prefix associated with TargAddr, the destination address of the IP packet triggering the route request. In an RREQ this MUST be set to TargAddr.
 RteMsg.TargPrefixLen
-:   <vspace/>The prefix length associated with RteMsg.TargPrefix, originally from the Router Client entry on RREP_Gen which includes TargAddr. If RteMsg is a RREQ, RteMsg.TargPrefixLen MUST equal address length.
+:   <vspace/>The prefix length associated with RteMsg.TargPrefix, originally from the Router Client entry on RREP_Gen which includes TargAddr. If RteMsg is an RREQ, RteMsg.TargPrefixLen MUST equal address length.
 RteMsg.OrigSeqNum
 :   <vspace/>The sequence number associated with the route to OrigPrefix, if RteMsg is an RREQ.
 RteMsg.TargSeqNum
@@ -410,7 +410,7 @@ RteMsg.RemoveTime
     to CurrentTime + MAX_SEQNUM_LIFETIME, whenever the sequence number of this entry (RteMsg.OrigSeqNum for an
     RREQ, or RteMsg.TargSeqNum for an RREP) is updated.
 RteMsg.AckReqAddr
-:   <vspace/>The address from which a RREP_Ack is expected, if RteMsg is a RREP that contains an AckReq.
+:   <vspace/>The address from which an RREP_Ack is expected, if RteMsg is an RREP that contains an AckReq.
 RteMsg.Interface
 :   <vspace/>The interface on which the message was received.
 
@@ -558,8 +558,8 @@ A new Neighbor Set entry is created as follows:
 
 If the message is one of the following:
 
-* an RREP which answers a RREQ sent within RREQ_WAIT_TIME over the same interface as Neighbor.Interface <!-- TODO? also check if it matches an existing unconfirmed route -->
-* an RREP_Ack which answers a RREP sent within RREP_Ack_SENT_TIMEOUT over the same interface as Neighbor.Interface
+* an RREP which answers an RREQ sent within RREQ_WAIT_TIME over the same interface as Neighbor.Interface <!-- TODO? also check if it matches an existing unconfirmed route -->
+* an RREP_Ack which answers an RREP sent within RREP_Ack_SENT_TIMEOUT over the same interface as Neighbor.Interface
 
 the link to the neighbor is bidirectional and the Neighbor Set entry is updated as follows:
 
@@ -1206,7 +1206,7 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
     *  If not, ignore this RREP for further processing.
 1.  Check that the MetricType is supported and configured for use
     *  If not, ignore this RREP for further processing.
-1.  If this RREP does not correspond to a RREQ generated or forwarded in the last RREQ_WAIT_TIME, ignore for further processing.
+1.  If this RREP does not correspond to an RREQ generated or forwarded in the last RREQ_WAIT_TIME, ignore for further processing.
 1.  Update the Neighbor Set according to [](#nbrupdate)
 <!--    *  If the sender has Neighbor.State set to Blacklisted after the update, ignore this RREP for further processing. -->
 1.  Verify that the cost of the advertised route does not exceed the maximum allowed metric
@@ -1231,7 +1231,7 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 ### RREP Forwarding  {#RREP_fwd}
 
 A received Route Reply message is forwarded toward OrigPrefix. 
-By forwarding a RREP, a router advertises that it will forward IP packets to TargPrefix.
+By forwarding an RREP, a router advertises that it will forward IP packets to TargPrefix.
 
 The RREP SHOULD NOT be forwarded if CONTROL_TRAFFIC_LIMIT
 has been reached. Otherwise, the router MUST forward the RREP.
@@ -1760,7 +1760,7 @@ DISCOVERY_ATTEMPTS_MAX    3         [](#route_discovery)
 RREP_RETRIES              2         [](#RREP_gen)
 MAX_METRIC[MetricType]    [TBD]     [](#metrics)
 MAX_METRIC[HopCount]      255       [](#metrics) and [](#aodv_msgs)
-MAX_HOPCOUNT              20        Limit to number of hops a RREQ or RREP message can traverse
+MAX_HOPCOUNT              20        Limit to number of hops an RREQ or RREP message can traverse
 INFINITY_TIME             [TBD]     Maximum expressible clock time ([](#update_rte))
 
 ^[const-tbl::AODVv2 Constants]
@@ -2001,13 +2001,13 @@ reduced.
 
 ### Message Deletion {#security-availability-deletion}
 
-A malicious router could decide not to forward a RREQ or RREP or RERR message. Not forwarding a
+A malicious router could decide not to forward an RREQ or RREP or RERR message. Not forwarding a
 RERR or RREP message would disrupt route discovery. Not regenerating a RERR message would result in the
 source of data packets continuing to maintain and use the route, and further RERR messages being generated
 by the sender of the non-regenerated RERR. A malicious router could intentionally disrupt traffic flows by
 not allowing the source of data traffic to re-discover a new route when one breaks.
 
-Failing to send a RREP_Ack would also disrupt route establishment, by not allowing the reverse route to be
+Failing to send an RREP_Ack would also disrupt route establishment, by not allowing the reverse route to be
 validated. Return traffic which needs that route will prompt a new route discovery, wasting resources and
 incurring a slight delay but not disrupting the ability for applications to communicate.
 
@@ -2047,7 +2047,7 @@ RREP_Ack and RERR messages in its name.
 
 *  Sending an RREP_Ack message with false information can cause the route advertised to a target
     address in an RREP to be erroneously accepted even though the route would contain a unidirectional
-    link and thus not be suitable for most traffic. Since RREP_Ack is unicast, and ignored if a RREP was
+    link and thus not be suitable for most traffic. Since RREP_Ack is unicast, and ignored if an RREP was
     not sent recently to the sender of the RREP_Ack, this threat is minimized and is strictly local
     to the RREP transmitter expecting the acknowledgement. Unsolicited RREP_Acks are ignored.
 
