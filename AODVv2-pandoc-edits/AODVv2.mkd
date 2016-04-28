@@ -447,10 +447,10 @@ See section [](#suppressrerr) for instructions on how to update the set.
 Metrics measure a cost or quality associated with a route or a link, e.g., latency, delay, financial cost, energy, etc. Metric
 values are reported in Route Request and Route Reply messages.
 
-In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client entry which includes OrigAddr. For routers which regenerate the RREQ, this is the cost from OrigPrefix to the regenerating router, combining the metric value from the received RREQ message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when regenerating the Route Request message,
+In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client entry which includes OrigAddr. For routers which forward the RREQ, this is the cost from OrigPrefix to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Request message,
 and used to install a route to OrigPrefix.
 
-Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client entry which includes TargAddr. For routers which regenerate the RREP, this is the cost from TargPrefix to the regenerating router, combining the metric value from the received RREP message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when regenerating the Route Reply message,
+Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client entry which includes TargAddr. For routers which forward the RREP, this is the cost from TargPrefix to the forwarding router, combining the metric value from the received RREP message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Reply message,
 and used to install a route to TargPrefix.
 
 Assuming link metrics are symmetric, the cost of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
@@ -980,7 +980,7 @@ When LocalRoute.State changes from Active to Invalid as a result of a broken lin
 (RERR) message, other AODVv2 routers MUST be informed by sending an RERR message containing details
 of the invalidated route.
 
-An RERR message MUST also be sent when an AODVv2 router receives an RREP message to regenerate, but the
+An RERR message MUST also be sent when an AODVv2 router receives an RREP message to forward, but the
 LocalRoute to the OrigPrefix in the RREP has been lost or is marked as Invalid.
 
 An RERR message MUST also be sent when an AODVv2 router receives an RREP message to forward, but the
@@ -1127,8 +1127,8 @@ The procedure for RREQ forwarding is as follows:
 1.  Set AddressList, PrefixLengthList, sequence numbers and MetricType to the values in the
     received RREQ
 1.  Set OrigMetric := LocalRoute[OrigPrefix].Metric
-1.  If the received RREQ contains a ValidityTime, or if the regenerating router wishes to
-    limit the time that it offers a route to OrigPrefix, the regenerated RREQ MUST include ValidityTime
+1.  If the received RREQ contains a ValidityTime, or if the forwarding router wishes to
+    limit the time that it offers a route to OrigPrefix, the forwarded RREQ MUST include ValidityTime
     *  The ValidityTime is either the time limit the previous AODVv2 router
        specified, or the time limit this router wishes to impose, whichever is lower.
 
@@ -1258,9 +1258,9 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
     *  If so, no further processing is necessary.
     *  If not, continue to Step 10.
 1.  Check if a valid (Active or Idle) or Unconfirmed LocalRoute exists to OrigPrefix
-    *  If so, continue to RREP regeneration.
+    *  If so, continue to RREP forwarding.
     *  If not, a Route Error message SHOULD be transmitted toward TargPrefix according to
-       [](#RERR_gen) and the RREP SHOULD be discarded and not regenerated.
+       [](#RERR_gen) and the RREP SHOULD be discarded and not forwarded.
 
 ### RREP Forwarding  {#RREP_fwd}
 
@@ -1279,8 +1279,8 @@ The procedure for RREP forwarding is as follows:
 1.  Set AddressList, PrefixLengthList, TargSeqNum and MetricType to the values in the
     received RREP
 1.  Set TargMetric := LocalRoute[TargPrefix].Metric
-1.  If the received RREP contains a ValidityTime, or if the regenerating router wishes to
-    limit the time that it will offer a route to TargPrefix, the regenerated RREP MUST include ValidityTime
+1.  If the received RREP contains a ValidityTime, or if the forwarding router wishes to
+    limit the time that it will offer a route to TargPrefix, the forwarded RREP MUST include ValidityTime
     *  The ValidityTime is either the time limit the previous AODVv2 router
        specified, or the time limit this router wishes to impose, whichever is lower.
 
@@ -1377,7 +1377,7 @@ destination is not reachable. There are three events that cause this response:
     and MUST contain only one unreachable address in the AddressList, i.e., the destination address of the IP packet. RERR_Gen MUST discard the
     IP packet that triggered generation of the RERR. The prefix length, sequence number and metric type SHOULD be included if known from an existing Invalid LocalRoute to the unreachable address.
 
-*   When an RREP message cannot be regenerated because the LocalRoute to OrigPrefix has been lost or is Invalid, RREP_Gen needs
+*   When an RREP message cannot be forwardeded because the LocalRoute to OrigPrefix has been lost or is Invalid, RREP_Gen needs
     to be informed that the route to OrigPrefix does not exist. The RERR generated MUST include PktSource set to
     the TargPrefix of the RREP, and MUST contain only one unreachable address in the AddressList, the OrigPrefix from
     the RREP. RERR_Gen MUST discard the RREP message that triggered generation of the RERR. The prefix length, sequence number
