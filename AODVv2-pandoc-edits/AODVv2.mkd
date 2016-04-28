@@ -42,18 +42,13 @@ Verification of link bidirectionality has been substantially improved, and addit
 
 AODVv2 is an Experimental protocol. The purpose of the experiment with AODVv2 is to gain information on the behavior of the protocol in real-world deployments, furthering the knowledge base of both reactive protocols in general, and with AODVv2 in particular. Another goal of the experiment is to determine if sufficient demand exists for the AODVv2 protocol to prompt an effort to bring the protocol to Standards Track.
 
-The basic operations of the AODVv2 protocol are route discovery and route maintenance.
-
-An AODVv2 router is configured to perform route discovery on behalf of a configured set of IP addresses known as Router Clients.
-Route discovery is performed when an AODVv2 router needs to forward an IP packet from one of its Router Clients, but does not have
-a valid route to the packet's destination. AODVv2 routers use Route Request (RREQ) and Route Reply (RREP) messages to carry route
-information between the originator of the route discovery and the router responsible for the target, establishing a route to
-both endpoints on all intermediate routers. A metric value is included to represent the cost of the route contained within
-the message. AODVv2 uses sequence numbers to identify stale routing information, and compares route metric values to determine
+The basic protocol mechanisms are as follows.
+Since AODVv2 is a reactive protocol, route discovery is initiated only when a route to the target is needed (i.e. when a router' client wants to send data). AODVv2 does this with the help of a Route Request (RREQ) and Route Reply (RREP) cycle: an RREQ is distributed across the network until it arrives at the target. When forwarding an RREQ, all routers across the network store the neighbor they've received the RREQ from, memorizing a possible route back to the originator of the RREQ.
+When the target receives the RREQ, it answers with an RREP, which then travels back to the originator along the path memorized by the intermediate routers.
+A metric value is included within the messages to record the cost of the route. AODVv2 uses sequence numbers to identify stale routing information, and compares route metric values to determine
 if advertised routes could form loops.
 
-Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers, issuing Route Error (RERR) messages, reacting to received Route Error messages,
-and extending and enforcing route timeouts.
+Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers and issuing Route Error (RERR) messages informing other routers of broken links. It also includes reacting to received Route Error messages, and extending and enforcing route timeouts.
 
 The on-demand nature of AODVv2 requires signals to be exchanged between AODVv2 and the forwarding plane. These signals
 indicate when: a packet is to be forwarded, in order to initiate route discovery; packet forwarding fails, in order to
