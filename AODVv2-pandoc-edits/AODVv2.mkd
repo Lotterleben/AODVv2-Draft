@@ -51,8 +51,10 @@ if advertised routes could form loops.
 Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers and issuing Route Error (RERR) messages informing other routers of broken links. It also includes reacting to received Route Error messages, and extending and enforcing route timeouts.
 
 The on-demand nature of AODVv2 requires signals to be exchanged between AODVv2 and the forwarding plane. These signals
-indicate when: a packet is to be forwarded, in order to initiate route discovery; packet forwarding fails, in order to
-initiate route error reporting; a packet is successfully forwarded, for route maintenance.
+indicate when: 
+*  a packet is to be forwarded, in order to initiate route discovery
+*  packet forwarding fails, in order to initiate route error reporting
+*  a packet is successfully forwarded, for route maintenance.
 
 Security for authentication of AODVv2 routers and encryption of control messages is accomplished using the TIMESTAMP
 and ICV TLVs defined in [](#RFC7182).
@@ -293,7 +295,7 @@ which case it MUST be reset to one (1). The value zero (0) is reserved to indica
 number is unknown.
 
 An AODVv2 router MUST only attach its own sequence number to information about a route to one of its configured Router
-Clients, all route messages forwarded by other routers retain the originator's sequence number. Tod determine staleness, the previously stored sequence number associated with the originator, is subtracted
+Clients, all route messages forwarded by other routers retain the originator's sequence number. To determine staleness, the previously stored sequence number associated with the originator, is subtracted
 from the incoming sequence number. The result of the subtraction is to be interpreted as a signed 16-bit integer, and if
 less than zero, the information in the new AODVv2 message is stale and MUST be discarded.
 <!-- subtraction is unsigned values, actual calculation is incoming + twos complement of current. then interpret result as a signed twos complement value -->
@@ -2218,6 +2220,8 @@ timestamps, since they are known to be strictly increasing.
 TODO: choose HASH_FUNCTION and CRYPTOGRAPHIC_FUNCTION.
 -->
 
+AODVv2 implementations MUST support ICV and TIMESTAMP TLVs, unless the implementation is intended solely for an environment in which security is unnecessary. AODVv2 deployments SHOULD be configured to use these TLVs to secure messages. 
+
 Implementations of AODVv2 MUST support ICV TLVs using type-extensions 1 and 2,
 hash-function HASH_FUNCTION, and cryptographic function CRYPTOGRAPHIC_FUNCTION. An ICV
 MUST be included with every message. The ICV value MAY be truncated as specified in [](#RFC7182).
@@ -2229,10 +2233,10 @@ messages.
 
 When more than one message is included in an RFC5444 packet, using a single ICV Packet TLV or
 single TIMESTAMP Packet TLV is more efficient than including ICV and TIMESTAMP Message TLVs in
-each message created. In this case, the RFC5444 multiplexer MUST be instructed to include the
-Packet TLVs in packets containing AODVv2 messages, or MUST be selected because it always performs
-these additions. If the multiplexer is not capable of adding the Packet TLVs, the TLVs MUST be
-included as Message TLVs in each AODVv2 message in the packet.
+each message created. If the RFC5444 multiplexer is capable of adding the Packet TLVs, it SHOULD 
+be instructed to include the Packet TLVs in packets containing AODVv2 messages. However, if the 
+multiplexer is not capable of adding the Packet TLVs, the TLVs MUST be included as Message TLVs 
+in each AODVv2 message in the packet.
 
 After message generation but before transmission, the ICV and TIMESTAMP TLVs MUST be added
 according to each message type as detailed in the following sections. The following steps list the
