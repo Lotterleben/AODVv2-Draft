@@ -11,7 +11,7 @@
 # Overview
 
 The Ad hoc On-Demand Distance Vector Version 2 (AODVv2) protocol enables
-dynamic, self-starting, multihop routing between participating mobile
+dynamic, multihop routing between participating mobile
 nodes wishing to establish and maintain an ad hoc network. The
 basic operations of the AODVv2 protocol are route discovery and
 route maintenance.  AODVv2 does not require nodes to maintain routes
