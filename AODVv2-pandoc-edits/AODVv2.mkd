@@ -1010,7 +1010,7 @@ Route Request messages are used in route discovery operations to request a route
 target address.  RREQ messages have the following contents:
 
     +-----------------------------------------------------------------+
-    |             msg_hop_limit, (optional) msg_hop_count             |
+    |                          msg_hop_limit                          |
     +-----------------------------------------------------------------+
     |                           AddressList                           |
     +-----------------------------------------------------------------+
@@ -1029,9 +1029,6 @@ target address.  RREQ messages have the following contents:
 msg_hop_limit
 :   <vspace/>The remaining number of hops allowed for dissemination of the RREQ
     message.
-msg_hop_count
-:   <vspace/>The number of hops already traversed during dissemination of the
-    RREQ message.
 AddressList
 :   <vspace/>Contains OrigAddr and TargAddr, the source and destination addresses
     of the IP packet for which a route is requested. OrigAddr and TargAddr MUST be routable
@@ -1070,7 +1067,6 @@ If the limit for the rate of AODVv2 control message generation has been reached,
 To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedure:
 
 1.  Set msg_hop_limit := MAX_HOPCOUNT
-1.  Set msg_hop_count := 0, if including it
 1.  Set AddressList := {OrigAddr, TargAddr}
 1.  For the PrefixLengthList:
     *  If OrigAddr is part of an address range configured as a Router Client, set PrefixLengthList :=
@@ -1108,8 +1104,6 @@ Upon receiving a Route Request, an AODVv2 router performs the following steps:
 
 1.  Check and update the Neighbor Set according to [](#nbrupdate)
     *  If the sender has Neighbor.State set to Blacklisted, ignore this RREQ for further processing.
-1.  Verify that the message hop count, if included, hasn't exceeded MAX_HOPCOUNT
-      *  If so, ignore this RREQ for further processing.
 1.  Verify that the message contains the required data:
     msg_hop_limit, OrigAddr, TargAddr, OrigSeqNum, and OrigMetric,
     and that OrigAddr and TargAddr are valid addresses (routable and unicast)
@@ -1141,8 +1135,6 @@ The procedure for RREQ forwarding is as follows:
 
 1.  Set msg_hop_limit := received msg_hop_limit - 1
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
-1.  Set msg_hop_count := received msg_hop_count + 1, if included,
-    otherwise omit msg_hop_count
 1.  Set AddressList, PrefixLengthList, sequence numbers and MetricType to the values in the
     received RREQ
 1.  Set OrigMetric := LocalRoute[OrigAddr].Metric
@@ -1164,7 +1156,7 @@ included in the prefix length).
 RREP messages have the following contents:
 
     +-----------------------------------------------------------------+
-    |             msg_hop_limit, (optional) msg_hop_count             |
+    |                          msg_hop_limit                          |
     +-----------------------------------------------------------------+
     |                        AckReq (optional)                        |
     +-----------------------------------------------------------------+
@@ -1185,9 +1177,6 @@ RREP messages have the following contents:
 msg_hop_limit
 :   <vspace/>The remaining number of hops allowed for dissemination of the RREP
     message.
-msg_hop_count
-:   <vspace/>The number of hops already traversed during dissemination of the
-    RREP message.
 AckReq
 :   <vspace/>The address of the intended next hop of the RREP. This is included when the
     link to the next hop toward OrigAddr is not known to be bidirectional. It indicates that an
@@ -1239,10 +1228,7 @@ MUST be considered to have failed after the wait time for an RREP_Ack response t
 
 To generate the RREP, the router (also referred to as RREP_Gen) follows this procedure:
 
-1.  Set msg_hop_limit := msg_hop_count from the received RREQ
-    message, if it was included, or MAX_HOPCOUNT if it was not
-    included
-1.  Set msg_hop_count := 0, if including it
+1.  Set msg_hop_limit := MAX_HOPCOUNT - msg_hop_limit from the received RREQ message
 1.  If the link to the next hop router toward OrigAddr is not known to
     be bidirectional, <!-- TODO: define what that means?-->include the AckReq with the address of the intended next hop router (see [](#rrep_addrblk))
 1.  Set Address List := {OrigAddr, TargAddr}
@@ -1267,8 +1253,6 @@ contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with 
 
 Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 
-1.  Verify that the message hop count, if included, hasn't exceeded MAX_HOPCOUNT
-    *  If so, ignore this RREQ for further processing.
 1.  Verify that the message contains the required data:
     msg_hop_limit, OrigAddr, TargAddr, TargSeqNum, and TargMetric,
     and that OrigAddr and TargAddr are valid addresses (routable and unicast)
@@ -1312,8 +1296,6 @@ The procedure for RREP forwarding is as follows:
 
 1.  Set msg_hop_limit := received msg_hop_limit - 1
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
-1.  Set msg_hop_count := received msg_hop_count + 1, if it was
-    included, otherwise omit msg_hop_count
 1.  If the link to the next hop router toward OrigAddr is not known to be bidirectional, include the
     AckReq with the address of the intended next hop router
 1.  Set AddressList, PrefixLengthList, TargSeqNum and MetricType to the values in the
@@ -1545,7 +1527,7 @@ A brief summary of the [](#RFC5444) format:
 
 AODVv2 does not require access to the [](#RFC5444) packet header.
 
-In the message header, AODVv2 uses \<msg-type\> and
+In the message header, AODVv2 uses \<msg-type\>, \<msg-hop-limit\> and
 \<msg-addr-length\>. The \<msg-addr-length\> field indicates the length of any addresses in the message,
 using \<msg-addr-length\> := (address length in octets - 1), i.e. 3 for IPv4 and 15 for IPv6.
 
@@ -1587,8 +1569,7 @@ will not be included in the message.
 Data           Header Field       Value
 ------------   ---------------    -----
 None           \<msg-type\>       RREQ
-msg_hop_limit  \<msg-hop-limit\>  MAX_HOPCOUNT, reduced by number of hops traversed so far by the message. 
-msg_hop_count  \<msg-hop-count\>  Number of hops traversed so far by the message.
+msg_hop_limit  \<msg-hop-limit\>  MAX_HOPCOUNT, reduced by number of hops traversed so far by the message.
 
 ### Message TLV Block
 
@@ -1633,8 +1614,7 @@ TargSeqNum               SEQ_NUM        0               The last known TargSeqNu
 Data            Header Field       Value
 ------------    ---------------    -----
 None            \<msg-type\>       RREP
-msg_hop_limit   \<msg-hop-limit\>  \<msg-hop-count\> from the corresponding RREQ, reduced by number of hops traversed so far by the message. 
-msg_hop_count   \<msg-hop-count\>  Number of hops traversed so far by the message.
+msg_hop_limit   \<msg-hop-limit\>  MAX_HOPCOUNT - msg_hop_limit from the corresponding RREQ, reduced by number of hops traversed so far by the message.
 
 ### Message TLV Block
 
@@ -1857,7 +1837,6 @@ C                         1/1024    Constant used in validity time calculation [
 
 <!-- Need to figure out what the time format. -->
 
-Note that \<msg-hop-count\> is an 8-bit field in the [](#RFC5444) message header and therefore
 MAX_HOPCOUNT cannot be larger than 255.
 
 MAX_METRIC[MetricType] MUST always be the maximum expressible metric value of type MetricType.
