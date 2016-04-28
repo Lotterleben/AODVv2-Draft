@@ -1161,8 +1161,7 @@ a Router Client of the AODVv2 router arrives. This is the case when
 RteMsg.TargPrefix matches an entry in the Router Client Set of the AODVv2 router.
 
 Before creating an RREP, the router SHOULD check if the corresponding RREQ is redundant, i.e.,
-a Route Reply has already been generated in response to the RREQ, or if the limit for the rate of AODVv2 control message
-generation has been reached. If so, the RREP SHOULD NOT be created.
+a Route Reply has already been generated in response to the RREQ, or if CONTROL_TRAFFIC_LIMIT has been reached. If so, the RREP SHOULD NOT be created.
 
 The RREP will follow the path of the route to OrigPrefix. If the best route to OrigPrefix in the Local
 Route Set is Unconfirmed, the link to the next hop neighbor is not yet confirmed as bidirectional (as described
