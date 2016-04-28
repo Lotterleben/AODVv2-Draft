@@ -32,7 +32,7 @@ sequence numbers ensures loop freedom and is simple to program.
 Given the choice between two routes to a destination, a requesting
 node is required to select the one with the greatest sequence number.
 
-Compared to AODV [](#RFC3561), AODVv2 has moved some features out of the scope of the document, notably intermediate route replies, expanding ring search, and precursor lists. However, the document has been designed to allow their specification in a separate document. Hello messages and local repair have been removed.
+Compared to AODV [](#RFC3561), AODVv2 has moved some features out of the scope of the document, notably intermediate route replies, expanding ring search, route lifetimes and precursor lists. However, the document has been designed to allow their specification in a separate document. Hello messages and local repair have been removed.
 AODVv2 provides a mechanism for the use of multiple metric types.
 Message formats have been updated and made compliant with [](#RFC5444).
 AODVv2 control messages are defined as sets of data, which are mapped
@@ -158,8 +158,6 @@ Unreachable Address
 :   <vspace/>An address reported in a Route Error message, as described in [](#RERR_gen).
 Upstream
 :   <vspace/>In the direction from destination to source (from TargAddr to OrigAddr).
-ValidityTime
-:   <vspace/>The length of time the route described by the message is offered.
 Valid route
 :   <vspace/>A route that can be used for forwarding, as described in [](#RERR_gen). <!-- TODO: while I couldn’t really find a suitable place for it in 7.4.1.  RERR Generation, it wasn’t defined elsewhere either (apart from the terminology section, of course)– maybe that could be done in 4.5.  Local Route Set-->
 
@@ -336,9 +334,6 @@ LocalRoute.LastUsed
 :   <vspace/>If this route is installed in the Routing Information Base, the time it was last used to forward an IP packet.
 LocalRoute.LastSeqNumUpdate
 :   <vspace/>The time LocalRoute.SeqNum was last updated.
-LocalRoute.ExpirationTime
-:   <vspace/>The time at which this LocalRoute MUST be marked as Invalid. An AODVv2 router MAY be offered a route for a limited time. In
-    this case, the route is referred to as a timed route. If a route is not timed, LocalRoute.ExpirationTime is INFINITY_TIME.
 LocalRoute.MetricType
 :   <vspace/>The type of metric associated with this route.
 LocalRoute.Metric
@@ -369,19 +364,8 @@ when LocalRoute.State is valid (set to Active or Idle), and removed from the Rou
 
 Changes to LocalRoute state are detailed in [](#routestatechanges).
 
-<!--
-An AODVv2 router MAY offer a route for a limited time. In this case, the route is referred to as a timed route. The length
-of time for which the route is valid is referred to as validity time, and is included in messages which advertise the route.
-The shortened validity time is reflected in LocalRoute.ExpirationTime. If a route is not timed, LocalRoute.ExpirationTime
-is INFINITY_TIME. -->
-
 Multiple valid routes for the same address and prefix length but for different metric types may exist in the Local Route Set, but
 the decision of which of these routes to install in the Routing Information Base to use for forwarding is outside the scope of AODVv2.
-
-<!-- JPD: Is this a security vulnerability if a faulty or malicious router sets a short validity time?
-     CEP: I don't think it affects authenticity, but it could be a form of denial of service.  In that
-     case, it's no worse than if the malicious router simply refuses to route the packets it has agreed
-     to route. -->
 
 
 ## Multicast Route Message Set  {#rtemsgtable}
@@ -740,8 +724,6 @@ AdvRte has the following properties:
 * AdvRte.Cost := Cost(R) using the cost function associated with the route's metric type,
   i.e. Cost(R) = AdvRte.Metric + Cost(L), as described in [](#metrics), where L is the link from the
   advertising router
-* AdvRte.ValidityTime := RteMsg.ValidityTime, if included
-
 
 
 ### Evaluating Route Information  {#test}
@@ -808,7 +790,6 @@ The route update is applied as follows:
     *  LocalRoute.Metric := AdvRte.Cost
     *  LocalRoute.LastUsed := CurrentTime
     *  LocalRoute.LastSeqNumUpdate := CurrentTime
-    *  LocalRoute.ExpirationTime := CurrentTime + AdvRte.ValidityTime if a validity time exists, otherwise INFINITY_TIME
 
 1.  If a new LocalRoute was created, or if the existing LocalRoute.State is Invalid or Unconfirmed, update LocalRoute
     as follows:
@@ -922,9 +903,6 @@ Route timeout behaviour is as follows:
 *  An Unconfirmed route MUST be expunged at MAX_SEQNUM_LIFETIME after LocalRoute.LastSeqNumUpdate.
 *  An Idle route MUST become Active when used to forward an IP packet. If the route is not used to forward an IP packet within
    MAX_IDLETIME, LocalRoute.State MUST become Invalid.
-*  An Active route which is a timed route (i.e., with LocalRoute.ExpirationTime not equal to INFINITY_TIME) remains Active until
-   LocalRoute.ExpirationTime, after which it MUST become Invalid. If it it not a timed route, it MUST become Idle if the route is
-   not used to forward an IP packet within ACTIVE_INTERVAL.
 *  An Invalid route SHOULD remain in the Local Route Set, since LocalRoute.SeqNum is used to classify future information about LocalRoute.Address as
    stale or fresh.
 *  In all cases, if the time since LocalRoute.LastSeqNumUpdate exceeds MAX_SEQNUM_LIFETIME, LocalRoute.SeqNum must be set to
@@ -959,8 +937,7 @@ LocalRoutes are also updated when Neighbor.State is updated:
 
 <!-- SUGGESTED NEW TEXT -->
 
-Memory constrained devices MAY choose to expunge routes from the AODVv2 Local Route Set before LocalRoute.ExpirationTime, but
-MUST adhere to the following rules:
+Memory constrained devices MAY choose to expunge routes from the AODVv2 Local Route Set at other times, but MUST adhere to the following rules:
 
 *   An Active route MUST NOT be expunged, as it is in use. If deleted, IP traffic forwarded to this router will prompt generation
     of a Route Error message, and it will be necessary for a Route Request to be generated by the originator's router to re-establish the route.
@@ -1019,8 +996,7 @@ target address.  RREQ messages have the following contents:
     +-----------------------------------------------------------------+
     |                           OrigMetric                            |
     +-----------------------------------------------------------------+
-    |                     ValidityTime (optional)                     |
-    +-----------------------------------------------------------------+
+
 ^[RREQ_elem::RREQ message contents]
 
 msg_hop_limit
@@ -1041,9 +1017,6 @@ MetricType
 :   <vspace/>The metric type associated with OrigMetric.
 OrigMetric
 :   <vspace/>The metric value associated with the route to OrigPrefix, as seen from the sender of the message.
-ValidityTime
-:   <vspace/>The length of time that the message sender is willing to offer a route
-    to OrigPrefix. Omitted if no time limit is imposed.
 
 ### RREQ Generation  {#RREQ_gen}
 
@@ -1076,7 +1049,6 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
        omit TargSeqNum.
 1.  Include MetricType and set the type accordingly
 1.  Set OrigMetric := RouterClient.Cost for the Router Client entry which includes OrigAddr
-1.  Include ValidityTime if advertising that the route to OrigPrefix via this router is offered for a limited time, and set ValidityTime accordingly
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET- Routers on all interfaces configured for AODVv2 operation.
 
@@ -1127,10 +1099,6 @@ The procedure for RREQ forwarding is as follows:
 1.  Set AddressList, PrefixLengthList, sequence numbers and MetricType to the values in the
     received RREQ
 1.  Set OrigMetric := LocalRoute[OrigPrefix].Metric
-1.  If the received RREQ contains a ValidityTime, or if the forwarding router wishes to
-    limit the time that it offers a route to OrigPrefix, the forwarded RREQ MUST include ValidityTime
-    *  The ValidityTime is either the time limit the previous AODVv2 router
-       specified, or the time limit this router wishes to impose, whichever is lower.
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  However, the forwarded RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.
 
@@ -1157,8 +1125,7 @@ RREP messages have the following contents:
     +-----------------------------------------------------------------+
     |                           TargMetric                            |
     +-----------------------------------------------------------------+
-    |                     ValidityTime (optional)                     |
-    +-----------------------------------------------------------------+
+
 ^[figRREP::RREP message contents]
 
 msg_hop_limit
@@ -1181,10 +1148,6 @@ MetricType
 :   <vspace/>The metric type associated with TargMetric.
 TargMetric
 :   <vspace/>The metric value associated with the route to TargPrefix, as seen from the sender of the message.
-ValidityTime
-:   <vspace/>The length of time that the message sender is willing to offer a route
-    to TargPrefix. Omitted if no time limit is imposed.
-
 
 
 ### RREP Generation  {#RREP_gen}
@@ -1225,7 +1188,6 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
     *  Set TargSeqNum := SeqNum.
 1.  Include MetricType and set the type to match the MetricType in the received RREQ message
 1.  Set TargMetric := RouterClient.Cost for the Router Client entry which includes TargAddr
-1.  Include ValidityTime if advertising that the route to TargPrefix via this router is offered for a limited time, and set ValidityTime accordingly
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigPrefix].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
 
@@ -1279,10 +1241,6 @@ The procedure for RREP forwarding is as follows:
 1.  Set AddressList, PrefixLengthList, TargSeqNum and MetricType to the values in the
     received RREP
 1.  Set TargMetric := LocalRoute[TargPrefix].Metric
-1.  If the received RREP contains a ValidityTime, or if the forwarding router wishes to
-    limit the time that it will offer a route to TargPrefix, the forwarded RREP MUST include ValidityTime
-    *  The ValidityTime is either the time limit the previous AODVv2 router
-       specified, or the time limit this router wishes to impose, whichever is lower.
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigPrefix].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
@@ -1518,9 +1476,7 @@ with the relevant addresses in the Address Block.
 Each address included in the Address Block is identified as OrigPrefix, TargPrefix, PktSource, or
 Unreachable Address by including an ADDRESS_TYPE TLV in the Address Block TLV Block.
 
-The following sections show how AODVv2 data is represented in [](#RFC5444) messages. AODVv2
-makes use of the VALIDITY_TIME Address Block TLV from [](#RFC5497), and defines (in [](#IANA)) a number of new TLVs.
-To calculate the time-value for the VALIDITY_TIME Address Block TLV, the value of C is defined in [](#constants).
+The following sections show how AODVv2 data is represented in [](#RFC5444) messages. AODVv2 defines (in [](#IANA)) a number of new TLVs.
 
 <!-- Deleted / Issue #28 - - >
   <t> When multiple messages are aggregated into a single packet according
@@ -1571,7 +1527,6 @@ Data                     TLV Type       Extension Type  Value
 None                     ADDRESS_TYPE   0               ADDRTYPE_ORIGPREFIX
 OrigSeqNum               SEQ_NUM        0               Sequence number of RREQ_Gen, the router which initiated route discovery.
 OrigMetric \/MetricType  PATH_METRIC    MetricType      Metric value for the route to OrigPrefix, using MetricType.
-ValidityTime             VALIDITY_TIME  0               ValidityTime for route to OrigPrefix, represented as detailed in [](#RFC5497).
 
 #### Address Block TLVs for TargPrefix
 
@@ -1624,7 +1579,6 @@ Data                      TLV Type       Extension Type         Value
 None                      ADDRESS_TYPE   0                      ADDRTYPE_TARGPREFIX
 TargSeqNum                SEQ_NUM        0                      Sequence number of RREP_Gen, the router which created the RREP.
 TargMetric \/MetricType   PATH_METRIC    MetricType             Metric value for the route to TargPrefix, using MetricType.
-ValidityTime              VALIDITY_TIME  0                      ValidityTime for route to TargPrefix, represented as detailed in [](#RFC5497).
 
 
 #### Address Block TLVs for AckReq Intended Recipient Address
@@ -1804,7 +1758,6 @@ MAX_METRIC[MetricType]    [TBD]     [](#metrics)
 MAX_METRIC[HopCount]      255       [](#metrics) and [](#aodv_msgs)
 MAX_HOPCOUNT              20        Limit to number of hops a RREQ or RREP message can traverse
 INFINITY_TIME             [TBD]     Maximum expressible clock time ([](#update_rte))
-C                         1/1024    Constant used in validity time calculation [](#RFC5497)
 
 ^[const-tbl::AODVv2 Constants]
 
@@ -1826,9 +1779,6 @@ network.  If the values were configured differently, the following consequences 
 *  MAX_HOPCOUNT: Routers with a value too small would not be able to discover routes to distant addresses.
 *  INFINITY_TIME: No interoperability problems due to variations on different routers, but if a
    lower value is used, route state management may exhibit overly restrictive behavior.
-*  C: Routers with lower values will invalidate timed routes before routers with higher values, which
-   will cause Route Error messages to be generated and the route will effectively take on the shorter
-   validity time.
 
 ## Local Settings {#other}
 The following table lists AODVv2 parameters which SHOULD be administratively configured for each router:
