@@ -118,7 +118,6 @@
 	      <?rfc include="reference.RFC.4291" ?>
 	      <?rfc include="reference.RFC.5082" ?>
 	      <?rfc include="reference.RFC.5444" ?>
-	      <?rfc include="reference.RFC.5497" ?>
 	      <?rfc include="reference.RFC.5498" ?>
 	      <?rfc include="reference.RFC.6551" ?>
 	      <?rfc include="reference.RFC.7182" ?>
