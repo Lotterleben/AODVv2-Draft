@@ -101,7 +101,9 @@ Neighbor
 OrigAddr
 :   <vspace/>The source IP address of the IP packet triggering route discovery.
 OrigMetric
-:   <vspace/>The metric value associated with the route to OrigAddr (and any other addresses included in the given prefix length).
+:   <vspace/>The metric value associated with the route to OrigPrefix.
+OrigPrefix
+:   <vspace/>The prefix configured in the Router Client entry which includes OrigAddr.
 OrigPrefixLen
 :   <vspace/>The prefix length, in bits, configured in the Router Client entry which includes OrigAddr.
 OrigSeqNum
@@ -133,7 +135,7 @@ RREP (Route Reply)
 RREP_Gen (RREP Generating Router)
 :   <vspace/>The AODVv2 router that generates the Route Reply message, i.e., the router configured with TargAddr as a Router Client.
 RREQ (Route Request)
-:   <vspace/>The AODVv2 message type used to discover a route to TargAddr and distribute information about a route to OrigAddr.
+:   <vspace/>The AODVv2 message type used to discover a route to TargAddr and distribute information about a route to OrigPrefix.
 RREQ_Gen (RREQ Generating Router)
 :   <vspace/>The AODVv2 router that generates the Route Request message, i.e., the router configured with OrigAddr as a Router Client.
 RteMsg (Route Message)
@@ -145,7 +147,9 @@ SeqNumList
 TargAddr
 :   <vspace/>The target address of a route request, i.e., the destination address of the IP packet triggering route discovery.
 TargMetric
-:   <vspace/>The metric value associated with the route to TargAddr (and any other addresses included in the given prefix length).
+:   <vspace/>The metric value associated with the route to TargPrefix.
+TargPrefix
+:   <vspace/>The prefix configured in the Router Client entry which includes TargAddr.
 TargPrefixLen
 :   <vspace/>The prefix length, in bits, configured in the Router Client entry which includes TargAddr.
 TargSeqNum
@@ -395,18 +399,18 @@ Multicast Route Message Set entries MUST contain the following information:
 
 RteMsg.MessageType
 :   <vspace/>Either RREQ or RREP.
-RteMsg.OrigAddr
-:   <vspace/>The source address of the IP packet triggering the route request.
+RteMsg.OrigPrefix
+:   <vspace/>The prefix associated with OrigAddr, the source address of the IP packet triggering the route request.
 RteMsg.OrigPrefixLen
-:   <vspace/>The prefix length associated with RteMsg.OrigAddr, originally from the Router Client entry on RREQ_Gen which includes RteMsg.OrigAddr.
-RteMsg.TargAddr
-:   <vspace/>The destination address of the IP packet triggering the route request.
+:   <vspace/>The prefix length associated with RteMsg.OrigPrefix, originally from the Router Client entry on RREQ_Gen which includes OrigAddr.
+RteMsg.TargPrefix
+:   <vspace/>The prefix associated with TargAddr, the destination address of the IP packet triggering the route request. In a RREQ this MUST be set to TargAddr.
 RteMsg.TargPrefixLen
-:   <vspace/>The prefix length associated with RteMsg.TargAddr, originally from the Router Client entry on RREP_Gen which includes RteMsg.TargAddr. If RteMsg is a RREQ, RteMsg.TargPrefixLen MUST equal address length.
+:   <vspace/>The prefix length associated with RteMsg.TargPrefix, originally from the Router Client entry on RREP_Gen which includes TargAddr. If RteMsg is a RREQ, RteMsg.TargPrefixLen MUST equal address length.
 RteMsg.OrigSeqNum
-:   <vspace/>The sequence number associated with the route to OrigAddr, if RteMsg is an RREQ.
+:   <vspace/>The sequence number associated with the route to OrigPrefix, if RteMsg is an RREQ.
 RteMsg.TargSeqNum
-:   <vspace/>The sequence number associated with the route to TargAddr, if RteMsg is an RREP.
+:   <vspace/>The sequence number associated with the route to TargPrefix, if RteMsg is an RREP.
 RteMsg.MetricType
 :   <vspace/>The metric type of the route requested.
 RteMsg.Metric
@@ -422,8 +426,8 @@ RteMsg.AckReqAddr
 RteMsg.Interface
 :   <vspace/>The interface on which the message was received.
 
-The Multicast Route Message Set is maintained so that no two entries have the same MessageType, OrigAddr,
-TargAddr, and MetricType. See [](#suppress) for details about updating this set.
+The Multicast Route Message Set is maintained so that no two entries have the same MessageType, OrigPrefix, OrigPrefixLen, TargPrefix, TargPrefixLen, and MetricType. See [](#suppress) for details about updating this set.
+
 
 ## Route Error (RERR) Set  {#rerrtable}
 
@@ -443,19 +447,11 @@ See section [](#suppressrerr) for instructions on how to update the set.
 Metrics measure a cost or quality associated with a route or a link, e.g., latency, delay, financial cost, energy, etc. Metric
 values are reported in Route Request and Route Reply messages.
 
-In Route Request messages, the metric describes the cost of the route from OrigAddr (and any other addresses included in the prefix
-length of RREQ_Gen's Router Client entry for OrigAddr) to the router sending the Route Request. For RREQ_Gen, this is the cost
-associated with the Router Client entry which includes OrigAddr. For routers which forward the RREQ, this is the cost from
-OrigAddr to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link cost from the
-sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Request message,
-and used to install a route back toward OrigAddr.
+In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client entry which includes OrigAddr. For routers which regenerate the RREQ, this is the cost from OrigPrefix to the regenerating router, combining the metric value from the received RREQ message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when regenerating the Route Request message,
+and used to install a route to OrigPrefix.
 
-Similarly, in Route Reply messages, the metric reflects the cost of the route from TargAddr (and any other addresses included in the
-prefix length of RREP_Gen's Router Client entry for TargAddr) to the router sending the Route Reply. For RREP_Gen, this is the cost
-associated with the Router Client entry which includes TargAddr. For routers which forward the RREP, this is the cost from
-TargAddr to the forwarding router, combining the metric value from the received RREP message with knowledge of the link cost from the
-sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Reply message,
-and used to install a route back toward TargAddr.
+Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client entry which includes TargAddr. For routers which regenerate the RREP, this is the cost from TargPrefix to the regenerating router, combining the metric value from the received RREP message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when regenerating the Route Reply message,
+and used to install a route to TargPrefix.
 
 Assuming link metrics are symmetric, the cost of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
 The route discovered is optimised for the requesting router, and the return path may not be the optimal route.
@@ -675,7 +671,7 @@ RREP are unicast where possible. The constants used in[](#test) this section are
 
 When an AODVv2 router needs to forward an IP packet (with source address OrigAddr and destination address TargAddr) from
 one of its Router Clients, it needs a route to TargAddr in its Routing Information Base. If no route exists,
-the AODVv2 router generates (RREQ_Gen) and multicasts a Route Request message (RREQ), on all configured interfaces, containing OrigAddr and TargAddr. The procedure for this
+the AODVv2 router generates (RREQ_Gen) and multicasts a Route Request message (RREQ), on all configured interfaces, containing information about the source and destination. The procedure for this
 is described in [](#RREQ_gen). Each generated RREQ results in an increment to the router's sequence number. The AODVv2 router generating an
 RREQ is referred to as RREQ_Gen.
 
@@ -708,7 +704,7 @@ If RREQ_Gen does receive a route message containing a route to TargAddr within t
 [](#aodv_msgs). When a valid LocalRoute entry is created in the Local Route Set, the route is also installed in the Routing Information Base, and
 the router will begin sending the buffered IP packets. Any retry timers for the corresponding RREQ are then cancelled.
 
-During route discovery, all routers on the path learn a route to both OrigAddr and TargAddr, so that routes are constructed in both directions.
+During route discovery, all routers on the path learn a route to both OrigPrefix and TargPrefix, so that routes are constructed in both directions.
 The route is optimized for the forward route.
 
 <!-- For RREQ, use incoming cost from previous hop, so that the return path will be the optimal for Orig->Targ. -->
@@ -724,8 +720,7 @@ this route does not correctly reflect the cost of their route to TargAddr.
 
 ## Processing Received Route Information {#processingrte}
 
-All AODVv2 route messages contain a route. A Route Request (RREQ) contains a route toward OrigAddr (and other addresses as indicated by OrigPrefixLen),
-and a Route Reply (RREP) contains a route toward TargAddr (and other addresses as indicated by TargPrefixLen). All AODVv2 routers that receive a route
+All AODVv2 route messages contain a route. A Route Request (RREQ) contains a route to OrigPrefix, and a Route Reply (RREP) contains a route to TargPrefix. All AODVv2 routers that receive a route
 message are able to store the route contained within it in their Local Route Set. Incoming information is first checked to verify that it is both safe
 to use and offers an improvement to existing information, as explained in [](#test).
 If these checks pass, the Local Route Set MUST be updated according to [](#update_rte).
@@ -735,9 +730,9 @@ denotes an existing entry in the Local Route Set which matches AdvRte on address
 
 AdvRte has the following properties:
 
-* AdvRte.Address := network address given by combining RteMsg.OrigAddr and RteMsg.OrigPrefixLen (in RREQ) or RteMsg.TargAddr and RteMsg.TargPrefixLen (in RREP)
+* AdvRte.Address := RteMsg.OrigPrefix (in RREQ) or RteMsg.TargPrefix (in RREP)
 * AdvRte.PrefixLength := RteMsg.OrigPrefixLen (in RREQ) or RteMsg.TargPrefixLen (in RREP). If no prefix length was
-  included in RteMsg, prefix length is the address length, in bits, of RteMsg.OrigAddr (in RREQ) or RteMsg.TargAddr (in RREP)
+  included in RteMsg, prefix length is the address length, in bits, of RteMsg.OrigPrefix (in RREQ) or RteMsg.TargPrefix (in RREP)
 * AdvRte.SeqNum := RteMsg.OrigSeqNum (in RREQ) or RteMsg.TargSeqNum (in RREP)
 * AdvRte.NextHop := RteMsg.IPSourceAddress (an address of the sending interface of the router from which the RteMsg was received)
 * AdvRte.MetricType := RteMsg.MetricType
@@ -854,7 +849,7 @@ redundant, forwarding or response can be avoided.
 
 To determine if a received message is redundant:
 
-1.  Search for an entry in the Multicast Route Message Set with the same MessageType, OrigAddr, TargAddr, Interface and MetricType
+1.  Search for an entry in the Multicast Route Message Set with the same MessageType, OrigPrefix, OrigPrefixLen, TargPrefix, TargPrefixLen, Interface and MetricType
     *   If there is no entry, the message is not redundant.
     *   If there is an entry, continue to Step 2.
 2.  Compare sequence numbers using the technique described in [](#seqnum)
@@ -878,13 +873,13 @@ If the message is not redundant, create an entry or update the existing entry.
 To update a Multicast Route Message Set entry, set:
 
 * RteMsg.MessageType := the message type of the received message
-* RteMsg.OrigAddr := OrigAddr from the message
-* RteMsg.OrigPrefixLen := the prefix length associated with OrigAddr
-* RteMsg.TargAddr := TargAddr from the message
-* RteMsg.TargPrefixLen := the prefix length associated with TargAddr
-* RteMsg.OrigSeqNum := the sequence number associated with OrigAddr, if present in the received message
-* RteMsg.TargSeqNum := the sequence number associated with TargAddr, if present in the received message
-* RteMsg.Metric := the metric value associated with OrigAddr in a received RREQ or TargAddr in a received RREP
+* RteMsg.OrigPrefix := OrigPrefix from the message
+* RteMsg.OrigPrefixLen := the prefix length associated with OrigPrefix
+* RteMsg.TargPrefix := TargPrefix from the message
+* RteMsg.TargPrefixLen := the prefix length associated with TargPrefix
+* RteMsg.OrigSeqNum := the sequence number associated with OrigPrefix, if present in the received message
+* RteMsg.TargSeqNum := the sequence number associated with TargPrefix, if present in the received message
+* RteMsg.Metric := the metric value associated with OrigPrefix in a received RREQ or TargPrefix in a received RREP
 * RteMsg.MetricType := the metric type associated with RteMsg.Metric
 * RteMsg.Timestamp := CurrentTime
 * RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
@@ -985,8 +980,8 @@ When LocalRoute.State changes from Active to Invalid as a result of a broken lin
 (RERR) message, other AODVv2 routers MUST be informed by sending an RERR message containing details
 of the invalidated route.
 
-An RERR message MUST also be sent when an AODVv2 router receives an IP packet to forward on behalf
-of another router but does not have a valid route in its Routing Information Base for the destination of the packet.
+An RERR message MUST also be sent when an AODVv2 router receives an RREP message to regenerate, but the
+LocalRoute to the OrigPrefix in the RREP has been lost or is marked as Invalid.
 
 An RERR message MUST also be sent when an AODVv2 router receives an RREP message to forward, but the
 LocalRoute to the OrigAddr in the RREP has been lost or is marked as Invalid.
@@ -1032,26 +1027,23 @@ msg_hop_limit
 :   <vspace/>The remaining number of hops allowed for dissemination of the RREQ
     message.
 AddressList
-:   <vspace/>Contains OrigAddr and TargAddr, the source and destination addresses
-    of the IP packet for which a route is requested. OrigAddr and TargAddr MUST be routable
-    unicast addresses.
+:   <vspace/>Contains OrigPrefix, from the Router Client entry which includes OrigAddr, the source address of the IP packet for which a route is requested, and TargPrefix, set to TargAddr, the destination address of the IP packet for which a route is requested.
 PrefixLengthList
 :   <vspace/>Contains OrigPrefixLen, i.e., the length, in bits, of the prefix associated with
     the Router Client entry which includes OrigAddr. If omitted, the prefix length is equal
     to OrigAddr's address length in bits.
 OrigSeqNum
-:   <vspace/>The sequence number associated with OrigAddr.
+:   <vspace/>The sequence number associated with OrigPrefix.
 TargSeqNum
 :   <vspace/>A sequence number associated with an existing Invalid route to TargAddr. This MAY be included
     if available.
 MetricType
 :   <vspace/>The metric type associated with OrigMetric.
 OrigMetric
-:   <vspace/>The metric value associated with the LocalRoute to OrigAddr (and to any other addresses included in the
-    given prefix length), as seen from the sender of the message.
+:   <vspace/>The metric value associated with the route to OrigPrefix, as seen from the sender of the message.
 ValidityTime
 :   <vspace/>The length of time that the message sender is willing to offer a route
-    toward OrigAddr (and any other addresses included in the given prefix length). Omitted if no time limit is imposed.
+    to OrigPrefix. Omitted if no time limit is imposed.
 
 ### RREQ Generation  {#RREQ_gen}
 
@@ -1069,11 +1061,10 @@ If the limit for the rate of AODVv2 control message generation has been reached,
 To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedure:
 
 1.  Set msg_hop_limit := MAX_HOPCOUNT
-1.  Set AddressList := {OrigAddr, TargAddr}
+1.  Set AddressList := {OrigPrefix, TargPrefix}
 1.  For the PrefixLengthList:
     *  If OrigAddr is part of an address range configured as a Router Client, set PrefixLengthList :=
-       {RouterClient.PrefixLength, null}. This allows receiving routers to learn a route to all the
-       addresses included by the prefix length, not only to OrigAddr.
+       {RouterClient.PrefixLength, null}.
     *  Otherwise, omit PrefixLengthList.
 1.  For OrigSeqNum:
     *  Increment the router SeqNum as specified in [](#seqnum).
@@ -1085,8 +1076,7 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
        omit TargSeqNum.
 1.  Include MetricType and set the type accordingly
 1.  Set OrigMetric := RouterClient.Cost for the Router Client entry which includes OrigAddr
-1.  Include ValidityTime if advertising that the route to OrigAddr (and any other addresses included in the given
-    prefix length) via this router is offered for a limited time, and set ValidityTime accordingly
+1.  Include ValidityTime if advertising that the route to OrigPrefix via this router is offered for a limited time, and set ValidityTime accordingly
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET- Routers on all interfaces configured for AODVv2 operation.
 
@@ -1107,27 +1097,24 @@ Upon receiving a Route Request, an AODVv2 router performs the following steps:
 1.  Check and update the Neighbor Set according to [](#nbrupdate)
     *  If the sender has Neighbor.State set to Blacklisted, ignore this RREQ for further processing.
 1.  Verify that the message contains the required data:
-    msg_hop_limit, OrigAddr, TargAddr, OrigSeqNum, and OrigMetric,
-    and that OrigAddr and TargAddr are valid addresses (routable and unicast)
+    msg_hop_limit, OrigPrefix, TargPrefix, OrigSeqNum, and OrigMetric,
+    and that OrigPrefix and TargPrefix are valid addresses
     *  If not, ignore this RREQ for further processing.
 1.  Check that the MetricType is supported and configured for use
     *  If not, ignore this RREQ for further processing.
 1.  Verify that the cost of the advertised route will not exceed the maximum allowed metric
     value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
     *  If it will, ignore this RREQ for further processing.
-1.  Process the route to OrigAddr (and any other addresses included in the given
-    prefix length) as specified in [](#processingrte)
+1.  Process the route to OrigPrefix as specified in [](#processingrte)
 1.  Check if the information in the message is redundant by comparing to entries in the Multicast Route Message Set, following the procedure in [](#suppress)
     *  If redundant, ignore this RREQ for further processing.
     *  If not redundant, continue processing.
-1.  Check if the TargAddr belongs to one of the Router Clients
+1.  Check if the TargPrefix matches an entry in the Router Client Set
     *  If so, generate an RREP as specified in [](#RREP_gen).
     *  If not, continue to RREQ forwarding.
 
-
 ### RREQ Forwarding  {#RREQ_fwd}
-By forwarding an RREQ, a router advertises that it will forward IP packets to the OrigAddr contained in the RREQ (and
-to other addresses included in the given prefix length) according to the information enclosed. The router MAY choose not to
+By forwarding an RREQ, a router advertises that it will forward IP packets to the OrigPrefix contained in the RREQ according to the information enclosed.The router MAY choose not to
 forward the RREQ, for example if the router is heavily loaded or low on energy and therefore unwilling to advertise
 routing capability for more traffic. This could, however, decrease connectivity in the network or result in non-optimal paths.
 
@@ -1139,10 +1126,9 @@ The procedure for RREQ forwarding is as follows:
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
 1.  Set AddressList, PrefixLengthList, sequence numbers and MetricType to the values in the
     received RREQ
-1.  Set OrigMetric := LocalRoute[OrigAddr].Metric
-1.  If the received RREQ contains a ValidityTime, or if the forwarding router wishes to
-    limit the time that it offers a route to OrigAddr (and any other addresses included in the
-    given prefix length), the forwarded RREQ MUST include ValidityTime
+1.  Set OrigMetric := LocalRoute[OrigPrefix].Metric
+1.  If the received RREQ contains a ValidityTime, or if the regenerating router wishes to
+    limit the time that it offers a route to OrigPrefix, the regenerated RREQ MUST include ValidityTime
     *  The ValidityTime is either the time limit the previous AODVv2 router
        specified, or the time limit this router wishes to impose, whichever is lower.
 
@@ -1152,8 +1138,7 @@ This AODVv2 message is used to create a corresponding [](#RFC5444) message (see 
 ## Route Reply (RREP) Message  {#RREP_msgs}
 
 When a Route Request message is received, requesting a route to a target address (TargAddr) which is configured as part of a
-Router Client entry, a Route Reply message is sent in response. The RREP offers a route to TargAddr (and any other addresses
-included in the prefix length).
+Router Client entry, a Route Reply message is sent in response. The RREP offers a route to TargPrefix.
 
 RREP messages have the following contents:
 
@@ -1181,41 +1166,38 @@ msg_hop_limit
     message.
 AckReq
 :   <vspace/>The address of the intended next hop of the RREP. This is included when the
-    link to the next hop toward OrigAddr is not known to be bidirectional. It indicates that an
+    link to the next hop toward OrigPrefix is not known to be bidirectional. It indicates that an
     acknowledgement of the RREP is requested by the sender from the intended next hop (see [](#nexthopmonitoring)).
 AddressList
-:   <vspace/>Contains OrigAddr and TargAddr, the source and destination addresses
-    of the IP packet for which a route is requested. OrigAddr and TargAddr MUST be routable
-    unicast addresses.
+:   <vspace/>Contains OrigPrefix and TargPrefix, the prefixes of the source and destination addresses
+    of the IP packet for which a route is requested.
 PrefixLengthList
 :   <vspace/>Contains TargPrefixLen, i.e., the length, in bits, of the prefix associated with
     the Router Client entry which includes TargAddr. If omitted, the prefix length is equal
     to TargAddr's address length, in bits.
 TargSeqNum
-:   <vspace/>The sequence number associated with TargAddr.
+:   <vspace/>The sequence number associated with TargPrefix.
 MetricType
 :   <vspace/>The metric type associated with TargMetric.
 TargMetric
-:   <vspace/>The metric value associated with the LocalRoute to TargAddr (and any other addresses included in the
-    given prefix length), as seen from the sender of the message.
+:   <vspace/>The metric value associated with the route to TargPrefix, as seen from the sender of the message.
 ValidityTime
 :   <vspace/>The length of time that the message sender is willing to offer a route
-    toward TargAddr (and any other addresses included in the
-    given prefix length). Omitted if no time limit is imposed.
+    to TargPrefix. Omitted if no time limit is imposed.
+
 
 
 ### RREP Generation  {#RREP_gen}
 
 A Route Reply message is generated when a Route Request for
 a Router Client of the AODVv2 router arrives. This is the case when
-RteMsg.TargAddr matches an address which is configured as a Router
-Client of the AODVv2 router.
+RteMsg.TargPrefix matches an entry in the Router Client Set of the AODVv2 router.
 
 Before creating an RREP, the router SHOULD check if the corresponding RREQ is redundant, i.e.,
 a Route Reply has already been generated in response to the RREQ, or if the limit for the rate of AODVv2 control message
 generation has been reached. If so, the RREP SHOULD NOT be created.
 
-The RREP will follow the path of the route to OrigAddr. If the best route to OrigAddr in the Local
+The RREP will follow the path of the route to OrigPrefix. If the best route to OrigPrefix in the Local
 Route Set is Unconfirmed, the link to the next hop neighbor is not yet confirmed as bidirectional (as described
 in [](#nexthopmonitoring)). In this case the RREP MUST include AckReq set to the intended
 next hop address. The AckReq indicates that an acknowledgement to the RREP is requested from the
@@ -1231,24 +1213,21 @@ MUST be considered to have failed after the wait time for an RREP_Ack response t
 To generate the RREP, the router (also referred to as RREP_Gen) follows this procedure:
 
 1.  Set msg_hop_limit := MAX_HOPCOUNT - msg_hop_limit from the received RREQ message
-1.  If the link to the next hop router toward OrigAddr is not known to
+1.  If the link to the next hop router toward OrigPrefix is not known to
     be bidirectional, <!-- TODO: define what that means?-->include the AckReq with the address of the intended next hop router (see [](#rrep_addrblk))
-1.  Set Address List := {OrigAddr, TargAddr}
+1.  Set Address List := {OrigPrefix, TargPrefix}
 1.  For the PrefixLengthList:
     *  If TargAddr is part of an address range configured as a Router Client, set PrefixLengthList :=
-       {null, RouterClient.PrefixLength}. This allows receiving routers to learn a route to
-       all the addresses included by the prefix length, not only to TargAddr.
+       {null, RouterClient.PrefixLength}.
     *  Otherwise, omit PrefixLengthList.
 1.  For the TargSeqNum:
     *  Increment the router SeqNum as specified in [](#seqnum).
     *  Set TargSeqNum := SeqNum.
 1.  Include MetricType and set the type to match the MetricType in the received RREQ message
 1.  Set TargMetric := RouterClient.Cost for the Router Client entry which includes TargAddr
-1.  Include ValidityTime if advertising that the route to TargAddr (and any other addresses included in the
-    given prefix length) via this router is offered for a limited time, and set ValidityTime accordingly
+1.  Include ValidityTime if advertising that the route to TargPrefix via this router is offered for a limited time, and set ValidityTime accordingly
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set
-contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigAddr].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigPrefix].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
 
 
 ### RREP Reception  {#RREP_rcv}
@@ -1256,8 +1235,8 @@ contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with 
 Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 
 1.  Verify that the message contains the required data:
-    msg_hop_limit, OrigAddr, TargAddr, TargSeqNum, and TargMetric,
-    and that OrigAddr and TargAddr are valid addresses (routable and unicast)
+    msg_hop_limit, OrigPrefix, TargPrefix, TargSeqNum, and TargMetric,
+    and that OrigPrefix and TargPrefix are valid addresses
     *  If not, ignore this RREP for further processing.
 1.  Check that the MetricType is supported and configured for use
     *  If not, ignore this RREP for further processing.
@@ -1270,26 +1249,23 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 1.  If the AckReq is present, check the intended recipient of the received RREP:
     *  If there is an entry in the Router Client Set where RouterClient.IPAddress matches the address associated with the AckReq (see [](#rrep_addrblk)), the receiving router is the intended recipient. Send an acknowledgement as specified in [](#rrep_ack_msgs) and continue processing.
     *  Otherwise, ignore this RREP for further processing.
-1.  Process the route to TargAddr (and any other addresses included in the
-    given prefix length) as specified in [](#processingrte)
+1.  Process the route to TargPrefix as specified in [](#processingrte)
 1.  Check if the message is redundant by comparing to entries in the Multicast Route Message Set ([](#suppress))
     *  If redundant, ignore this RREP for further processing.
     *  If not redundant, save the information in the Multicast Route Message Set to identify future redundant
        RREP messages and continue processing.
-1.  Check if the OrigAddr belongs to one of the Router Clients
+1.  Check if the OrigPrefix matches an entry in the Router Client Set
     *  If so, no further processing is necessary.
     *  If not, continue to Step 10.
-1.  Check if a valid (Active or Idle) or Unconfirmed LocalRoute exists to OrigAddr
-    *  If so, continue to RREP forwarding.
-    *  If not, a Route Error message SHOULD be transmitted to TargAddr according to
-       [](#RERR_gen) and the RREP SHOULD be discarded and not forwarded.
-
+1.  Check if a valid (Active or Idle) or Unconfirmed LocalRoute exists to OrigPrefix
+    *  If so, continue to RREP regeneration.
+    *  If not, a Route Error message SHOULD be transmitted toward TargPrefix according to
+       [](#RERR_gen) and the RREP SHOULD be discarded and not regenerated.
 
 ### RREP Forwarding  {#RREP_fwd}
 
-A received Route Reply message is forwarded toward OrigAddr. 
-By forwarding a RREP, a router advertises that it will forward IP packets to TargAddr.
-<!--(and any other addresses included in the given prefix length) TODO: I've deleted this bc we don't support routes for entire prefixes, correct?--> 
+A received Route Reply message is forwarded toward OrigPrefix. 
+By forwarding a RREP, a router advertises that it will forward IP packets to TargPrefix.
 
 The RREP SHOULD NOT be forwarded if CONTROL_TRAFFIC_LIMIT
 has been reached. Otherwise, the router MUST forward the RREP.
@@ -1298,18 +1274,17 @@ The procedure for RREP forwarding is as follows:
 
 1.  Set msg_hop_limit := received msg_hop_limit - 1
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
-1.  If the link to the next hop router toward OrigAddr is not known to be bidirectional, include the
+1.  If the link to the next hop router toward OrigPrefix is not known to be bidirectional, include the
     AckReq with the address of the intended next hop router
 1.  Set AddressList, PrefixLengthList, TargSeqNum and MetricType to the values in the
     received RREP
-1.  Set TargMetric := LocalRoute[TargAddr].Metric
-1.  If the received RREP contains a ValidityTime, or if the forwarding router wishes to
-    limit the time that it will offer a route to TargAddr (and any other addresses included in the
-    given prefix length), the forwarded RREP MUST include ValidityTime
+1.  Set TargMetric := LocalRoute[TargPrefix].Metric
+1.  If the received RREP contains a ValidityTime, or if the regenerating router wishes to
+    limit the time that it will offer a route to TargPrefix, the regenerated RREP MUST include ValidityTime
     *  The ValidityTime is either the time limit the previous AODVv2 router
        specified, or the time limit this router wishes to impose, whichever is lower.
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigAddr].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigAddr].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigAddr].NextHopInterface.
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigPrefix].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
 
 ## Route Reply Acknowledgement (RREP_Ack) Message  {#rrep_ack_msgs}
@@ -1402,9 +1377,9 @@ destination is not reachable. There are three events that cause this response:
     and MUST contain only one unreachable address in the AddressList, i.e., the destination address of the IP packet. RERR_Gen MUST discard the
     IP packet that triggered generation of the RERR. The prefix length, sequence number and metric type SHOULD be included if known from an existing Invalid LocalRoute to the unreachable address.
 
-*   When an RREP message cannot be forwarded because the LocalRoute to OrigAddr has been lost or is Invalid, RREP_Gen needs
-    to be informed that the route to OrigAddr does not exist. The RERR generated MUST include PktSource set to
-    the TargAddr of the RREP, and MUST contain only one unreachable address in the AddressList, the OrigAddr from
+*   When an RREP message cannot be regenerated because the LocalRoute to OrigPrefix has been lost or is Invalid, RREP_Gen needs
+    to be informed that the route to OrigPrefix does not exist. The RERR generated MUST include PktSource set to
+    the TargPrefix of the RREP, and MUST contain only one unreachable address in the AddressList, the OrigPrefix from
     the RREP. RERR_Gen MUST discard the RREP message that triggered generation of the RERR. The prefix length, sequence number
     and metric type SHOULD be included if known from an Invalid LocalRoute to the unreachable address.
 
@@ -1540,7 +1515,7 @@ the order of the addresses in the AODVv2 AddressList matches the order of values
 order of SeqNums in the SeqNumList in an RERR. [](#RFC5444) maps this information to Address Block TLVs associated
 with the relevant addresses in the Address Block.
 
-Each address included in the Address Block is identified as OrigAddr, TargAddr, PktSource, or
+Each address included in the Address Block is identified as OrigPrefix, TargPrefix, PktSource, or
 Unreachable Address by including an ADDRESS_TYPE TLV in the Address Block TLV Block.
 
 The following sections show how AODVv2 data is represented in [](#RFC5444) messages. AODVv2
@@ -1578,36 +1553,32 @@ msg_hop_limit  \<msg-hop-limit\>  MAX_HOPCOUNT, reduced by number of hops traver
 AODVv2 does not define any Message TLVs for an RREQ message.
 
 ### Address Block
-An RREQ contains two addresses, OrigAddr and TargAddr, and each address has an associated prefix length. If the prefix length
-has not been included in the AODVv2 message, it is equal to the address length in bits.
+An RREQ contains two addresses, OrigPrefix and TargPrefix, and each address has an associated prefix length. If the prefix length has not been included in the AODVv2 message, it is equal to the address length in bits.
 
 Data                        Address Block
 -------------               ---------------
-OrigAddr\/OrigPrefixLen     \<address\> + \<prefix-length\>
-TargAddr\/TargPrefixLen     \<address\> + \<prefix-length\>
-
+OrigPrefix\/OrigPrefixLen   \<address\> + \<prefix-length\>
+TargPrefix\/TargPrefixLen   \<address\> + \<prefix-length\>
 
 ### Address Block TLV Block
 Address Block TLVs are always associated with one or more addresses in the Address Block. The following
 sections show the TLVs that apply to each address.
 
-#### Address Block TLVs for OrigAddr
+#### Address Block TLVs for OrigPrefix
 
 Data                     TLV Type       Extension Type  Value
 ------------             ------------   --------------  -----
-None                     ADDRESS_TYPE   0               ADDRTYPE_ORIGADDR
+None                     ADDRESS_TYPE   0               ADDRTYPE_ORIGPREFIX
 OrigSeqNum               SEQ_NUM        0               Sequence number of RREQ_Gen, the router which initiated route discovery.
-OrigMetric \/MetricType  PATH_METRIC    MetricType      Metric value for the route to OrigAddr, using MetricType.
-ValidityTime             VALIDITY_TIME  0               ValidityTime for route to OrigAddr, represented as detailed in [](#RFC5497).
+OrigMetric \/MetricType  PATH_METRIC    MetricType      Metric value for the route to OrigPrefix, using MetricType.
+ValidityTime             VALIDITY_TIME  0               ValidityTime for route to OrigPrefix, represented as detailed in [](#RFC5497).
 
-#### Address Block TLVs for TargAddr
+#### Address Block TLVs for TargPrefix
 
 Data                     TLV Type       Extension Type  Value
 ------------             ------------   --------------  -----
-None                     ADDRESS_TYPE   0               ADDRTYPE_TARGADDR
-TargSeqNum               SEQ_NUM        0               The last known TargSeqNum for TargAddr.
-
-
+None                     ADDRESS_TYPE   0               ADDRTYPE_TARGPREFIX
+TargSeqNum               SEQ_NUM        0               The last known TargSeqNum for TargPrefix.
 
 ## Route Reply Message Representation
 
@@ -1624,7 +1595,7 @@ AODVv2 does not define any Message TLVs for an RREP message.
 
 ### Address Block {#rrep_addrblk}
 
-An RREP contains a minimum of two addresses, OrigAddr and TargAddr, and each address has an associated prefix length. If the prefix length
+An RREP contains a minimum of two addresses, OrigPrefix and TargPrefix, and each address has an associated prefix length. If the prefix length
 has not been included in the AODVv2 message, it is equal to the address length in bits.
 
 It MAY also contain the address of the intended next hop, in order to request acknowledgement to confirm bidirectionality of the link, as described
@@ -1632,28 +1603,28 @@ in [](#nexthopmonitoring). The prefix length associated with this address is equ
 
 Data                        Address Block
 -------------               ---------------
-OrigAddr\/OrigPrefixLen     \<address\> + \<prefix-length\>
-TargAddr\/TargPrefixLen     \<address\> + \<prefix-length\>
+OrigPrefix\/OrigPrefixLen   \<address\> + \<prefix-length\>
+TargPrefix\/TargPrefixLen   \<address\> + \<prefix-length\>
 AckReq                      \<address\> + \<prefix-length\>
 
 ### Address Block TLV Block
 Address Block TLVs are always associated with one or more addresses in the Address Block. The following
 sections show the TLVs that apply to each address.
 
-#### Address Block TLVs for OrigAddr
+#### Address Block TLVs for OrigPrefix
 
 Data                     TLV Type       Extension Type        Value
 ------------             ------------   --------------        -----
-None                     ADDRESS_TYPE   0                     ADDRTYPE_ORIGADDR
+None                     ADDRESS_TYPE   0                     ADDRTYPE_ORIGPREFIX
 
-#### Address Block TLVs for TargAddr
+#### Address Block TLVs for TargPrefix
 
 Data                      TLV Type       Extension Type         Value
 ------------              ------------   --------------         -----
-None                      ADDRESS_TYPE   0                      ADDRTYPE_TARGADDR
+None                      ADDRESS_TYPE   0                      ADDRTYPE_TARGPREFIX
 TargSeqNum                SEQ_NUM        0                      Sequence number of RREP_Gen, the router which created the RREP.
-TargMetric \/MetricType   PATH_METRIC    MetricType             Metric value for the route to TargAddr, using MetricType.
-ValidityTime              VALIDITY_TIME  0                      ValidityTime for route to TargAddr, represented as detailed in [](#RFC5497).
+TargMetric \/MetricType   PATH_METRIC    MetricType             Metric value for the route to TargPrefix, using MetricType.
+ValidityTime              VALIDITY_TIME  0                      ValidityTime for route to TargPrefix, represented as detailed in [](#RFC5497).
 
 
 #### Address Block TLVs for AckReq Intended Recipient Address
@@ -1941,8 +1912,8 @@ All implementations MUST use these values.
 
 Address Type            Value
 ------------            -----
-ORIGADDR                0
-TARGADDR                1
+ORIGPREFIX              0
+TARGPREFIX              1
 UNREACHABLE             2
 PKTSOURCE               3
 INTEND                  4
@@ -2001,7 +1972,7 @@ Threats to AODVv2 which reduce availability are considered below.
 ### Denial of Service {#security-availability-dos}
 
 Flooding attacks using RREQ amount to a (BLIND) denial of service for route discovery: By issuing RREQ messages for targets that don't exist, an attacker can flood the network, blocking resources and drowning out legitimate traffic. The effect of this attack is dampened by the
-fact that duplicate RREQ messages are dropped (preventing the network from DDoSing itself). Processing requirements for AODVv2 messages are typically quite small, however AODVv2 routers receiving RREQs do allocate resources in the form of Neighbor Set, Local Route Set and Multicast Route Message Set entries. The attacker can maximize their impact on set growth by changing OrigAddr for each RREQ. If a specific node is to be targeted, this attack may be carried out in a DISTRIBUTED fashion, either by compromising its direct neighbors or by specifying the target's address as TargAddr.
+fact that duplicate RREQ messages are dropped (preventing the network from DDoSing itself). Processing requirements for AODVv2 messages are typically quite small, however AODVv2 routers receiving RREQs do allocate resources in the form of Neighbor Set, Local Route Set and Multicast Route Message Set entries. The attacker can maximize their impact on set growth by changing OrigPrefix or OrigPrefixLen for each RREQ. If a specific node is to be targeted, this attack may be carried out in a DISTRIBUTED fashion, either by compromising its direct neighbors or by specifying the target's address with TargPrefix and TargPrefixLen.
 Note that it might be more economical for the attacker to simply jam the medium; an attack which AODVv2 cannot defend itself against.
 
 Mitigation:
@@ -2109,14 +2080,14 @@ Valid route set entries can be replaced or modified by maliciously constructed A
 existing routes and the network's integrity. Any router may pose as another router by sending RREQ, RREP,
 RREP_Ack and RERR messages in its name.
 
-*  Sending an RREQ message with false information can disrupt traffic to OrigAddr, if the sequence
-    number attached is not stale compared to any existing information about OrigAddr. Since RREQ
+*  Sending an RREQ message with false information can disrupt traffic to OrigPrefix, if the sequence
+    number attached is not stale compared to any existing information about OrigPrefix. Since RREQ
     is multicast and likely to be received by all routers in the ad hoc network, this threat
-    could have serious impact on applications communicating with OrigAddr. The actual threat
-    to disrupt routes to OrigAddr is reduced by the AODVv2 mechanism of marking RREQ-derived
+    could have serious impact on applications communicating with OrigPrefix. The actual threat
+    to disrupt routes to OrigPrefix is reduced by the AODVv2 mechanism of marking RREQ-derived
     routes as "Unconfirmed" until the link to the next hop is confirmed.
 
-*  Sending an RREP message with false information can disrupt traffic to TargAddr. Since RREP
+*  Sending an RREP message with false information can disrupt traffic to TargPrefix. Since RREP
     is unicast, and ignored if a corresponding RREQ was not recently sent, this threat is minimized,
     and is restricted to receivers along the path from OrigAddr to TargAddr.
 
@@ -2260,7 +2231,7 @@ is deployed etc)
 
 #### RREQ Generation and Reception {#security-protection-application-rreq}
 
-Since OrigAddr is included in the RREQ, the ICV can be calculated and verified using all
+Since OrigPrefix is included in the RREQ, the ICV can be calculated and verified using all
 of the message contents. This provides message integrity and endpoint authentication,
 because trusted routers MUST hold the shared key in order to calculate the ICV value.
 The ICV TLV has type extension := 1.
@@ -2270,7 +2241,7 @@ already afforded and no extra timestamp mechanism is required.
 
 #### RREP Generation and Reception {#security-protection-application-rrep}
 
-Since TargAddr is included in the RREP, the ICV can be calculated and verified using all
+Since TargPrefix is included in the RREP, the ICV can be calculated and verified using all
 of the message contents. This provides message integrity and endpoint authentication,
 because trusted routers MUST hold the shared key in order to calculate the ICV value.
 The ICV TLV has type extension := 1.
