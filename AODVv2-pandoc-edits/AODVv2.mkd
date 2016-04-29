@@ -1479,7 +1479,7 @@ with the relevant addresses in the Address Block.
 Each address included in the Address Block is identified as OrigPrefix, TargPrefix, PktSource, or
 Unreachable Address by including an ADDRESS_TYPE TLV in the Address Block TLV Block.
 
-The following sections show how AODVv2 data is represented in [](#RFC5444) messages. AODVv2 defines (in [](#IANA)) a number of new TLVs.
+The following sections show how AODVv2 data is represented in [](#RFC5444) messages. AODVv2 defines (in [](#addrtlvspec)) a number of new TLVs.
 
 <!-- Deleted / Issue #28 - - >
   <t> When multiple messages are aggregated into a single packet according
@@ -1808,7 +1808,7 @@ ENABLE_IDLE_IN_RERR        Disabled              [](#RERR_gen)
 
 ## MetricType Allocation  {#metric-type}
 
-The metric types used by AODVv2 are identified according to a new table to be created and maintained by IANA.  All implementations MUST use these values.
+The metric types used by AODVv2 are identified according to [](#metric-tbl).  All implementations MUST use these values.
 
 
 Name of MetricType        Type                     Metric Value Size
@@ -1820,41 +1820,35 @@ Reserved                  255                      Undefined
 
 ^[metric-tbl::AODVv2 Metric Types]
 
+## RFC 5444 Message Type Allocation {#msgtype}
 
-# IANA Considerations  {#IANA}
-
-This section specifies several [](#RFC5444) message types and address tlv-types required
-for AODVv2.
-
-## RFC 5444 Message Types  {#msgtype}
-
-This specification defines four Message Types, to be allocated from the 0-223 range of
-the "Message Types" namespace defined in [](#RFC5444), as specified in [](#msgtypes).
+This specification defines four Message Types, to be allocated from the Experimental range of the "Message Types" namespace defined in [](#RFC5444), as specified in [](#msgtypes).
 
 Name of Message                        Type
 ------------------------               ------
-Route Request (RREQ)                   10 (TBD)
-Route Reply (RREP)                     11 (TBD)
-Route Error (RERR)                     12 (TBD)
-Route Reply Acknowledgement (RREP_Ack) 13 (TBD)
+Route Request (RREQ)                   224
+Route Reply (RREP)                     225
+Route Error (RERR)                     226
+Route Reply Acknowledgement (RREP_Ack) 227
 
 ^[msgtypes::AODVv2 Message Types]
 
+If the AODVv2 experiment proves to be successful, types from the 0-223 range can be allocated in the future.
 
-## RFC 5444 Address Block TLV Types  {#addrtlvspec}
+## RFC 5444 Address Block TLV Type Allocation {#addrtlvspec}
 
-This specification defines three Address Block TLV Types, to be allocated from the
+This specification defines three Address Block TLV Types, to be allocated from the Message-Type-specific  
 "Address Block TLV Types" namespace defined in [](#RFC5444), as specified in [](#addrtlvtypes).
 
 ----------------------------------------------------------------------
 Name of TLV                   Type      Length (octets) Reference
 --------------------------    --------  ----------      --------------
-PATH_METRIC                   11 (TBD)  depends on      [](#aodv_msgs)
+PATH_METRIC                   128 (TBD)  depends on      [](#aodv_msgs)
                                         MetricType
 
-SEQ_NUM                       12 (TBD)  2               [](#aodv_msgs)
+SEQ_NUM                       129 (TBD)  2               [](#aodv_msgs)
 
-ADDRESS_TYPE                  13 (TBD)  1               [](#represent)
+ADDRESS_TYPE                  130 (TBD)  1               [](#represent)
 ----------------------------------------------------------------------
 ^[addrtlvtypes::AODVv2 Address Block TLV Types]
 
@@ -1873,6 +1867,10 @@ INTEND                  4
 UNSPECIFIED             255
 
 ^[addrtype-tbl::AODVv2 Address Types]
+
+# IANA Considerations  {#IANA}
+
+This document has no IANA actions.
 
 # Security Considerations  {#Security}
 
