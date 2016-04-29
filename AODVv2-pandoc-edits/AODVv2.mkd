@@ -219,7 +219,22 @@ one time.
 The routing algorithm in AODVv2 MAY be operated at layers other than the network layer, using layer-appropriate addresses.
 
 
+# Purpose of the Experiment
 
+<!-- 2) The motivation and experiments to be conducted need to be elaborated. It's even necessary to have a separate section/subsection for it. Some experiment points that come to my mind without much thinking: support of multiple interfaces, support of gateways, use of different metrics, the security model, etc.. -->
+
+AODVv2 is an Experimental protocol. While it is based on AODV [](#RFC3561), important protocol mechanisms have changed:
+Bidirectionality is endsured using a new mechanism, alternate metrics may be used to determine route quality, redundant messages are suppressed, support for multiple interfaces and a new security model allowing end to end integrity checks has been added and a new message format ([](#RFC5444)) is used.
+Many of these changes have been made quite recently, after a protocol development hiatus of several years.
+
+Thus, the purpose of the experiment is to gain information on the behavior of these significant changes in real-world deployments, not only to learn about AODVv2 in particular, but also to further the knowledge base of reactive protocols in general.
+
+The final goal of the experiment is to determine if sufficient demand
+exists for the AODVv2 protocol to prompt an effort to bring the
+protocol to Standards Track.
+
+
+<!-- TODO: Because RFC 3561 has already been experimented for 13 years, as its version 2, AODVv2 should summarize what kind of experiences have been obtained in the past 13 years, and justify the design choices made in the current draft (like use of RFC5444, removing some of the features, etc)-->
 
 # Data Structures
 
