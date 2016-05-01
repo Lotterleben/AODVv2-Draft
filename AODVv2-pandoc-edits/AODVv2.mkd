@@ -415,7 +415,7 @@ RteMsg.TargPrefix
 RteMsg.OrigSeqNum
 :   <vspace/>The sequence number associated with the route to OrigPrefix, if RteMsg is an RREQ.
 RteMsg.TargSeqNum
-:   <vspace/>The sequence number associated with the route to TargPrefix, if RteMsg is an RREP.
+:   <vspace/>The sequence number associated with the route to TargPrefix.
 RteMsg.MetricType
 :   <vspace/>The metric type of the route requested.
 RteMsg.Metric
@@ -1103,8 +1103,6 @@ The procedure for RREQ forwarding is as follows:
 
 1.  Set msg_hop_limit := received msg_hop_limit - 1
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
-1.  Set AddressList, PrefixLengthList, sequence numbers and MetricType to the values in the
-    received RREQ
 1.  Set OrigMetric := LocalRoute[OrigPrefix].Metric
 
 This modified message is handed to the [](#RFC5444) multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  However, the forwarded RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.
@@ -1262,18 +1260,6 @@ The RREP_Ack request MUST be sent unicast to the LocalRoute[OrigPrefix].NextHop 
 The Neighbor Set entry for LocalRoute[OrigPrefix].NextHop MUST also be updated to indicate that an RREP_Ack is required (see [](#nbrupdate)).
 
 <!-- old idea: Include the SeqNum := TargAddr's SeqNum from the RREP.  -->
-
-
-### RREP_Ack Generation  {#RREP_Ack_gen}
-
-An RREP_Ack MUST be generated if a received Route Reply includes an AckReq with an address matching
-one of the receiving router's IP addresses. The RREP_Ack SHOULD NOT be generated if the limit for the rate of AODVv2
-control message generation has been reached.
-
-There is no further data in an RREP_Ack. The [](#RFC5444) representation is discussed in [](#represent).
-The RREP_Ack is unicast, by default, to the source IP address of the RREP message that requested it. It MUST be sent over the same interface on which the RREP that triggered it was received.
-
-<!-- Include the SeqNum := TargAddr's SeqNum from the RREP.  -->
 
 ### RREP_Ack Reception  {#RREP_Ack_rcv}
 
@@ -1540,7 +1526,7 @@ sections show the TLVs that apply to each address.
 
 Data                     TLV Type       Extension Type  Value
 ------------             ------------   --------------  -----
-None                     ADDRESS_TYPE   0               ADDRTYPE_ORIGPREFIX
+None                     ADDRESS_TYPE   0               ORIGPREFIX
 OrigSeqNum               SEQ_NUM        0               Sequence number of RREQ_Gen, the router which initiated route discovery.
 OrigMetric \/MetricType  PATH_METRIC    MetricType      Metric value for the route to OrigPrefix, using MetricType.
 
@@ -1548,7 +1534,7 @@ OrigMetric \/MetricType  PATH_METRIC    MetricType      Metric value for the rou
 
 Data                     TLV Type       Extension Type  Value
 ------------             ------------   --------------  -----
-None                     ADDRESS_TYPE   0               ADDRTYPE_TARGPREFIX
+None                     ADDRESS_TYPE   0               TARGPREFIX
 TargSeqNum               SEQ_NUM        0               The last known TargSeqNum for TargPrefix.
 
 ## Route Reply Message Representation
@@ -1582,13 +1568,13 @@ sections show the TLVs that apply to each address.
 
 Data                     TLV Type       Extension Type        Value
 ------------             ------------   --------------        -----
-None                     ADDRESS_TYPE   0                     ADDRTYPE_ORIGPREFIX
+None                     ADDRESS_TYPE   0                     ORIGPREFIX
 
 #### Address Block TLVs for TargPrefix
 
 Data                      TLV Type       Extension Type         Value
 ------------              ------------   --------------         -----
-None                      ADDRESS_TYPE   0                      ADDRTYPE_TARGPREFIX
+None                      ADDRESS_TYPE   0                      TARGPREFIX
 TargSeqNum                SEQ_NUM        0                      Sequence number of RREP_Gen, the router which created the RREP.
 TargMetric \/MetricType   PATH_METRIC    MetricType             Metric value for the route to TargPrefix, using MetricType.
 
@@ -1655,13 +1641,13 @@ sections show the TLVs that apply to each type of address in the RERR.
 
 Data           TLV Type      Extension Type Value
 ------------   --------      -------------- -----
-PktSource      ADDRESS_TYPE  0              ADDRTYPE_PKTSOURCE
+PktSource      ADDRESS_TYPE  0              PKTSOURCE
 
 #### Address Block TLVs for Unreachable Addresses
 
 Data                      TLV Type     Extension Type Value
 ------------              --------     -------------- -----
-None                      ADDRESS_TYPE 0              ADDRTYPE_UNREACHABLE
+None                      ADDRESS_TYPE 0              UNREACHABLE
 SeqNumList                SEQ_NUM      0              Sequence number associated with invalid route to the unreachable address.
 MetricTypeList            PATH_METRIC  MetricType     None. Extension Type set to MetricType of the route to the unreachable address.
 
