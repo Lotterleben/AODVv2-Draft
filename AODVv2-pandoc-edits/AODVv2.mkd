@@ -568,10 +568,14 @@ A new Neighbor Set entry is created as follows:
 * Neighbor.Timeout := INFINITY_TIME
 * Neighbor.Interface := Interface on which the RREQ or RREP was received. MUST equal Interface.Id of one of the entries in the InterfaceSet (see [](#interfaceslist)).
 
-If the message is one of the following:
+When an RREP_Ack is sent to a neighbor, the Neighbor Set entry is updated as follows:
+
+* Neighbor.Timeout := CurrentTime + RREP_Ack_SENT_TIMEOUT
+
+When a received message is one of the following:
 
 * an RREP which answers an RREQ sent within RREQ_WAIT_TIME over the same interface as Neighbor.Interface <!-- TODO? also check if it matches an existing unconfirmed route -->
-* an RREP_Ack response received from a Neighbor with Neighbor.State set to Unknown, where Neighbor.Timeout > CurrentTime + RREP_Ack_SENT_TIMEOUT
+* an RREP_Ack response received from a Neighbor with Neighbor.State set to Unknown, where Neighbor.Timeout > CurrentTime
 
 the link to the neighbor is bidirectional and the Neighbor Set entry is updated as follows:
 
