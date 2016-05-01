@@ -68,8 +68,8 @@ uses terminology from [](#RFC5444), and defines the following terms:
 AddressList
 :   <vspace/>A list of IP addresses as used in AODVv2 messages.
 AckReq
-:   <vspace/>Used in a Route Reply message to indicate the IP address of the router from which a Route Reply Acknowledgement
-    is expected.
+:   <vspace/>Used in a Route Reply Acknowledgement message to indicate that a Route Reply Acknowledgement
+    is expected in return.
 AdvRte
 :   <vspace/>A route advertised in an incoming route message.
 AODVv2 Router
@@ -233,7 +233,7 @@ Suitable future experiments could be:
 
 * Evaluation of the new features mentioned above with regard to performance and functionality
 * Evaluation of different metrics and their suitability for reactive distance vector protocols
-
+* 
 
 The final goal of the experiment is to determine if sufficient demand
 exists for the AODVv2 protocol to prompt an effort to bring the
@@ -294,10 +294,13 @@ Neighbor.State
     and Blacklisted. Unknown is the initial state. Confirmed indicates that the link to the neighbor has been confirmed as
     bidirectional. Blacklisted indicates that the link to the neighbor is uni-directional. [](#nexthopmonitoring) discusses
     how to monitor link bidirectionality.
-Neighbor.ResetTime
-:   <vspace/>When the value of Neighbor.State is Blacklisted, this indicates the time at which the value of Neighbor.State
-    will revert to Unknown. By default this value is calculated at the time the router is blacklisted and is equal to CurrentTime +
-    MAX_BLACKLIST_TIME. When the value of Neighbor.State is not Blacklisted, this time is set to INFINITY_TIME.
+Neighbor.Timeout
+:   <vspace/>Indicates at which time the Neighbor.State should be updated:
+
+* If the value of Neighbor.State is Blacklisted, this indicates the time at which Neighbor.State will revert to Unknown. By default this value is calculated at the time the router is blacklisted and is equal to CurrentTime + MAX_BLACKLIST_TIME. 
+* If Neighbor.State is unknown, and an RREP_Ack has been requested from the neighbor, it indicates the time at which Neighbor.State will be set to Blacklisted, if an RREP_Ack has not been received. 
+* If the value of Neighbor.State is Unknown and no RREP_Ack has been requested, or if Neighbor.State is Confirmed, this time is set to INFINITY_TIME.
+
 Neighbor.Interface
 :   <vspace/>The interface on which the link to the neighbor was established.
 
@@ -395,10 +398,7 @@ the decision of which of these routes to install in the Routing Information Base
 
 ## Multicast Route Message Set  {#rtemsgtable}
 
-A route message (RteMsg) is either a Route Request or Route Reply message. RREQ messages are multicast by default and forwarded
-multiple times, and RREP messages will be multicast when the link to the next router is not known to be bidirectional. Multiple similar
-route messages might be received by any one router during one route discovery attempt. The AODVv2 router does not need to forward or respond to every
-one of these messages.
+Route Request (RREQ) messages are multicast by default and forwarded multiple times. This set stores recently received RREQs in order that received RREQs can be tested for redundancy to avoid unnecessary processing and forwarding.
 
 The Multicast Route Message Set is a conceptual set which contains information about previously received multicast route messages, so that
 incoming route messages can be compared with previously received messages to determine if the incoming information is redundant or stale, and the router can
@@ -406,16 +406,12 @@ avoid sending redundant control traffic.
 
 Multicast Route Message Set entries MUST contain the following information:
 
-RteMsg.MessageType
-:   <vspace/>Either RREQ or RREP.
 RteMsg.OrigPrefix
 :   <vspace/>The prefix associated with OrigAddr, the source address of the IP packet triggering the route request.
 RteMsg.OrigPrefixLen
 :   <vspace/>The prefix length associated with RteMsg.OrigPrefix, originally from the Router Client entry on RREQ_Gen which includes OrigAddr.
 RteMsg.TargPrefix
 :   <vspace/>The prefix associated with TargAddr, the destination address of the IP packet triggering the route request. In an RREQ this MUST be set to TargAddr.
-RteMsg.TargPrefixLen
-:   <vspace/>The prefix length associated with RteMsg.TargPrefix, originally from the Router Client entry on RREP_Gen which includes TargAddr. If RteMsg is an RREQ, RteMsg.TargPrefixLen MUST equal address length.
 RteMsg.OrigSeqNum
 :   <vspace/>The sequence number associated with the route to OrigPrefix, if RteMsg is an RREQ.
 RteMsg.TargSeqNum
@@ -428,15 +424,11 @@ RteMsg.Timestamp
 :   <vspace/>The last time this Multicast Route Message Set entry was updated.
 RteMsg.RemoveTime
 :   <vspace/>The time at which this entry MUST be removed from the Multicast Route Message Set. This is set
-    to CurrentTime + MAX_SEQNUM_LIFETIME, whenever the sequence number of this entry (RteMsg.OrigSeqNum for an
-    RREQ, or RteMsg.TargSeqNum for an RREP) is updated.
-RteMsg.AckReqAddr
-:   <vspace/>The address from which an RREP_Ack is expected, if RteMsg is an RREP that contains an AckReq.
+    to CurrentTime + MAX_SEQNUM_LIFETIME, whenever the RteMsg.OrigSeqNum of this entry is updated.
 RteMsg.Interface
 :   <vspace/>The interface on which the message was received.
 
-The Multicast Route Message Set is maintained so that no two entries have the same MessageType, OrigPrefix, OrigPrefixLen, TargPrefix, TargPrefixLen, and MetricType. See [](#suppress) for details about updating this set.
-
+The Multicast Route Message Set is maintained so that no two entries have the same OrigPrefix, OrigPrefixLen, TargPrefix, and MetricType. See [](#suppress) for details about updating this set.
 
 ## Route Error (RERR) Set  {#rerrtable}
 
@@ -532,8 +524,7 @@ a different route can be discovered. Further, a route is not to be used for forw
 hop is confirmed. AODVv2 routers do not need to monitor bidirectionality for links to neighboring routers which are not used as next hops
 on routes in the Local Route Set.
 
-*  Bidirectional connectivity to upstream routers is tested by
-   requesting acknowledgement of RREP messages by including an AckReq, which MUST be answered by sending an RREP_Ack. Receipt of an RREP_Ack within RREP_Ack_SENT_TIMEOUT proves that bidirectional connectivity exists. Otherwise, a link is determined to be unidirectional. All AODVv2 routers MUST support this process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs).
+*  Bidirectional connectivity to upstream routers is tested by requesting acknowledgement of RREP messages by also sending an RREP_Ack, including an AckReq element to indicate that an acknowledgement is requested. This MUST be answered by sending an RREP_Ack in response. Receipt of an RREP_Ack within RREP_Ack_SENT_TIMEOUT proves that bidirectional connectivity exists. Otherwise, a link is determined to be unidirectional. All AODVv2 routers MUST support this process, which is explained in [](#RREP_msgs) and [](#rrep_ack_msgs).
 *  For the downstream router, receipt of an RREP message
    containing the route to TargAddr is confirmation of bidirectionality , since an RREP message is a reply to a RREQ message which previously crossed the link in the opposite direction.
 
@@ -574,39 +565,32 @@ A new Neighbor Set entry is created as follows:
 
 * Neighbor.IPAddress := Source IP address of the received route message
 * Neighbor.State := Unknown
-* Neighbor.ResetTime := INFINITY_TIME
+* Neighbor.Timeout := INFINITY_TIME
 * Neighbor.Interface := Interface on which the RREQ or RREP was received. MUST equal Interface.Id of one of the entries in the InterfaceSet (see [](#interfaceslist)).
 
 If the message is one of the following:
 
 * an RREP which answers an RREQ sent within RREQ_WAIT_TIME over the same interface as Neighbor.Interface <!-- TODO? also check if it matches an existing unconfirmed route -->
-* an RREP_Ack which answers an RREP sent within RREP_Ack_SENT_TIMEOUT over the same interface as Neighbor.Interface
+* an RREP_Ack response received from a Neighbor with Neighbor.State set to Unknown, where Neighbor.Timeout > CurrentTime + RREP_Ack_SENT_TIMEOUT
 
 the link to the neighbor is bidirectional and the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Confirmed <!-- could set reset time when set state to confirmed, to re-test after certain time -->
-* Neighbor.ResetTime := INFINITY_TIME
+* Neighbor.Timeout := INFINITY_TIME
 
-If the Multicast Route Message Set contains an entry where:
-
-* RteMsg.MessageType == RREP
-* RteMsg.AckReqAddr == Neighbor.IPAddress
-* RteMsg.Interface == Neighbor.Interface
-* RteMsg.Timestamp + RREP_Ack_SENT_TIMEOUT < CurrentTime
-
-the link is considered to be uni-directional and the Neighbor Set entry is updated as follows:
+When the Neighbor.Timeout is reached and Neighbor.State is Unknown, then an RREP_Ack response has not been received from the neighbor within RREP_Ack_SENT_TIMEOUT of sending the RREP_Ack request. The link is considered to be uni-directional and the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Blacklisted
-* Neighbor.ResetTime := CurrentTime + MAX_BLACKLIST_TIME
+* Neighbor.Timeout := CurrentTime + MAX_BLACKLIST_TIME
 
-When the Neighbor.ResetTime is reached, the Neighbor Set entry is updated as follows:
+When the Neighbor.Timeout is reached and Neighbor.State is Blacklisted, the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Unknown
 
 If an external mechanism reports a link as broken, the Neighbor Set entry SHOULD be removed.
 
 Route requests from neighbors with Neighbor.State set to Blacklisted are ignored to avoid persistent IP packet
-loss or protocol failures. Neighbor.ResetTime allows the neighbor to again be allowed to participate in route discoveries after MAX_BLACKLIST_TIME, in case the link between the routers has become bidirectional.
+loss or protocol failures. Neighbor.Timeout allows the neighbor to again be allowed to participate in route discoveries after MAX_BLACKLIST_TIME, in case the link between the routers has become bidirectional.
 
 
 ## Interaction with the Forwarding Plane {#fwdplane}
@@ -676,7 +660,7 @@ To implement the congestion control, a queue length is set. If the queue is full
 ## Route Discovery, Retries and Buffering  {#route_discovery}
 
 AODVv2's RREQ and RREP messages are used for route discovery. RREQ messages are multicast to solicit an RREP, whereas
-RREP are unicast where possible. The constants used in this section are defined in [](#param).
+RREP are unicast. The constants used in this section are defined in [](#param).
 
 When an AODVv2 router needs to forward an IP packet (with source address OrigAddr and destination address TargAddr) from
 one of its Router Clients, it needs a route to TargAddr in its Routing Information Base. If no route exists,
@@ -695,7 +679,7 @@ Buffering of IP packets might have both positive and negative effects. Real-time
 buffered and subjected to delays, but TCP connection establishment will benefit if packets are queued while route discovery is performed [](#Koodli01).
 Recommendations for appropriate buffer methods are out of scope for this specification. Determining which packets to discard first when the buffer is full is a matter of policy at each AODVv2 router. Note that using different or no buffer methods does not affect interoperability.
 
-RREQ_Gen awaits reception of a Route Reply message (RREP) containing a route toward TargAddr. This can be achieved by monitoring the entry in the Multicast Route Message Table that corresponds to the generated RREP. When CurrentTime exceeds RteMsg.Timestamp + RREQ_WAIT_TIME and no RREP has been received, RREQ_Gen will retry the route discovery.
+RREQ_Gen awaits reception of a Route Reply message (RREP) containing a route toward TargAddr. This can be achieved by monitoring the entry in the Multicast Route Message Table that corresponds to the generated RREQ. When CurrentTime exceeds RteMsg.Timestamp + RREQ_WAIT_TIME and no RREP has been received, RREQ_Gen will retry the route discovery.
 
 To reduce congestion in a network, repeated attempts at route discovery for a particular target address utilize a binary exponential backoff: for each additional attempt, the time to wait for receipt of the RREP is
 multiplied by 2. If the requested route is not learned within the wait period, another RREQ is sent, up to a total of DISCOVERY_ATTEMPTS_MAX.
@@ -782,7 +766,7 @@ For information on how to apply these changes to the Routing Information Base, s
 
 After determining that AdvRte is to be used to update the Local Route Set (as described in [](#test)), the following procedure applies.
 
-If AdvRte is learned from an RREQ message, the link to the next hop neighbor may not be confirmed as bidirectional (see [](#nbrlist)). The route will offer improvement to the Local Route Set if the neighbor can be confirmed. If there is no existing matching route, AdvRte allows a corresponding RREP to be sent. If a matching entry already exists, AdvRte offers potential improvement.
+If AdvRte is learned from an RREQ message, the link to the next hop neighbor may not be confirmed as bidirectional (see [](#nbrlist)). If there is no existing matching route in the Local Route Set, AdvRte MUST be installed to allow a corresponding RREP to be sent. If a matching entry already exists, AdvRte offers potential improvement, if the link to the neighbor can be confirmed as bidirectional.
 
 The route update is applied as follows:
 
@@ -834,7 +818,7 @@ The route update is applied as follows:
 If this update to the Local Route Set results in two LocalRoutes to the same address, the best LocalRoute will be
 Unconfirmed. In order to improve the route used for forwarding, the router SHOULD try to determine if the link to the
 next hop of that LocalRoute is bidirectional, by using that LocalRoute to forward future RREPs and request acknowledgements
-(see [](#RREP_gen)).
+(see [](#RREP_gen) and [](#rrep_ack_msgs).
 
 
 ## Suppressing Redundant Messages Using the Multicast Route Message Set  {#suppress}
@@ -855,12 +839,11 @@ redundant, forwarding or response can be avoided.
 
 To determine if a received message is redundant:
 
-1.  Search for an entry in the Multicast Route Message Set with the same MessageType, OrigPrefix, OrigPrefixLen, TargPrefix, TargPrefixLen, Interface and MetricType
+1.  Search for an entry in the Multicast Route Message Set with the same OrigPrefix, OrigPrefixLen, TargPrefix, Interface and MetricType
     *   If there is no entry, the message is not redundant.
     *   If there is an entry, continue to Step 2.
 2.  Compare sequence numbers using the technique described in [](#seqnum)
-    *   For RREQ messages, use OrigSeqNum of the entry for comparison. For RREP messages, use TargSeqNum of
-        the entry for comparison.
+    *   Use OrigSeqNum of the entry for comparison.
     *   If the entry has an older sequence number than the received message, the message is not redundant.
     *   If the entry has a newer sequence number than the received message, the message is redundant.
     *   If the entry has the same sequence number, continue to Step 3.
@@ -878,14 +861,12 @@ If the message is not redundant, create an entry or update the existing entry.
 
 To update a Multicast Route Message Set entry, set:
 
-* RteMsg.MessageType := the message type of the received message
 * RteMsg.OrigPrefix := OrigPrefix from the message
 * RteMsg.OrigPrefixLen := the prefix length associated with OrigPrefix
 * RteMsg.TargPrefix := TargPrefix from the message
-* RteMsg.TargPrefixLen := the prefix length associated with TargPrefix
 * RteMsg.OrigSeqNum := the sequence number associated with OrigPrefix, if present in the received message
 * RteMsg.TargSeqNum := the sequence number associated with TargPrefix, if present in the received message
-* RteMsg.Metric := the metric value associated with OrigPrefix in a received RREQ or TargPrefix in a received RREP
+* RteMsg.Metric := the metric value associated with OrigPrefix in a received RREQ.
 * RteMsg.MetricType := the metric type associated with RteMsg.Metric
 * RteMsg.Timestamp := CurrentTime
 * RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
@@ -1076,6 +1057,7 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
 1.  Set OrigMetric := RouterClient.Cost for the Router Client entry which includes OrigAddr
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET- Routers on all interfaces configured for AODVv2 operation.
+The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
 <!-- CEP: Issue # to be generated for moving DestOnly to the irrep draft...
   <t>If RREQ_Gen requires that only the router providing connectivity
@@ -1105,7 +1087,7 @@ Upon receiving a Route Request, an AODVv2 router performs the following steps:
 1.  Process the route to OrigPrefix as specified in [](#processingrte)
 1.  Check if the information in the message is redundant by comparing to entries in the Multicast Route Message Set, following the procedure in [](#suppress)
     *  If redundant, ignore this RREQ for further processing.
-    *  If not redundant, continue processing.
+    *  If not redundant, create a new entry in the Multicast Route Message Set and continue processing.
 1.  Check if the TargPrefix matches an entry in the Router Client Set
     *  If so, generate an RREP as specified in [](#RREP_gen).
     *  If not, continue to RREQ forwarding.
@@ -1125,7 +1107,7 @@ The procedure for RREQ forwarding is as follows:
     received RREQ
 1.  Set OrigMetric := LocalRoute[OrigPrefix].Metric
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  However, the forwarded RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.
+This modified message is handed to the [](#RFC5444) multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  However, the forwarded RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.
 
 
 ## Route Reply (RREP) Message  {#RREP_msgs}
@@ -1137,8 +1119,6 @@ RREP messages have the following contents:
 
     +-----------------------------------------------------------------+
     |                          msg_hop_limit                          |
-    +-----------------------------------------------------------------+
-    |                        AckReq (optional)                        |
     +-----------------------------------------------------------------+
     |                           AddressList                           |
     +-----------------------------------------------------------------+
@@ -1156,10 +1136,6 @@ RREP messages have the following contents:
 msg_hop_limit
 :   <vspace/>The remaining number of hops allowed for dissemination of the RREP
     message.
-AckReq
-:   <vspace/>The address of the intended next hop of the RREP. This is included when the
-    link to the next hop toward OrigPrefix is not known to be bidirectional. It indicates that an
-    acknowledgement of the RREP is requested by the sender from the intended next hop (see [](#nexthopmonitoring)).
 AddressList
 :   <vspace/>Contains OrigPrefix and TargPrefix, the prefixes of the source and destination addresses
     of the IP packet for which a route is requested.
@@ -1184,13 +1160,8 @@ RteMsg.TargPrefix matches an entry in the Router Client Set of the AODVv2 router
 Before creating an RREP, the router SHOULD check if the corresponding RREQ is redundant, i.e.,
 a Route Reply has already been generated in response to the RREQ, or if CONTROL_TRAFFIC_LIMIT has been reached. If so, the RREP SHOULD NOT be created.
 
-The RREP will follow the path of the route to OrigPrefix. If the best route to OrigPrefix in the Local
-Route Set is Unconfirmed, the link to the next hop neighbor is not yet confirmed as bidirectional (as described
-in [](#nexthopmonitoring)). In this case the RREP MUST include AckReq set to the intended
-next hop address. The AckReq indicates that an acknowledgement to the RREP is requested from the
-intended next hop router in the form of a Route Reply Acknowledgement (RREP_Ack). If the best route to OrigAddr
-in the Local Route Set is valid, the link to the next hop neighbor is already confirmed as bidirectional, and
-the AckReq can be omitted.
+The RREP will follow the path of the route to OrigPrefix. If the best route to OrigPrefix in the Local Route Set is Unconfirmed, the link to the next hop neighbor is not yet confirmed as bidirectional (as described in [](#nexthopmonitoring)). In this case an RREP_Ack MUST also be sent as described in [](#rrep_ack_msgs), in order to request an acknowledgement message from the next hop router to prove that the link is bidirectional. If the best route to OrigPrefix
+in the Local Route Set is valid, the link to the next hop neighbor is already confirmed as bidirectional, and no acknowledgement is required.
 
 Implementations MAY allow a number of retries of the RREP if a requested acknowledgement is not received within
 RREP_Ack_SENT_TIMEOUT, doubling the timeout with each retry, up to a maximum of RREP_RETRIES, using
@@ -1200,8 +1171,6 @@ MUST be considered to have failed after the wait time for an RREP_Ack response t
 To generate the RREP, the router (also referred to as RREP_Gen) follows this procedure:
 
 1.  Set msg_hop_limit := MAX_HOPCOUNT - msg_hop_limit from the received RREQ message
-1.  If the link to the next hop router toward OrigPrefix is not known to
-    be bidirectional, <!-- TODO: define what that means?-->include the AckReq with the address of the intended next hop router (see [](#rrep_addrblk))
 1.  Set Address List := {OrigPrefix, TargPrefix}
 1.  For the PrefixLengthList:
     *  If TargAddr is part of an address range configured as a Router Client, set PrefixLengthList :=
@@ -1213,8 +1182,7 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
 1.  Include MetricType and set the type to match the MetricType in the received RREQ message
 1.  Set TargMetric := RouterClient.Cost for the Router Client entry which includes TargAddr
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigPrefix].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over the same interface on which the RREQ that triggered it was received.
-
+This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. The multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
 ### RREP Reception  {#RREP_rcv}
 
@@ -1232,9 +1200,6 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 1.  Verify that the cost of the advertised route does not exceed the maximum allowed metric
     value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
     *  If it does, ignore this RREP for further processing.
-1.  If the AckReq is present, check the intended recipient of the received RREP:
-    *  If there is an entry in the Router Client Set where RouterClient.IPAddress matches the address associated with the AckReq (see [](#rrep_addrblk)), the receiving router is the intended recipient. Send an acknowledgement as specified in [](#rrep_ack_msgs) and continue processing.
-    *  Otherwise, ignore this RREP for further processing.
 1.  Process the route to TargPrefix as specified in [](#processingrte)
 1.  Check if the message is redundant by comparing to entries in the Multicast Route Message Set ([](#suppress))
     *  If redundant, ignore this RREP for further processing.
@@ -1260,25 +1225,43 @@ The procedure for RREP forwarding is as follows:
 
 1.  Set msg_hop_limit := received msg_hop_limit - 1
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
-1.  If the link to the next hop router toward OrigPrefix is not known to be bidirectional, include the
-    AckReq with the address of the intended next hop router
-1.  Set AddressList, PrefixLengthList, TargSeqNum and MetricType to the values in the
-    received RREP
 1.  Set TargMetric := LocalRoute[TargPrefix].Metric
 
-This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. If the Neighbor Set contains an entry for the neighbor stored as LocalRoute[OrigPrefix].NextHop, with Neighbor.State set to Confirmed, the multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. Otherwise, it multicasts the RREP to LL-MANET-Routers. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
+This modified message is handed to the [](#RFC5444) multiplexer for further processing. The multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
 
 ## Route Reply Acknowledgement (RREP_Ack) Message  {#rrep_ack_msgs}
 
-The Route Reply Acknowledgement is a response to a Route Reply message. When the RREP_Ack message is received by the
+The Route Reply Acknowledgement is used as both a request and a response message to test bidirectionality of a link over which a Route Reply has also been sent. The router which forwards the RREP MUST send a Route Reply Acknowledgement message to the intended next hop, if the link to the next hop neighbor is not yet confirmed as bidirectional. 
+
+The receiving router MUST then reply with a Route Reply Acknowledgement response message.
+
+When the Route Reply Acknowledgement response message is received by the
 sender of the RREP, it confirms that the link between the two routers is bidirectional (see [](#nexthopmonitoring)).
-The RREP_Ack has no further data.
+
+If the Route Reply Acknowledgement is not received within RREP_Ack_SENT_TIMEOUT, the link is determined to be unidirectional.
 
 
-<!-- TargSeqNum
-     <vspace/> TargSeqNum as seen in the RREP, to allow matching with the RREP at the router
-     requesting the acknowledgement. -->
+    +-----------------------------------------------------------------+
+    |                        AckReq (optional)                        |
+    +-----------------------------------------------------------------+
+
+^[figRREP::RREP_Ack message contents]
+
+### RREP_Ack Request Generation  {#RREP_Ack_gen}
+
+An RREP_Ack MUST be generated if a Route Reply is sent over a link which is not known to be bidirectional. It includes an AckReq element to indicate that it is a request for acknowledgement. 
+
+The RREP_Ack SHOULD NOT be generated if the limit for the rate of AODVv2
+control message generation has been reached.
+
+The [](#RFC5444) representation of the RREP_Ack is discussed in [](#represent).
+
+The RREP_Ack request MUST be sent unicast to the LocalRoute[OrigPrefix].NextHop via LocalRoute[OrigPrefix].NextHopInterface. The multiplexer MAY be instructed to send the RREP_Ack in the same [](#RFC5444) packet as the RREP.
+
+The Neighbor Set entry for LocalRoute[OrigPrefix].NextHop MUST also be updated to indicate that an RREP_Ack is required (see [](#nbrupdate)).
+
+<!-- old idea: Include the SeqNum := TargAddr's SeqNum from the RREP.  -->
 
 
 ### RREP_Ack Generation  {#RREP_Ack_gen}
@@ -1296,23 +1279,32 @@ The RREP_Ack is unicast, by default, to the source IP address of the RREP messag
 
 Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
 
+1.   Check if an AckReq element is included:
+
+    * If so, create an RREP_Ack Response as described in [](#RREP_Ack_Resp). No further processing is required.
+    * If not, continue to step 2.
+
 1.   Check if the RREP_Ack was expected:
 
-    * Check if the Multicast Route Message Set contains an entry where:
-        * RteMsg.MessageType == RREP
-        * RteMsg.AckReqAddr matches the source IP address of the RREP_Ack
-        * RteMsg.Timestamp > CurrentTime - RREP_Ack_SENT_TIMEOUT
-        * RteMsg.Interface matches the interface on which the RREP_Ack was received
+    * Check if the Neighbor Set contains an entry where:
+        * Neighbor.IPAddress == IP.SourceAddress of the RREP_Ack message
+        * Neighbor.State == Unknown
+        * Neighbor.Timeout < CurrentTime
+        * Neighbor.Interface matches the interface on which the RREP_Ack was received
 
-     * If it does, the router cancels any associated timeouts and processing continues to Step 2.
+     * If it does, the router cancels any associated timeouts, and processing continues to Step 3.
      * Otherwise no actions are required and processing ends.
+
 1.   Update the Neighbor Set according to [](#nbrupdate)
 
-<!-- CEP: Need to define RREP_Ack_timeout.  To avoid handling extra
-     timeouts, should specify that the RREP_Ack_timeout is verified prior
-     to sending forwarding RREQs from that neighbor.
-     Actually, it would make sense to put the neighbor in the blacklist
-     immediately upon sending AckReq...  -->
+### RREP_Ack Response Generation {#RREP_Ack_Resp}
+
+An RREP_Ack response MUST be generated if a received RREP_Ack includes an AckReq. 
+
+The RREP_Ack response SHOULD NOT be generated if the limit for the rate of AODVv2 control message generation has been reached.
+
+There is no further data in an RREP_Ack response. The [](#RFC5444) representation is discussed in [](#represent).
+In this case, the multiplexer is instructed to unicast the RREP_Ack to the source IP address of the RREP_Ack message that requested it, over the same interface on which the RREP_Ack was received.
 
 ## Route Error (RERR) Message  {#RERR_msgs}
 
@@ -1574,17 +1566,13 @@ AODVv2 does not define any Message TLVs for an RREP message.
 
 ### Address Block {#rrep_addrblk}
 
-An RREP contains a minimum of two addresses, OrigPrefix and TargPrefix, and each address has an associated prefix length. If the prefix length
+An RREP contains two addresses, OrigPrefix and TargPrefix, and each address has an associated prefix length. If the prefix length
 has not been included in the AODVv2 message, it is equal to the address length in bits.
-
-It MAY also contain the address of the intended next hop, in order to request acknowledgement to confirm bidirectionality of the link, as described
-in [](#nexthopmonitoring). The prefix length associated with this address is equal to the address length in bits.
 
 Data                        Address Block
 -------------               ---------------
 OrigPrefix\/OrigPrefixLen   \<address\> + \<prefix-length\>
 TargPrefix\/TargPrefixLen   \<address\> + \<prefix-length\>
-AckReq                      \<address\> + \<prefix-length\>
 
 ### Address Block TLV Block
 Address Block TLVs are always associated with one or more addresses in the Address Block. The following
@@ -1604,13 +1592,6 @@ None                      ADDRESS_TYPE   0                      ADDRTYPE_TARGPRE
 TargSeqNum                SEQ_NUM        0                      Sequence number of RREP_Gen, the router which created the RREP.
 TargMetric \/MetricType   PATH_METRIC    MetricType             Metric value for the route to TargPrefix, using MetricType.
 
-
-#### Address Block TLVs for AckReq Intended Recipient Address
-
-Data                     TLV Type       Extension Type        Value
-------------             ------------   --------------        -----
-None                     ADDRESS_TYPE   0                     ADDRTYPE_INTEND
-
 ## Route Reply Acknowledgement Message Representation
 
 ### Message Header
@@ -1621,7 +1602,11 @@ None           \<msg-type\>       RREP_Ack
 
 ### Message TLV Block
 
-AODVv2 does not define any Message TLVs for an RREP_ack message.
+AODVv2 defines an AckReq Message TLV, included when an acknowledgement of this message is required, in order to monitor adjacency, as described in [](#nexthopmonitoring).
+
+Data                      TLV Type       Extension Type         Value
+------------              ------------   --------------         -----
+AckReq                    ACK_REQ        0                      None
 
 ### Address Block
 AODVv2 does not define an Address Block for an RREP_Ack message.
@@ -1856,6 +1841,17 @@ Route Reply Acknowledgement (RREP_Ack) 227
 
 If the AODVv2 experiment proves to be successful, types from the 0-223 range can be allocated in the future.
 
+## RFC 5444 Message TLV Types {#msgtlvspec}
+
+This specification defines one Message TLV Type, to be allocated from the Message-Type-specific "Message TLV Types" namespace defined in [](#RFC5444), as specified in [](#msgtlvtypes).
+
+----------------------------------------------------------------------
+Name of TLV                   Type      Length (octets) Reference
+--------------------------    --------  ----------      --------------
+ACK_REQ                       128 (TBD) 0               [](#nexthopmonitoring)
+----------------------------------------------------------------------
+^[msgtlvtypes::AODVv2 Message TLV Types]
+
 ## RFC 5444 Address Block TLV Type Allocation {#addrtlvspec}
 
 This specification defines three Address Block TLV Types, to be allocated from the Message-Type-specific  
@@ -1864,12 +1860,12 @@ This specification defines three Address Block TLV Types, to be allocated from t
 ----------------------------------------------------------------------
 Name of TLV                   Type      Length (octets) Reference
 --------------------------    --------  ----------      --------------
-PATH_METRIC                   128 (TBD)  depends on      [](#aodv_msgs)
+PATH_METRIC                   129 (TBD)  depends on      [](#aodv_msgs)
                                         MetricType
 
-SEQ_NUM                       129 (TBD)  2               [](#aodv_msgs)
+SEQ_NUM                       130 (TBD)  2               [](#aodv_msgs)
 
-ADDRESS_TYPE                  130 (TBD)  1               [](#represent)
+ADDRESS_TYPE                  131 (TBD)  1               [](#represent)
 ----------------------------------------------------------------------
 ^[addrtlvtypes::AODVv2 Address Block TLV Types]
 
@@ -1884,7 +1880,6 @@ ORIGPREFIX              0
 TARGPREFIX              1
 UNREACHABLE             2
 PKTSOURCE               3
-INTEND                  4
 UNSPECIFIED             255
 
 ^[addrtype-tbl::AODVv2 Address Types]
@@ -1904,6 +1899,8 @@ Protocol changes to support ICV:
 - RERR receivers have to keep track of the neighbor's SeqNum
 - RREP_Ack receivers have to keep track of which TargSeqNum was sent in
   the RREP
+- RREP_Ack senders and receivers have to keep track of which TargSeqNum was sent in
+  the RREP_Ack
 
 I picked these as the handiest strictly increasing values available for use.
 Other designs are possible.
@@ -2063,10 +2060,10 @@ RREP_Ack and RERR messages in its name.
     is unicast, and ignored if a corresponding RREQ was not recently sent, this threat is minimized,
     and is restricted to receivers along the path from OrigAddr to TargAddr.
 
-*  Sending an RREP_Ack message with false information can cause the route advertised to a target
-    address in an RREP to be erroneously accepted even though the route would contain a unidirectional
-    link and thus not be suitable for most traffic. Since RREP_Ack is unicast, and ignored if an RREP was
-    not sent recently to the sender of the RREP_Ack, this threat is minimized and is strictly local
+*  Sending an RREP_Ack response message with false information can cause the route to an originator
+    address to be erroneously accepted even though the route would contain a unidirectional
+    link and thus not be suitable for most traffic. Since the RREP_Ack response is unicast, and ignored if a RREP_Ack was
+    not sent recently to the sender of this RREP_Ack response, this threat is minimized and is strictly local
     to the RREP transmitter expecting the acknowledgement. Unsolicited RREP_Acks are ignored.
 
 *  Sending an RERR message with false information is discussed in [](#security-availability-rerr).
@@ -2229,12 +2226,12 @@ the message contents and the IP source address. The ICV TLV has type extension :
 accomplish this. This provides message integrity and endpoint authentication, because trusted routers
 MUST hold the shared key in order to calculate the ICV value.
 
-The message MUST also include a timestamp to protect against replay attacks, using TargSeqNum from
+The RREP_Ack message MUST also include a timestamp to protect against replay attacks, using TargSeqNum from
 the RREP as the value in the TIMESTAMP TLV. Verification of a received TIMESTAMP value is performed
 by comparing the sequence number in the \<TIMESTAMP-value\> field with the sequence number in a recently
-sent RREP awaiting acknowledgement from the sender of the RREP_Ack. If the sequence number is not
+received RREP from the sender of the RREP_Ack, or, for an RREP_Ack response message, comparing the 
+sequence number with the sequence number in a recently sent RREP. If the sequence number is not
 equal, the AODVv2 message MUST be discarded.
-
 
 #### RERR Generation and Reception {#security-protection-application-rerr}
 

@@ -8,6 +8,8 @@ This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.tx
 * Reintroduced use of msg-hop-limit in 5444 message header.
 * Use OrigPrefix rather than OrigAddr and TargPrefix rather than TargAddr where appropriate
 * Removed validity time
+* Removed AckReq from RREP messages, use two-way RREP_ack to check for bidirectionality
+* Unicast RREP messages
 
 <!--
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
