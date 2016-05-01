@@ -224,10 +224,16 @@ The routing algorithm in AODVv2 MAY be operated at layers other than the network
 <!-- 2) The motivation and experiments to be conducted need to be elaborated. It's even necessary to have a separate section/subsection for it. Some experiment points that come to my mind without much thinking: support of multiple interfaces, support of gateways, use of different metrics, the security model, etc.. -->
 
 AODVv2 is an Experimental protocol. While it is based on AODV [](#RFC3561), important protocol mechanisms have changed:
-Bidirectionality is endsured using a new mechanism, alternate metrics may be used to determine route quality, redundant messages are suppressed, support for multiple interfaces and a new security model allowing end to end integrity checks has been added and a new message format ([](#RFC5444)) is used.
+Bidirectionality is ensured using a new mechanism, alternate metrics may be used to determine route quality, redundant messages are suppressed, support for multiple interfaces and a new security model allowing end to end integrity checks has been added and a new message format ([](#RFC5444)) is used.
 Many of these changes have been made quite recently, after a protocol development hiatus of several years.
 
 Thus, the purpose of the experiment is to gain information on the behavior of these significant changes in real-world deployments, not only to learn about AODVv2 in particular, but also to further the knowledge base of reactive protocols in general.
+
+Suitable future experiments could be:
+
+* Evaluation of the new features mentioned above with regard to performance and functionality
+* Evaluation of different metrics and their suitability for reactive distance vector protocols
+
 
 The final goal of the experiment is to determine if sufficient demand
 exists for the AODVv2 protocol to prompt an effort to bring the
