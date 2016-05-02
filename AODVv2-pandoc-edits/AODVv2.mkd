@@ -827,8 +827,7 @@ next hop of that LocalRoute is bidirectional, by using that LocalRoute to forwar
 
 ## Suppressing Redundant Messages Using the Multicast Route Message Set  {#suppress}
 
-When route messages are flooded in a MANET, an AODVv2 router may receive multiple similar
-messages. Forwarding every one of these gives little additional benefit, and generates
+When route messages are flooded in a MANET, an AODVv2 router may receive several instances of the same message. Forwarding every one of these gives little additional benefit, and generates
 unnecessary signaling traffic and might generate unnecessary interference.
 
 Each AODVv2 router stores information about recently received route messages in the AODVv2 Multicast Route Message Set ([](#rtemsgtable)).
@@ -857,7 +856,13 @@ To determine if a received message is redundant:
     *   If the entry has a Metric value that is better than the metric in the received message, the message
         is not redundant.
 
-If the message is redundant, update the Timestamp and RemoveTime on the entry, since matching route messages are still
+If the message is redundant, update the entry as follows: 
+
+* RteMsg.Timestamp := CurrentTime
+* RteMasg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
+
+
+since matching route messages are still
 traversing the network and this entry should be maintained. This message MUST NOT be forwarded or
 responded to.
 
@@ -868,9 +873,9 @@ To update a Multicast Route Message Set entry, set:
 * RteMsg.OrigPrefix := OrigPrefix from the message
 * RteMsg.OrigPrefixLen := the prefix length associated with OrigPrefix
 * RteMsg.TargPrefix := TargPrefix from the message
-* RteMsg.OrigSeqNum := the sequence number associated with OrigPrefix, if present in the received message
-* RteMsg.TargSeqNum := the sequence number associated with TargPrefix, if present in the received message
-* RteMsg.Metric := the metric value associated with OrigPrefix in a received RREQ.
+* RteMsg.OrigSeqNum := the sequence number associated with OrigPrefix, if RteMsg is an RREQ
+* RteMsg.TargSeqNum := the sequence number associated with TargPrefix, if RteMsg is an RREP
+* RteMsg.Metric := the metric value associated with OrigPrefix in a received RREQ
 * RteMsg.MetricType := the metric type associated with RteMsg.Metric
 * RteMsg.Timestamp := CurrentTime
 * RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
@@ -916,9 +921,9 @@ Route timeout behaviour is as follows:
 *  An Invalid route SHOULD remain in the Local Route Set, since LocalRoute.SeqNum is used to classify future information about LocalRoute.Address as
    stale or fresh.
 *  In all cases, if the time since LocalRoute.LastSeqNumUpdate exceeds MAX_SEQNUM_LIFETIME, LocalRoute.SeqNum must be set to
-   zero. This is required to ensure that any AODVv2 routers following the initialization procedure can safely begin routing
+   0. This is required to ensure that any AODVv2 routers following the initialization procedure can safely begin routing
    functions using a new sequence number. A LocalRoute with
-   LocalRoute.State set to Active or Idle can remain in the Local Route Set after removing the sequence number, for exmple if the route is reliably carrying traffic. If LocalRoute.State
+   LocalRoute.State set to Active or Idle can remain in the Local Route Set after the sequence number has been set to 0, for example if the route is reliably carrying traffic. If LocalRoute.State
    is Invalid, or later becomes Invalid, the LocalRoute MUST be expunged from the Local Route Set.
 
 LocalRoutes can become Invalid before a timeout occurs:
