@@ -10,6 +10,8 @@ This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.tx
 * Removed validity time
 * Removed AckReq from RREP messages, use two-way RREP_ack to check for bidirectionality
 * Unicast RREP messages
+* Removed orphaned references
+* Clarified language
 
 <!--
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.

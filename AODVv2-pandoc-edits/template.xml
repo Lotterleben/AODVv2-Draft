@@ -115,23 +115,17 @@
 		<references title="Normative References">
 	      <?rfc include="reference.RFC.2119" ?>
 	      <?rfc include="reference.RFC.3561" ?>
-	      <?rfc include="reference.RFC.4291" ?>
-	      <?rfc include="reference.RFC.5082" ?>
 	      <?rfc include="reference.RFC.5444" ?>
 	      <?rfc include="reference.RFC.5498" ?>
-	      <?rfc include="reference.RFC.6551" ?>
 	      <?rfc include="reference.RFC.7182" ?>
 	    </references>
 	    <references title="Informative References">
 	      <?rfc include="reference.RFC.2501" ?>
 	      <?rfc include="reference.RFC.4193" ?>
 	      <?rfc include="reference.RFC.4728" ?>
-	      <?rfc include="reference.RFC.4861" ?>
-	      <?rfc include="reference.RFC.5148" ?>
 	      <?rfc include="reference.RFC.6130" ?>
 <!--	      <?rfc include="reference.RFC.6621" ?> -->
-	      <?rfc include="reference.I-D.perkins-irrep" ?>
-	
+
 	      <reference anchor="Perkins94">
 	        <front>
 	          <title>Highly Dynamic Destination-Sequenced Distance-Vector Routing (DSDV) for Mobile Computers</title>
@@ -149,31 +143,6 @@
 	        </front>
 	        <seriesInfo name="Proceedings" value="of the ACM SIGCOMM '94 Conference on Communications Architectures, Protocols and Applications, London, UK, pp. 234-244"/>
 	      </reference>
-	
-	      <reference anchor="Perkins99">
-	        <front>
-	          <title>Ad hoc On-Demand Distance Vector (AODV) Routing</title>
-	          <author fullname="Charles E. Perkins" initials="C." surname="Perkins">
-	            <organization/>
-	          </author>
-	          <author fullname="Elizabeth M. Royer" initials="E." surname="Royer">
-	            <organization>University of California</organization>
-	          </author>
-	          <date month="February" year="1999"/>
-	        </front>
-		        <seriesInfo name="Proceedings" value="of the 2nd IEEE Workshop on Mobile Computing Systems and Applications, New Orleans, LA, pp. 90-100"/>
-	      </reference>
-	      <reference anchor="Sholander02">
-	        <front>
-	          <title>A Portable Software Implementation of a Hybrid MANET Routing Protocol</title>
-<author fullname="P. Sholander" initials="P." surname="Sholander"></author>		          
-<author fullname="P. Coccoli" initials="P." surname="Coccoli"></author>
-<author fullname="T. Oakes" initials="T." surname="Oakes"></author>
-<author fullname="S. Swank" initials="S." surname="Swank"></author>
-	          
-	          <date year="2002"/>
-	        </front>
-	      </reference>
 
 		<reference anchor="Koodli01">
 	        <front>
@@ -185,7 +154,7 @@
 	          <date month="October" year="2001"/>
 	        </front>
 	              <seriesInfo name="Proceedings" value="of the ACM SIGCOMM Computer Communication Review 2001, Volume 31 Issue 5, 37-47"/>
-	      </reference>	
+	      </reference>
 		<!--
 		    <?rfc include="reference.I-D.chakeres-manet-manetid" ?>
 		    <?rfc include="reference.I-D.clausen-lln-loadng" ?>
