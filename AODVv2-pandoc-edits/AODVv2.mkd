@@ -307,7 +307,7 @@ Neighbor.Interface
 
 ## Sequence Numbers  {#seqnum}
 
-Sequence numbers enable AODVv2 routers to determine the temporal order of route discovery
+Sequence Numbers enable AODVv2 routers to determine the temporal order of route discovery
 messages, identifying stale routing information so that it can be discarded. The sequence
 number fulfills the same roles as the "Destination Sequence Number" of DSDV [](#Perkins94),
 and the AODV Sequence Number in [](#RFC3561).
@@ -1055,8 +1055,8 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
        {RouterClient.PrefixLength, null}.
     *  Otherwise, omit PrefixLengthList.
 1.  For OrigSeqNum:
-    *  Increment the router SeqNum as specified in [](#seqnum).
-    *  Set OrigSeqNum := SeqNum.
+    *  Increment the router Sequence Number as specified in [](#seqnum).
+    *  Set OrigSeqNum := router Sequence Number.
 1.  For TargSeqNum:
     *  If an Invalid route exists in the Local Route Set matching TargAddr using longest prefix matching and has a
        valid sequence number, set TargSeqNum := LocalRoute.SeqNum.
@@ -1184,8 +1184,8 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
        {null, RouterClient.PrefixLength}.
     *  Otherwise, omit PrefixLengthList.
 1.  For the TargSeqNum:
-    *  Increment the router SeqNum as specified in [](#seqnum).
-    *  Set TargSeqNum := SeqNum.
+    *  Increment the router Sequence Number as specified in [](#seqnum).
+    *  Set TargSeqNum := router Sequence Number.
 1.  Include MetricType and set the type to match the MetricType in the received RREQ message
 1.  Set TargMetric := RouterClient.Cost for the Router Client entry which includes TargAddr
 
