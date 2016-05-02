@@ -1981,7 +1981,7 @@ Client.
 The information necessary to construct a malicious RERR could be learned by eavesdropping,
 either by listening to AODVv2 messages or by watching data packet flows.
 
-Since the RERR is multicast, it can be received by many routers in the ad hoc network, and will
+When the RERR is multicast, it can be received by many routers in the ad hoc network, and will
 be regenerated when processing results in an active route being removed. This threat could
 have serious impact on applications communicating by way of the sender of the RERR message.
 
@@ -2093,8 +2093,8 @@ Any AODVv2 router can forward messages with modified data.
 Mitigation:
 
 *   If AODVv2 routers verify the integrity of AODVv2 messages, then the threat of disruption is minimized. A
-man in the middle with no knowledge of the shared secret key used to calculate an integrity check value
-MAY modify a message but the message will be rejected when it fails an integrity check.
+man in the middle with no knowledge of the key used to calculate an integrity check value
+may modify a message but the message will be rejected when it fails an integrity check.
 
 ### Replay Attacks {#security-integrity-relay}
 
