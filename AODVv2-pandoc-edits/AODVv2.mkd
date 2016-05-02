@@ -856,7 +856,7 @@ To determine if a received message is redundant:
     *   If the entry has a Metric value that is better than the metric in the received message, the message
         is not redundant.
 
-If the message is redundant, update the entry as follows: 
+If the message is redundant, update the entry as follows:
 
 * RteMsg.Timestamp := CurrentTime
 * RteMasg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
@@ -1253,7 +1253,7 @@ If the Route Reply Acknowledgement is not received within RREP_Ack_SENT_TIMEOUT,
     |                        AckReq (optional)                        |
     +-----------------------------------------------------------------+
 
-^[figRREP::RREP_Ack message contents]
+^[figRREP_Ack::RREP_Ack message contents]
 
 ### RREP_Ack Request Generation  {#RREP_Ack_gen}
 
