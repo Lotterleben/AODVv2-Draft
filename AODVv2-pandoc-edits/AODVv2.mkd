@@ -2099,7 +2099,7 @@ may modify a message but the message will be rejected when it fails an integrity
 ### Replay Attacks {#security-integrity-relay}
 
 Replaying of RREQ or RREP messages would be of less use to an attacker, since they would be
-dropped immediately due to their stale sequence number. RERR messages MAY or MAY NOT include
+dropped immediately due to their stale sequence number. RERR messages may or may not include
 sequence numbers and are therefore susceptible to replay attacks. RREP_Ack messages do not
 include sequence numbers and are therefore susceptible to replay attacks.
 
@@ -2191,7 +2191,7 @@ repeating Step 1 and Step 2. If the ICV value calculated from the received messa
 not match the value of \<ICV-data\> in the received message or packet, the validation fails and the
 AODVv2 message MUST be discarded.
 
-Verification of a received TIMESTAMP value is performed differently depending on message type.
+Verification of a received TIMESTAMP value is performed differently depending on message type, as specified in the following subsections.
 
 <!--
 TODO: "If the protocol incorporates cryptographic
