@@ -1961,8 +1961,8 @@ Mitigation:
 *   If AODVv2 routers always verify that the sender of the RERR message
     is trusted, this threat is reduced. Processing requirements would typically be dominated by calculations to verify integrity.
     This has the effect of reducing (but by no means eliminating) AODVv2's vulnerability to denial of service attacks.
-*   Authentication of senders can prevent foreign nodes from DoSing an
-    AODVv2 router. However, this does not protect the network if an attacker has access to an already authorized router.
+*   Authentication of senders can prevent unauthenticated routers from launching a Denial of Service attack on another
+    AODVv2 router. However, this does not protect the network if an attacker has access to an already authenticated router.
 
 ### Malicious RERR messages {#security-availability-rerr}
 
