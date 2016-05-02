@@ -1303,7 +1303,7 @@ Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
         * Neighbor.Timeout < CurrentTime
         * Neighbor.Interface matches the interface on which the RREP_Ack was received
 
-     * If it does, the router cancels any associated timeouts, and processing continues to Step 3.
+     * If it does, the router sets Neighbor.Timeout to INFINITY_TIME, and processing continues to Step 3.
      * Otherwise no actions are required and processing ends.
 
 1.   Update the Neighbor Set according to [](#nbrupdate)
