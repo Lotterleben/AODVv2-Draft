@@ -1536,7 +1536,7 @@ msg_hop_limit  \<msg-hop-limit\>  MAX_HOPCOUNT, reduced by number of hops traver
 AODVv2 does not define any Message TLVs for an RREQ message.
 
 ### Address Block
-An RREQ contains two addresses, OrigPrefix and TargPrefix, and each address has an associated prefix length. If the prefix length has not been included in the AODVv2 message, it is equal to the address length in bits.
+An RREQ contains OrigPrefix and TargPrefix, and each of these addresses has an associated prefix length. If the prefix length has not been included in the AODVv2 message, it is equal to the address length in bits.
 
 Data                        Address Block
 -------------               ---------------
@@ -1577,7 +1577,7 @@ AODVv2 does not define any Message TLVs for an RREP message.
 
 ### Address Block {#rrep_addrblk}
 
-An RREP contains two addresses, OrigPrefix and TargPrefix, and each address has an associated prefix length. If the prefix length
+An RREP contains OrigPrefix and TargPrefix, and each of these addresses has an associated prefix length. If the prefix length
 has not been included in the AODVv2 message, it is equal to the address length in bits.
 
 Data                        Address Block
