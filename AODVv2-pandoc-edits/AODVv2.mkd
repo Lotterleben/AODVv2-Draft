@@ -1209,7 +1209,7 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
 
 * RteMsg.OrigPrefix == RREP.OrigPrefix
 * RteMsg.OrigPrefixLen == RREP.OrigPrefixLen
-* RteMsg.TargPrefix == RREP.TargPrefix
+* RteMsg.TargAddr exists within RREP.TargPrefix
 * RteMsg.OrigSeqNum <= RREP.OrigSeqNum
 * RteMsg.MetricType == RREP.MetricType
 * RteMsg.Timestamp > CurrentTime - RREQ_WAIT_TIME
