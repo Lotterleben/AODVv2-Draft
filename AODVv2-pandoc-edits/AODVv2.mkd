@@ -1063,7 +1063,8 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
     *  If no Invalid route exists in the Local Route Set matching TargAddr, or the route doesn't have a sequence number,
        omit TargSeqNum.
 1.  Include MetricType and set the type accordingly
-1.  Set OrigMetric := RouterClient.Cost for the Router Client entry which includes OrigAddr
+1.  Find the Router Client Set Entry where RouterClient.IPAddress == OrigPrefix:
+    * Set OrigMetric := RouterClient.Cost
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET- Routers on all interfaces configured for AODVv2 operation.
 The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
@@ -1201,7 +1202,22 @@ Upon receiving a Route Reply, an AODVv2 router performs the following steps:
     *  If not, ignore this RREP for further processing.
 1.  Check that the MetricType is supported and configured for use
     *  If not, ignore this RREP for further processing.
+<!--
 1.  If this RREP does not correspond to an RREQ generated or forwarded in the last RREQ_WAIT_TIME, ignore for further processing.
+-->
+1. If the Multicast Route Message Set does not contain an entry where:
+
+* RteMsg.OrigPrefix == RREP.OrigPrefix
+* RteMsg.OrigPrefixLen == RREP.OrigPrefixLen
+* RteMsg.TargPrefix == RREP.TargPrefix
+* RteMsg.OrigSeqNum <= RREP.OrigSeqNum
+* RteMsg.MetricType == RREP.MetricType
+* RteMsg.Timestamp > CurrentTime - RREQ_WAIT_TIME
+* RteMsg.Interface == The interface on which the RREP was received
+
+ignore this RREP for further processing, since it does not correspond to a previously sent RREQ.
+
+
 1.  Update the Neighbor Set according to [](#nbrupdate)
 <!--    *  If the sender has Neighbor.State set to Blacklisted after the update, ignore this RREP for further processing. -->
 1.  Verify that the cost of the advertised route does not exceed the maximum allowed metric
