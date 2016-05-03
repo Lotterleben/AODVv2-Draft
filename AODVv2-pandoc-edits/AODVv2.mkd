@@ -129,7 +129,7 @@ Routable Unicast IP Address
     <!-- [CEP] Can it be determined if an address is multihop-capable? -->
 Router Client
 :   <vspace/>An address or address range configured on an AODVv2 router, on behalf of which that router will initiate and respond to route discoveries. These addresses may be used by the
-    AODVv2 router itself or by non-routing devices that are reachable without traversing another AODVv2 router.
+    AODVv2 router itself or by its Router Clients that are reachable without traversing another AODVv2 router.
 RREP (Route Reply)
 :   <vspace/>The AODVv2 message type used to reply to a Route Request message.
 RREP_Gen (RREP Generating Router)
@@ -260,7 +260,7 @@ Otherwise the InterfaceSet MAY be empty.
 <!-- TODO when I resolve this see also TODO in {#gateway}-->
 
 ## Router Client Set {#clients}
-An AODVv2 router provides route discovery services for its own local applications and for other non-routing devices that are reachable
+An AODVv2 router provides route discovery services for its own local applications and for its Router Clients that are reachable
 without traversing another AODVv2 router. The addresses used by these devices, and the AODVv2 router itself, are configured in the
 Router Client Set. An AODVv2 router will only originate Route Request and Route Reply messages on behalf of configured Router Client addresses.
 
