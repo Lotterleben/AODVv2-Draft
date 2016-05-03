@@ -2129,13 +2129,6 @@ ICV TLVs for use with [](#RFC5444).
 The data contained in AODVv2 routing protocol messages MUST be verified using Integrity Check
 Values, to avoid the use of message data if the message has been tampered with.
 
-The method of distribution of shared secret keys is out of the scope of this protocol. Key
-management is not specified for the following reasons:
-
-<!--
-TODO (like OLSRv2 section 23.6)
--->
-
 ### Replay Protection using Timestamps {#security-protection-replay}
 
 Replay attacks MUST be prevented by using timestamps or sequence numbers in messages. [](#RFC7182) defines a
@@ -2271,6 +2264,28 @@ message MUST be discarded.
  For destination-only RREP discovery procedures, AODVv2 routers that share a security association SHOULD
  use the appropriate mechanisms as specified in [](#RFC7182). The establishment of these security
  associations is out of scope for this document. -->
+
+## Key Management {#security-key_mgmt}
+
+The method of distribution of shared secret keys is out of the scope of this protocol. Key
+management is not specified for the following reasons:
+
+Against [](#RFC4107), an analysis as to whether automated or manual key management should be used shows a compelling case for automated management. In particular:
+
+* a potentially large number of routers may have to be managed, belonging to several organisations, for example in vehicular applications.
+* a stream cipher is likely to be used, such as an AES variant.
+* long term session keys might be used by more than two parties, including multicast operations. AODVv2 makes extensive use of multicast.
+* there may be frequent turnover of devices.
+
+On reviewing the case for manual key management against the same document, it can be seen that manual management might be advantageous in environments with limited bandwidth or high round trip times. AODVv2 lends itself to sparse ad hoc networks where transmission conditions may indeed be limited, depending on the bearers selected for use.
+
+However, [](#RFC4107) assumes that the connectivity between endpoints is already available. In AODVv2, no route is available to a given destination until a router client requests that user traffic be transmitted. It is required to secure the signalling path of the routing protocol that will establish the path across which key exchange functions might subsequently be applied, which is clearly the reverse of the expected functionality. A different strategy is therefore required.
+
+There are two possible solutions. In each case, it is assumed that a defence in depth security posture is being adopted by the system integrator, such that each function in the network as a whole is appropriately secured or defended as necessary, and that there is not complete reliance on security mechanisms built in to AODVv2. Such additional mechanisms could include a suitable wireless device security technology, so that wireless devices are authenticated and secured by their peers prior to exchanging user data, which in this case would include AODVV2 signalling traffic as a payload, and mechanisms which verify the authenticity and/or integrity of application-layer user data transported once a route has been established.
+
+1. In the case that no AODVv2 routers have any detailed prior knowledge of any other AODVv2 router, but does have knowledge of the credentials of other organisations in which the router has been previously configured to trust, it is possible for an AODVv2 router to send an initialisation vector as part of an exchange, which could be verified against such credentials. Such an exchange could make use of Identity-Based Signatures ([](#I-D.ietf-manet-ibs)), based on Elliptic Curve-Based Certificateless Signatures for Identity-Based Encryption [](#RFC6507), which eliminate the need for a handshake process to establish trust.
+
+2. If it is impossible to use Identity-Based Signatures, and the risk to the AODVv2 signalling traffic is considered to be low due to the use of security countermeasures elsewhere in the system, a simple pre-placed shared secret could be used between routers, which is used as-is or is used to generate some ephemeral secret based on another known variable, such as time of day if that is universally available at a level of accuracy sufficient to make such a system viable.
 
 
 # Acknowledgments
