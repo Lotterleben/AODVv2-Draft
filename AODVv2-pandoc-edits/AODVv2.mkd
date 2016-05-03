@@ -319,17 +319,15 @@ numbers for each interface or IP address, but the router MUST NOT use multiple s
 for any one IP address.  All route messages created on behalf of Router
 Clients on a particular interface MUST include the sequence number associated with that Router Client. -->
 
-Each AODVv2 router in the network MUST maintain its own sequence number. All RREQ and RREP messages created by
-an AODVv2 router include the router's sequence number, reported as a 16-bit unsigned integer. Each AODVv2 router
-MUST ensure that its sequence number is strictly increasing, and that it is incremented by one (1) whenever an RREQ or
-RREP is created, except when the sequence number is 65,535 (the maximum value of a 16-bit unsigned integer), in
-which case it MUST be reset to one (1). The value zero (0) is reserved to indicate that the sequence
-number is unknown.
+Each AODVv2 router in the network MUST maintain its own sequence number. All RREQ and RREP messages created by an AODVv2 router include the router's sequence number, reported as a 16-bit unsigned integer. Each AODVv2 router MUST ensure that its sequence number is strictly increasing, and that it is incremented by one (1) whenever an RREQ or RREP is created, except when the sequence number is 65,535 (the maximum value of a 16-bit unsigned integer), in which case it MUST be reset to one (1) to achieve wrap around. The value zero (0) is reserved to indicate that the sequence number is unknown.
 
-An AODVv2 router MUST only attach its own sequence number to information about a route to one of its configured Router
-Clients, all route messages forwarded by other routers retain the originator's sequence number. To determine staleness, the previously stored sequence number associated with the originator, is subtracted
-from the incoming sequence number. The result of the subtraction is to be interpreted as a signed 16-bit integer, and if
-less than zero, the information in the new AODVv2 message is stale and MUST be discarded.
+An AODVv2 router MUST only attach its own sequence number to information about a route to one of its configured Router Clients, all route messages forwarded by other routers retain the originator's sequence number. 
+
+To determine if newly received information is stale and therefore redundant, the sequence number attached to the information is compared to the sequence number of existing information about the same route. The comparison is carried out by subtracting the existing sequence number from the newly received sequence number, using unsigned arithmetic. The result of the subtraction is to be interpreted as a signed 16-bit integer. 
+
+*  If the result is negative, the newly received information is considered older than the existing information and is considered stale and redundant and MUST therefore be discarded.
+*  If the result is positive, the newly received information is considered newer than the existing information and is not considered stale or redundant and MUST therefore be processed.
+*  If the result is zero, the newly received information is not considered stale, and therefore MUST be processed further to determine if it is redundant. For example, it is considered redundant if the metric attached to the newly received information is higher than the metric of existing information about the same route (see [](#test) and [](#suppress)).
 <!-- subtraction is unsigned values, actual calculation is incoming + twos complement of current. then interpret result as a signed twos complement value -->
 
 This, along with the processes in [](#test), ensures loop freedom.

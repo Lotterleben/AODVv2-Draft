@@ -12,6 +12,7 @@ This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.tx
 * Unicast RREP messages
 * Removed orphaned references
 * Clarified language
+* Improved Sequence Number instructions
 
 <!--
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
