@@ -270,8 +270,7 @@ RouterClient.IPAddress
 :   <vspace/>An IP address or the start of an address range that requires route discovery services from the AODVv2 router.
 <!-- A client node with multiple IP addresses MAY cause the AODVv2 router to be configured with multiple Router Client entries. -->
 RouterClient.PrefixLength
-:   <vspace/>The length, in bits, of the routing prefix associated with the RouterClient.IPAddress. If a prefix length is
-    included, the AODVv2 router MUST provide connectivity for all addresses within that prefix.
+:   <vspace/>The length, in bits, of the routing prefix associated with the RouterClient.IPAddress.  If the prefix length is not equal to the address length of RouterClient.IPAddress, the AODVv2 router MUST participate in route discovery on behalf of all addresses within that prefix.
 RouterClient.Cost
 :   <vspace/>The cost associated with reaching this address or address range.
 
