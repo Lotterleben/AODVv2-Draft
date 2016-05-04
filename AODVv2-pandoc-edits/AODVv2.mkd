@@ -277,7 +277,7 @@ RouterClient.Cost
 A Router Client address MUST NOT be served by more than one AODVv2 router at any one time. To shift responsibility for a Router Client to
 a different AODVv2 router, correct AODVv2 routing behavior MUST be observed; The AODVv2 router adding the Router Client MUST wait for any
 existing routing information about this Router Client to be purged from the network, i.e., at least MAX_SEQNUM_LIFETIME since the last SeqNum
-update on the router which is removing this Router Client.
+update on the router that is removing this Router Client.
 
 
 ## Neighbor Set  {#nbrlist}
@@ -2162,8 +2162,7 @@ multiplexer is not capable of adding the Packet TLVs, the TLVs MUST be included 
 in each AODVv2 message in the packet.
 
 After message generation but before transmission, the ICV and TIMESTAMP TLVs MUST be added
-according to each message type as detailed in the following sections. The following steps list the
-generic procedure to be performed:
+according to each message type as detailed in the following sections. The following steps list the procedure to be performed:
 
 1.  The considerations in Section 8 of [](#RFC7182) are followed, removing existing ICV TLVs
     and adjusting the size and flags fields.
