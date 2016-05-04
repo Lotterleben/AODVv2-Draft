@@ -308,7 +308,7 @@ the result stored in this set. A route will only be considered valid when the li
 Neighbor Set entries MUST contain:
 
 Neighbor.IPAddress
-:   <vspace/>An IP address of the neighboring router, learned from the source IP address of a received route message.
+:   <vspace/>An IP address of the neighboring router, learned from the source IP address of a received IP packet containing an AODVv2 route message.
 Neighbor.State
 :   <vspace/>Indicates whether the link to the neighbor is bidirectional. There are three possible states: Confirmed, Heard,
     and Blacklisted. Heard is the initial state. Confirmed indicates that the link to the neighbor has been confirmed as
@@ -377,12 +377,12 @@ LocalRoute.SeqNum
 :   <vspace/>The sequence number associated with LocalRoute.Address, obtained from the last route message that successfully
     updated this entry.
 LocalRoute.NextHop
-:   <vspace/>The source IP address of the IP packet containing the AODVv2 message advertising the route to LocalRoute.Address, i.e. an
+:   <vspace/>The source IP address of the IP packet containing the AODVv2 message advertising the route to LocalRoute.Address, i.e., an
     IP address of the AODVv2 router used for the next hop on the path toward LocalRoute.Address.
 LocalRoute.NextHopInterface
 :   <vspace/>The interface used to send IP packets toward LocalRoute.Address.
 LocalRoute.LastUsed
-:   <vspace/>If this route is installed in the Routing Information Base, the time it was last used to forward an IP packet.
+:   <vspace/>If this route is installed in the Routing Information Base, the time it was last used to forward an IP packet. If not, the time at which the LocalRoute was created.
 LocalRoute.LastSeqNumUpdate
 :   <vspace/>The time LocalRoute.SeqNum was last updated.
 LocalRoute.MetricType
@@ -396,27 +396,26 @@ There are four possible states for a LocalRoute:
 
 Unconfirmed
 :   <vspace/>A route learned from a Route Request message, which has not yet been confirmed as bidirectional. It MUST NOT
-    be used for forwarding IP packets, and therefore it is not referred to as a valid route. This state only applies to routes learned through RREQ messages.
+    be used for forwarding IP packets, and therefore it is not referred to as a valid route. This state is only used for routes learned through RREQ messages.
 Idle
-:   <vspace/>A route which has been learned from a route message, and has also been confirmed, but has not been used in
+:   <vspace/>A route that has been learned from a route message, and has also been confirmed, but has not been used in
     the last ACTIVE_INTERVAL. It is able to be used for forwarding IP packets, and therefore it is referred to as a valid
     route.
 Active
-:   <vspace/>A route which has been learned from a route message, and has also been confirmed, and has been used in the
+:   <vspace/>A route that has been learned from a route message, and has also been confirmed, and has been used in the
     last ACTIVE_INTERVAL. It is able to be used for forwarding IP packets, and therefore it is referred to as a valid
     route.
 Invalid
-:   <vspace/>A route which has expired or been lost. It MUST NOT be used for forwarding IP packets, and therefore it
+:   <vspace/>A route that has expired or been lost. It MUST NOT be used for forwarding IP packets, and therefore it
     is not referred to as a valid route. Invalid routes contain sequence number information which allows
     incoming information to be assessed for freshness.
 
-When the Local Route Set is stored separately from the Routing Information Base, routes are added to the Routing Information Base
+If the Local Route Set is stored separately from the Routing Information Base, routes are added to the Routing Information Base
 when LocalRoute.State is valid (set to Active or Idle), and removed from the Routing Information Base when LocalRoute.State becomes Invalid.
 
 Changes to LocalRoute state are detailed in [](#routestatechanges).
 
-Multiple valid routes for the same address and prefix length but for different metric types may exist in the Local Route Set, but
-the decision of which of these routes to install in the Routing Information Base to use for forwarding is outside the scope of AODVv2.
+Multiple valid routes for the same address and prefix length but for different metric types may exist in the Local Route Set, but only one route to a particular address and prefix length may exist in the Routing Information Base. The decision of which of the routes should be installed in the Routing Information Base is outside the scope of AODVv2.
 
 
 ## Multicast Route Message Set  {#rtemsgtable}
