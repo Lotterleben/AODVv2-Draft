@@ -13,6 +13,9 @@ This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.tx
 * Removed orphaned references
 * Clarified language
 * Improved Sequence Number instructions
+* Changed 'Unknown' terminology to 'Heard'
+* Extended experiment description
+* Added detailed description of which steps to take when calculating and evaluating ICVs, particularly how to zero out the metric value
 
 <!--
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
