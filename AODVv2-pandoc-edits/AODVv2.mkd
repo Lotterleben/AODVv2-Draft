@@ -102,9 +102,9 @@ OrigAddr
 OrigMetric
 :   <vspace/>The metric value associated with the route to OrigPrefix.
 OrigPrefix
-:   <vspace/>The prefix configured in the Router Client entry which includes OrigAddr.
+:   <vspace/>The prefix configured in the Router Client Set entry which includes OrigAddr.
 OrigPrefixLen
-:   <vspace/>The prefix length, in bits, configured in the Router Client entry which includes OrigAddr.
+:   <vspace/>The prefix length, in bits, configured in the Router Client Set entry which includes OrigAddr.
 OrigSeqNum
 :   <vspace/>The sequence number of the AODVv2 router which originated the Route Request on behalf of OrigAddr.
 PktSource
@@ -148,9 +148,9 @@ TargAddr
 TargMetric
 :   <vspace/>The metric value associated with the route to TargPrefix.
 TargPrefix
-:   <vspace/>The prefix configured in the Router Client entry which includes TargAddr.
+:   <vspace/>The prefix configured in the Router Client Set entry which includes TargAddr.
 TargPrefixLen
-:   <vspace/>The prefix length, in bits, configured in the Router Client entry which includes TargAddr.
+:   <vspace/>The prefix length, in bits, configured in the Router Client Set entry which includes TargAddr.
 TargSeqNum
 :   <vspace/>The sequence number of the AODVv2 router which originated the Route Reply on behalf of TargAddr.
 Unreachable Address
@@ -431,7 +431,7 @@ Multicast Route Message Set entries MUST contain the following information:
 RteMsg.OrigPrefix
 :   <vspace/>The prefix associated with OrigAddr, the source address of the IP packet triggering the route request.
 RteMsg.OrigPrefixLen
-:   <vspace/>The prefix length associated with RteMsg.OrigPrefix, originally from the Router Client entry on RREQ_Gen which includes OrigAddr.
+:   <vspace/>The prefix length associated with RteMsg.OrigPrefix, originally from the Router Client Set entry on RREQ_Gen which includes OrigAddr.
 RteMsg.TargPrefix
 :   <vspace/>The prefix associated with TargAddr, the destination address of the IP packet triggering the route request. In an RREQ this MUST be set to TargAddr.
 RteMsg.OrigSeqNum
@@ -470,10 +470,10 @@ See section [](#suppressrerr) for instructions on how to update the set.
 Metrics measure a cost or quality associated with a route or a link, e.g., latency, delay, financial cost, energy, etc. Metric
 values are reported in Route Request and Route Reply messages.
 
-In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client entry which includes OrigAddr. For routers which forward the RREQ, this is the cost from OrigPrefix to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Request message,
+In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client Set entry which includes OrigAddr. For routers which forward the RREQ, this is the cost from OrigPrefix to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Request message,
 and used to install a route to OrigPrefix.
 
-Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client entry which includes TargAddr. For routers which forward the RREP, this is the cost from TargPrefix to the forwarding router, combining the metric value from the received RREP message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Reply message,
+Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client Set entry which includes TargAddr. For routers which forward the RREP, this is the cost from TargPrefix to the forwarding router, combining the metric value from the received RREP message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Reply message,
 and used to install a route to TargPrefix.
 
 Assuming link metrics are symmetric, the cost of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
@@ -1041,10 +1041,10 @@ msg_hop_limit
 :   <vspace/>The remaining number of hops allowed for dissemination of the RREQ
     message.
 AddressList
-:   <vspace/>Contains OrigPrefix, from the Router Client entry which includes OrigAddr, the source address of the IP packet for which a route is requested, and TargPrefix, set to TargAddr, the destination address of the IP packet for which a route is requested.
+:   <vspace/>Contains OrigPrefix, from the Router Client Set entry which includes OrigAddr, the source address of the IP packet for which a route is requested, and TargPrefix, set to TargAddr, the destination address of the IP packet for which a route is requested.
 PrefixLengthList
 :   <vspace/>Contains OrigPrefixLen, i.e., the length, in bits, of the prefix associated with
-    the Router Client entry which includes OrigAddr. If omitted, the prefix length is equal
+    the Router Client Set entry which includes OrigAddr. If omitted, the prefix length is equal
     to OrigAddr's address length in bits.
 OrigSeqNum
 :   <vspace/>The sequence number associated with OrigPrefix.
@@ -1145,7 +1145,7 @@ This modified message is handed to the [](#RFC5444) multiplexer for further proc
 ## Route Reply (RREP) Message  {#RREP_msgs}
 
 When a Route Request message is received, requesting a route to a target address (TargAddr) which is configured as part of a
-Router Client entry, a Route Reply message is sent in response. The RREP offers a route to TargPrefix.
+Router Client Set entry, a Route Reply message is sent in response. The RREP offers a route to TargPrefix.
 
 RREP messages have the following contents:
 
@@ -1173,7 +1173,7 @@ AddressList
     of the IP packet for which a route is requested.
 PrefixLengthList
 :   <vspace/>Contains TargPrefixLen, i.e., the length, in bits, of the prefix associated with
-    the Router Client entry which includes TargAddr. If omitted, the prefix length is equal
+    the Router Client Set entry which includes TargAddr. If omitted, the prefix length is equal
     to TargAddr's address length, in bits.
 TargSeqNum
 :   <vspace/>The sequence number associated with TargPrefix.
@@ -1212,7 +1212,7 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
     *  Increment the router Sequence Number as specified in [](#seqnum).
     *  Set TargSeqNum := router Sequence Number.
 1.  Include MetricType and set the type to match the MetricType in the received RREQ message
-1.  Set TargMetric := RouterClient.Cost for the Router Client entry which includes TargAddr
+1.  Set TargMetric := RouterClient.Cost for the Router Client Set entry which includes TargAddr
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. The multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
