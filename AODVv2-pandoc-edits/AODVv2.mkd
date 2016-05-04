@@ -291,16 +291,16 @@ Neighbor Set entries MUST contain:
 Neighbor.IPAddress
 :   <vspace/>An IP address of the neighboring router, learned from the source IP address of a received route message.
 Neighbor.State
-:   <vspace/>Indicates whether the link to the neighbor is bidirectional. There are three possible states: Confirmed, Unknown,
-    and Blacklisted. Unknown is the initial state. Confirmed indicates that the link to the neighbor has been confirmed as
+:   <vspace/>Indicates whether the link to the neighbor is bidirectional. There are three possible states: Confirmed, Heard,
+    and Blacklisted. Heard is the initial state. Confirmed indicates that the link to the neighbor has been confirmed as
     bidirectional. Blacklisted indicates that the link to the neighbor is uni-directional. [](#nexthopmonitoring) discusses
     how to monitor link bidirectionality.
 Neighbor.Timeout
 :   <vspace/>Indicates at which time the Neighbor.State should be updated:
 
-* If the value of Neighbor.State is Blacklisted, this indicates the time at which Neighbor.State will revert to Unknown. By default this value is calculated at the time the router is blacklisted and is equal to CurrentTime + MAX_BLACKLIST_TIME. 
-* If Neighbor.State is unknown, and an RREP_Ack has been requested from the neighbor, it indicates the time at which Neighbor.State will be set to Blacklisted, if an RREP_Ack has not been received. 
-* If the value of Neighbor.State is Unknown and no RREP_Ack has been requested, or if Neighbor.State is Confirmed, this time is set to INFINITY_TIME.
+* If the value of Neighbor.State is Blacklisted, this indicates the time at which Neighbor.State will revert to Heard. By default this value is calculated at the time the router is blacklisted and is equal to CurrentTime + MAX_BLACKLIST_TIME. 
+* If Neighbor.State is Heard, and an RREP_Ack has been requested from the neighbor, it indicates the time at which Neighbor.State will be set to Blacklisted, if an RREP_Ack has not been received. 
+* If the value of Neighbor.State is Heard and no RREP_Ack has been requested, or if Neighbor.State is Confirmed, this time is set to INFINITY_TIME.
 
 Neighbor.Interface
 :   <vspace/>The interface on which the link to the neighbor was established.
@@ -532,7 +532,7 @@ To assist with next hop monitoring, a Neighbor Set ([](#nbrlist)) is maintained.
 * Neighbor.IPAddress == IP address from which the RREQ or RREP was received
 * Neighbor.Interface == Interface on which the RREQ or RREP was received.
 
-If such an entry does not exist, a new entry is created as described in [](#nbrupdate). While the value of Neighbor.State is Unknown, acknowledgement of RREP messages sent to that neighbor MUST be requested. If an acknowledgement is not received within the timeout period, the neighbor MUST have Neighbor.State set to Blacklisted. If an acknowledgement is received within the timeout period, Neighbor.State is set to Confirmed. While the value of Neighbor.State is Confirmed, the request for an acknowledgement of any other RREP message is unnecessary.
+If such an entry does not exist, a new entry is created as described in [](#nbrupdate). While the value of Neighbor.State is Heard, acknowledgement of RREP messages sent to that neighbor MUST be requested. If an acknowledgement is not received within the timeout period, the neighbor MUST have Neighbor.State set to Blacklisted. If an acknowledgement is received within the timeout period, Neighbor.State is set to Confirmed. While the value of Neighbor.State is Confirmed, the request for an acknowledgement of any other RREP message is unnecessary.
 
 <!-- While Neighbor.State is Blacklisted, RREQs received from that router MUST be disregarded.-->
 <!-- TODO if a previously confirmed link goes uni-directional...we think it still works... if route was established and route goes unidirectional, do we
@@ -563,7 +563,7 @@ On receipt of an RREQ or RREP message, the Neighbor Set MUST be checked for an e
 A new Neighbor Set entry is created as follows:
 
 * Neighbor.IPAddress := Source IP address of the received route message
-* Neighbor.State := Unknown
+* Neighbor.State := Heard
 * Neighbor.Timeout := INFINITY_TIME
 * Neighbor.Interface := Interface on which the RREQ or RREP was received. MUST equal Interface.Id of one of the entries in the InterfaceSet (see [](#interfaceslist)).
 
@@ -574,21 +574,21 @@ When an RREP_Ack is sent to a neighbor, the Neighbor Set entry is updated as fol
 When a received message is one of the following:
 
 * an RREP which answers an RREQ sent within RREQ_WAIT_TIME over the same interface as Neighbor.Interface <!-- TODO? also check if it matches an existing unconfirmed route -->
-* an RREP_Ack response received from a Neighbor with Neighbor.State set to Unknown, where Neighbor.Timeout > CurrentTime
+* an RREP_Ack response received from a Neighbor with Neighbor.State set to Heard, where Neighbor.Timeout > CurrentTime
 
 the link to the neighbor is bidirectional and the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Confirmed <!-- could set reset time when set state to confirmed, to re-test after certain time -->
 * Neighbor.Timeout := INFINITY_TIME
 
-When the Neighbor.Timeout is reached and Neighbor.State is Unknown, then an RREP_Ack response has not been received from the neighbor within RREP_Ack_SENT_TIMEOUT of sending the RREP_Ack request. The link is considered to be uni-directional and the Neighbor Set entry is updated as follows:
+When the Neighbor.Timeout is reached and Neighbor.State is Heard, then an RREP_Ack response has not been received from the neighbor within RREP_Ack_SENT_TIMEOUT of sending the RREP_Ack request. The link is considered to be uni-directional and the Neighbor Set entry is updated as follows:
 
 * Neighbor.State := Blacklisted
 * Neighbor.Timeout := CurrentTime + MAX_BLACKLIST_TIME
 
 When the Neighbor.Timeout is reached and Neighbor.State is Blacklisted, the Neighbor Set entry is updated as follows:
 
-* Neighbor.State := Unknown
+* Neighbor.State := Heard
 
 If an external mechanism reports a link as broken, the Neighbor Set entry SHOULD be removed.
 
@@ -777,13 +777,13 @@ The route update is applied as follows:
 
 1.  If two matching LocalRoutes exist in the Local Route Set, one is a valid route, and one is an Unconfirmed route, AdvRte may offer further improvement to the Unconfirmed route, or may offer an update to the valid route.
 
-    * If AdvRte.NextHop's Neighbor.State is Unknown, the advertised route may offer improvement to the existing valid route, if the link to the next hop can be confirmed as bidirectional. Continue processing from Step 5 to update the existing Unconfirmed LocalRoute.
+    * If AdvRte.NextHop's Neighbor.State is Heard, the advertised route may offer improvement to the existing valid route, if the link to the next hop can be confirmed as bidirectional. Continue processing from Step 5 to update the existing Unconfirmed LocalRoute.
     * If AdvRte.NextHop's Neighbor.State is Confirmed, the advertised route offers an update or improvement to the existing valid route. Continue processing from Step 5 to update the existing valid LocalRoute.
 
 1.  If only one matching LocalRoute exists in the Local Route Set:
 
     * If AdvRte.NextHop's Neighbor.State is Confirmed, continue processing from Step 5 to update the existing LocalRoute.
-    * If AdvRte.NextHop's Neighbor.State is Unknown, AdvRte may offer improvement the existing LocalRoute, if the link to AdvRte.NextHop can be confirmed as bidirectional.
+    * If AdvRte.NextHop's Neighbor.State is Heard, AdvRte may offer improvement the existing LocalRoute, if the link to AdvRte.NextHop can be confirmed as bidirectional.
     * If LocalRoute.State is Unconfirmed, AdvRte is an improvement to an existing Unconfirmed route. Continue processing from Step 5 to update the existing LocalRoute.
     * If LocalRoute.State is Invalid, AdvRte can replace the existing LocalRoute. Continue processing from Step 5 to update the existing LocalRoute.
     * If LocalRoute.State is Active or Idle, AdvRte SHOULD be stored as an additional entry in the Local Route Set, with LocalRoute.State set to Unconfirmed. Continue processing from Step 4 to create a new LocalRoute.
@@ -806,7 +806,7 @@ The route update is applied as follows:
 1.  If a new LocalRoute was created, or if the existing LocalRoute.State is Invalid or Unconfirmed, update LocalRoute
     as follows:
 
-    *  LocalRoute.State := Unconfirmed (if the next hop's Neighbor.State is Unknown)
+    *  LocalRoute.State := Unconfirmed (if the next hop's Neighbor.State is Heard)
     *  LocalRoute.State := Idle (if the next hop's Neighbor.State is Confirmed)
 
 1.  If an existing LocalRoute.State changed from Invalid or Unconfirmed to become Idle, any matching Unconfirmed LocalRoute
@@ -940,7 +940,7 @@ LocalRoutes can become Invalid before a timeout occurs:
 
 LocalRoutes are also updated when Neighbor.State is updated:
 
-*  While the value of Neighbor.State is set to Unknown, any routes in the Local Route Set using that neighbor as a next hop MUST have
+*  While the value of Neighbor.State is set to Heard, any routes in the Local Route Set using that neighbor as a next hop MUST have
    LocalRoute.State set to Unconfirmed.
 *  When the value of Neighbor.State is set to Confirmed, the Unconfirmed routes in the Local Route Set using that neighbor as a next hop MUST have
    LocalRoute.State set to Idle. Any other matching LocalRoutes with metric values worse than LocalRoute.Metric
@@ -1298,7 +1298,7 @@ Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
 
     * Check if the Neighbor Set contains an entry where:
         * Neighbor.IPAddress == IP.SourceAddress of the RREP_Ack message
-        * Neighbor.State == Unknown
+        * Neighbor.State == Heard
         * Neighbor.Timeout < CurrentTime
         * Neighbor.Interface matches the interface on which the RREP_Ack was received
 
@@ -1415,7 +1415,7 @@ Upon receiving a Route Error, an AODVv2 router performs the following steps:
 <!-- 1.  Update the Neighbor Set according to [](#nbrupdate) -->
 <!-- If the sender is blacklisted ([](#nbrlist)), check the entry's remove time
     *  If CurrentTime \< Remove Time, ignore this RERR for further processing.
-    *  If CurrentTime >= Remove Time, reset the neighbor state to Unknown and continue to Step 2. -->
+    *  If CurrentTime >= Remove Time, reset the neighbor state to Heard and continue to Step 2. -->
 1.  Verify that the message contains the required data: at least one
     unreachable address
     *  If not, ignore this RERR for further processing.
@@ -1703,7 +1703,17 @@ As in any externally-attached network, AODVv2 routers and Router Clients that wi
       \-------------------------/
 ^[net_top::Simple External Network Attachment Example]
 
-When an AODVv2 router within the AODVv2 MANET wants to discover a route toward an address on the external network, it uses the normal AODVv2 route discovery for that IP Destination Address. The ENAR MUST respond to RREQ on behalf of all external network destinations, e.g., destinations not on the configured 191.0.2.0/24 network. RREQs for addresses inside the AODVv2 network, e.g. destinations on the configured 191.0.2.0/24 network, are handled using the standard processes described in [](#aodv_msgs). Note that AODvv2 does not support RREQs for prefixes that do not equal address length.
+When an AODVv2 router within the AODVv2 MANET wants to discover a route toward an address 
+on the external network, it uses the normal AODVv2 route discovery for that IP Destination 
+Address. The ENAR MUST respond to RREQ on behalf of all external network destinations, e.g., 
+destinations not on the configured 191.0.2.0/24 network. The ENAR MAY respond with a 
+TargPrefix and TargPrefixLen that represent a prefix including more addresses than just 
+TargAddr, but MUST NOT respond with a TargPrefix and TargPrefixLen which includes any of 
+the networks configured as part of the AODVv2 network. This does result in some inefficiencies 
+in the way external routes are discovered. Sending a Route Request for a gateway is not 
+currently supported. 
+
+RREQs for addresses inside the AODVv2 network, e.g. destinations on the configured 191.0.2.0/24 network, are handled using the standard processes described in [](#aodv_msgs). Note that AODvv2 does not support RREQs for prefixes that do not equal address length, but RREPs do advertise the prefix on which TargAddr resides.
 
 When an IP packet from an address on the external network destined for an address in the AODVv2 MANET reaches the
 ENAR, if the ENAR does not have a route toward that destination in its Routing Information Base, it will perform normal
