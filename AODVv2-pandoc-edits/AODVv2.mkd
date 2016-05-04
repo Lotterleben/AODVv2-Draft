@@ -2182,10 +2182,10 @@ in each AODVv2 message in the packet.
 After message generation but before transmission, the ICV and TIMESTAMP TLVs MUST be added
 according to each message type as detailed in the following sections. The following steps list the procedure to be performed:
 
-1.  The considerations in Section 8 of [](#RFC7182) are followed, removing existing ICV TLVs
+1.  The considerations in Section 8 and section 9 of [](#RFC7182) are followed, removing existing ICV TLVs
     and adjusting the size and flags fields.
 
-2. The ICV is calculated over the fields specified below, depending on message type. This value
+2. Depending on the message type, the ICV is calculated over the appropriate fields, as specified in sections [](#security-protection-application-rreq), [](#security-protection-application-rrep), [](#security-protection-application-rrepack) and [](#security-protection-application-rerr). This value
     MAY be truncated (as specified in [](#RFC7182)).
 
 3. If the TIMESTAMP is to be included, add the TIMESTAMP TLV, updating size fields as necessary.
