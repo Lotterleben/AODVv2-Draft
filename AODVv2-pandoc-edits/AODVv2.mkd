@@ -40,8 +40,6 @@ to message elements using the Generalized MANET Packet/Message Format
 defined in [](#RFC5444) and sent using the parameters in [](#RFC5498).
 Verification of link bidirectionality has been substantially improved, and additional refinements made for route timeouts and state management.
 
-AODVv2 is an Experimental protocol. The purpose of the experiment with AODVv2 is to gain information on the behavior of the protocol in real-world deployments, furthering the knowledge base of both reactive protocols in general, and with AODVv2 in particular. Another goal of the experiment is to determine if sufficient demand exists for the AODVv2 protocol to prompt an effort to bring the protocol to Standards Track.
-
 The basic protocol mechanisms are as follows.
 Since AODVv2 is a reactive protocol, route discovery is initiated only when a route to the target is needed (i.e. when a router' client wants to send data). AODVv2 does this with the help of a Route Request (RREQ) and Route Reply (RREP) cycle: an RREQ is distributed across the network until it arrives at the target. When forwarding an RREQ, all routers across the network store the neighbor they've received the RREQ from, memorizing a possible route back to the originator of the RREQ.
 When the target receives the RREQ, it answers with an RREP, which then travels back to the originator along the path memorized by the intermediate routers.
@@ -221,26 +219,46 @@ The routing algorithm in AODVv2 MAY be operated at layers other than the network
 
 # Purpose of the Experiment
 
-<!-- 2) The motivation and experiments to be conducted need to be elaborated. It's even necessary to have a separate section/subsection for it. Some experiment points that come to my mind without much thinking: support of multiple interfaces, support of gateways, use of different metrics, the security model, etc.. -->
-
 AODVv2 is an Experimental protocol. While it is based on AODV [](#RFC3561), important protocol mechanisms have changed:
-Bidirectionality is ensured using a new mechanism, alternate metrics may be used to determine route quality, redundant messages are suppressed, support for multiple interfaces and a new security model allowing end to end integrity checks has been added and a new message format ([](#RFC5444)) is used.
+* Bidirectionality is ensured using a new mechanism
+* Alternate metrics may be used to determine route quality
+* Support for multiple interfaces has been improved
+* Support for multi-interface IP addresses has been added
+* A new security model allowing end to end integrity checks has been added 
+* A new message format ([](#RFC5444)) is used.
+
 Many of these changes have been made quite recently, after a protocol development hiatus of several years.
 
 Thus, the purpose of the experiment is to gain information on the behavior of these significant changes in real-world deployments, not only to learn about AODVv2 in particular, but also to further the knowledge base of reactive protocols in general.
 
 Suitable future experiments could be:
+<!-- worried some of these are basically "define new features for aodvv2"-->
 
 * Evaluation of the new features mentioned above with regard to performance and functionality
-* Evaluation of different metrics and their suitability for reactive distance vector protocols
-* 
+  - determining default values for configuration parameters such as timeouts, numbers of retries, buffer sizes, control message limits (ensuring the level of multicast traffic does not interfere with data traffic throughput)
+  - specification of optimisations / verification of minimum requirements for low-power or low-memory routers
+  - developing security strategies for different environments
+<!--  - Effectiveness and performance of multicast RREP variation needs to be tested -->
+* Quantification of effectiveness and performance of precursors
+* Evaluation of different metric types and their suitability for reactive distance vector protocols
+* Evaluation of use of an AODVv2 router as an External Network Attached Router or gateway router, including network topologies including multiple gateways.
+* Achieving implementations
+  - multiple and interoperable
+  - deployments in different network types
+<!--  - determination of network characteristics for which AODVv2 either performs particularly well, or performs particularly poorly, in order to develop the Applicability Statement. -->
+* Analysis of the effects of buffering traffic while route discovery is in progress
+<!-- //these sound a bit embarrassing, ie they pretty much say "we need to work out if theres loops, and if we even wrote the rules properly" but could fit under "evaluation of new features"
+     * Analysis of possibilities for loop formation
+     Maybe: "Discovery of corner cases in which protocol operation becomes undesirable"
+     * Verifying that rules for route state changes are correct
+     * Proving that we can handle multiple interfaces with same IP address on the same router
+-->
+<!-- the following comment is more "future development ideas" than "experiments to do with the current version" not sure if it should be included? -->
+* Specification of extensions to deal with timed routes, expanding ring multicast, unicast RERR to specific route precursors,  accurate bidirectional metric discovery, dealing with and allowing uni-directional links and routes
 
 The final goal of the experiment is to determine if sufficient demand
 exists for the AODVv2 protocol to prompt an effort to bring the
 protocol to Standards Track.
-
-
-<!-- TODO: Because RFC 3561 has already been experimented for 13 years, as its version 2, AODVv2 should summarize what kind of experiences have been obtained in the past 13 years, and justify the design choices made in the current draft (like use of RFC5444, removing some of the features, etc)-->
 
 # Data Structures
 
