@@ -327,7 +327,7 @@ Neighbor.AckSeqNum
 Neighbor.HeardRERRSeqNum
 :   <vspace/>The last heard sequence number used as the TIMESTAMP value in a RERR received from this neighbor, saved in order to detect replay of a RERR message. Initially set to zero.
 
-See [](#rrepack-security) and [](#rerr-security) for more information on how Neighbor.AckSeqNum and Neighbor.HeardRERRSeqNum are used.
+See [](#security-protection-application-rrepack) and [](#security-protection-application-rerr) for more information on how Neighbor.AckSeqNum and Neighbor.HeardRERRSeqNum are used.
 
 ## Sequence Numbers  {#seqnum}
 
@@ -2204,76 +2204,71 @@ in each AODVv2 message in the packet.
 After message generation but before transmission, the ICV and TIMESTAMP TLVs MUST be added
 according to each message type as detailed in the following sections. The following steps list the procedure to be performed:
 
-
 1.  If the TIMESTAMP is to be included, depending on AODVv2 message type as specified below, add the TIMESTAMP TLV.
    * When a TIMESTAMP Packet TLV is being added, the Packet TLV Block size field MUST be updated.
    * When a TIMESTAMP Message TLV is being added, the Message TLV Block size field MUST be updated.
 
-2.  The considerations in Section 8 and section 9 of [](#RFC7182) are followed, removing existing ICV TLVs
-    and adjusting the size and flags fields as appropriate: 
-       * When an ICV Packet TLV is being added, existing ICV Packet TLVs MUST be removed 
-         and the Packet TLV Block size MUST be updated. If the Packet 
-         TLV Block now contains no TLVs, the phastlv bit in the <pkt-flags> field in 
-         the Packet Header MUST be cleared. 
-       * When an ICV Message TLV is being added, existing ICV Message TLVs are removed 
-         and the Message TLV Block Size MUST be updated.
+2.  The considerations in Section 8 and section 9 of [](#RFC7182) are followed, removing existing ICV TLVs and adjusting the size and flags fields as appropriate: 
+   * When an ICV Packet TLV is being added, existing ICV Packet TLVs MUST be removed 
+     and the Packet TLV Block size MUST be updated. If the Packet 
+     TLV Block now contains no TLVs, the phastlv bit in the \<pkt-flags\> field in 
+     the Packet Header MUST be cleared. 
+   * When an ICV Message TLV is being added, existing ICV Message TLVs are removed 
+     and the Message TLV Block Size MUST be updated.
 
-3.  Mutable fields in the message MUST have their mutable values set to zero before 
-       calculating the ICV. 
-       * If the msg-hop-limit field is included in the [](#RFC5444) message header, 
-         msg-hop-limit MUST be set to zero before calculating the ICV. 
-       * If a PATH_METRIC TLV is included, any values present in the TLV MUST be 
-         set to zero before calculating the ICV value.
+3.  Mutable fields in the message MUST have their mutable values set to zero before calculating the ICV. 
+   * If the msg-hop-limit field is included in the [](#RFC5444) message header, 
+     msg-hop-limit MUST be set to zero before calculating the ICV. 
+   * If a PATH_METRIC TLV is included, any values present in the TLV MUST be 
+     set to zero before calculating the ICV value.
 
-4. Depending on the message type, the ICV is calculated over the appropriate fields (as specified in sections [](#security-protection-application-rreq), [](#security-protection-application-rrep), [](#security-protection-application-rrepack) and [](#security-protection-application-rerr)) to include the fields <hash-function>, <cryptographic-function>, 
-       <key-id-length>, and, if present, <key-id> (in that order), followed by the entire packet or message. This value
+
+4. Depending on the message type, the ICV is calculated over the appropriate fields (as specified in sections [](#security-protection-application-rreq), [](#security-protection-application-rrep), [](#security-protection-application-rrepack) and [](#security-protection-application-rerr)) to include the fields \<hash-function\>, \<cryptographic-function\>, \<key-id-length\>, and, if present, \<key-id\> (in that order), followed by the entire packet or message. This value
     MAY be truncated (as specified in [](#RFC7182)).
 
 5. Add the ICV TLV, updating size fields as necessary.
 
-6. The changes made in Step 2 and Step 3 are reversed to re-add any existing
-       ICV TLVs, re-adjust the relevant size and flags fields, and set the msg-hop-limit 
-       and PATH_METRIC TLV values.
+6. The changes made in Step 2 and Step 3 are reversed to re-add any existing ICV TLVs, re-adjust the relevant size and flags fields, and set the msg-hop-limit and PATH_METRIC TLV values.
 
 On message reception, and before message processing, verification of the received
 message MUST take place:
 
-   1.  The considerations in Section 8 and Section 9 of [](#RFC7182) are followed,
-       removing existing ICV TLVs and adjusting the size and flags
-       fields as appropriate.
-       * When verifying the ICV value in an ICV Packet TLV, all ICV Packet TLVs present 
-         in the Packet TLV Block MUST be removed before calculating the ICV, and the 
-         Packet TLV Block size MUST be updated. If there are no 
-         remaining Packet TLVs, the Packet TLV Block MUST be removed and the phastlv bit 
-         in the <pkt-flags> field MUST be cleared.
-       * When verifying the ICV value in an ICV Message TLV, all ICV Message TLVs present
-         in the Message TLV Block MUST be removed before calculating the ICV, and the
-         Message TLV Block size MUST be updated.
+1.  The considerations in Section 8 and Section 9 of [](#RFC7182) are followed,
+   removing existing ICV TLVs and adjusting the size and flags
+   fields as appropriate.
+   * When verifying the ICV value in an ICV Packet TLV, all ICV Packet TLVs present 
+     in the Packet TLV Block MUST be removed before calculating the ICV, and the 
+     Packet TLV Block size MUST be updated. If there are no 
+     remaining Packet TLVs, the Packet TLV Block MUST be removed and the phastlv bit 
+     in the \<pkt-flags\> field MUST be cleared.
+   * When verifying the ICV value in an ICV Message TLV, all ICV Message TLVs present
+     in the Message TLV Block MUST be removed before calculating the ICV, and the
+     Message TLV Block size MUST be updated.
 
-   2.  Mutable fields in the message MUST have their mutable values set to zero before 
-       calculating the ICV. 
-       * If the msg-hop-limit field is included in the [](#RFC5444) message header, 
-         msg-hop-limit MUST be set to zero before calculating the ICV. 
-       * If a PATH_METRIC TLV is included, any values present in the TLV MUST be 
-         set to zero before calculating the ICV value.
+2.  Mutable fields in the message MUST have their mutable values set to zero before 
+   calculating the ICV. 
+   * If the msg-hop-limit field is included in the [](#RFC5444) message header, 
+     msg-hop-limit MUST be set to zero before calculating the ICV. 
+   * If a PATH_METRIC TLV is included, any values present in the TLV MUST be 
+     set to zero before calculating the ICV value.
 
-   3.  The ICV is calculated following the considerations in Section 12.2 of 
-       [RFC7182], to include the fields <hash-function>, <cryptographic-function>, 
-       <key-id-length>, and, if present, <key-id> (in that order), followed by the 
-       entire packet or message. 
-       * If the received ICV value is truncated, the calculated ICV value
-         MUST also be truncated (as specified in [](#RFC7182)), before comparing.
-       * If the ICV value calculated from the received message or packet does not match
-         the value of <ICV-data> in the received message or packet, the
-         validation fails and the AODVv2 message MUST be discarded and NOT processed or forwarded.
-       * If the ICV values do match, the values set to zero before calculating the ICV are reset to the
-         received values, and processing continues to Step 4.
+3.  The ICV is calculated following the considerations in Section 12.2 of 
+   [RFC7182], to include the fields \<hash-function\>, \<cryptographic-function\>, 
+   \<key-id-length\>, and, if present, \<key-id\> (in that order), followed by the 
+   entire packet or message. 
+   * If the received ICV value is truncated, the calculated ICV value
+     MUST also be truncated (as specified in [](#RFC7182)), before comparing.
+   * If the ICV value calculated from the received message or packet does not match
+     the value of \<ICV-data\> in the received message or packet, the
+     validation fails and the AODVv2 message MUST be discarded and NOT processed or forwarded.
+   * If the ICV values do match, the values set to zero before calculating the ICV are reset to the
+     received values, and processing continues to Step 4.
 
-   4.  Verification of a received TIMESTAMP value MUST be performed. The procedure
-       depends on message type as specified in the following sub sections.
-       *   If the TIMESTAMP value in the received message is not valid, the AODVv2 
-           message MUST be discarded and NOT processed or forwarded.
-       *   If the TIMESTAMP value is valid, processing continues as defined in Section 7.
+4.  Verification of a received TIMESTAMP value MUST be performed. The procedure
+   depends on message type as specified in the following sub sections.
+   *   If the TIMESTAMP value in the received message is not valid, the AODVv2 
+       message MUST be discarded and NOT processed or forwarded.
+   *   If the TIMESTAMP value is valid, processing continues as defined in Section 7.
 
 <!--
 TODO: "If the protocol incorporates cryptographic
@@ -2296,9 +2291,7 @@ is deployed etc)
 
 Since OrigPrefix is included in the RREQ, the ICV can be calculated and verified using the [](#RFC5444) contents.The ICV TLV has type extension := 1. Inclusion of an 
    ICV TLV message integrity and endpoint authentication,
-because trusted routers MUST hold the shared key in order to calculate the ICV value, 
-   both to include when creating a message, and to validate the message by checking that the 
-   ICV is correct.
+because trusted routers MUST hold the shared key in order to calculate the ICV value, both to include when creating a message, and to validate the message by checking that the ICV is correct.
 
 Since RREQ_Gen's sequence number is incremented for each new RREQ, replay protection is already afforded and no extra  TIMESTAMP TLV is required.
 
@@ -2386,13 +2379,7 @@ On message reception and before message processing:
 
 1. Verify the received ICV value as described above.
 
-2. Verify the received TIMESTAMP value by comparing the sequence number in the
-  value field of the TIMESTAMP TLV with the Neighbor.HeardRERRSeqNum. If the 
-  sequence number in the message is lower than the stored value, the AODVv2 
-  message MUST be discarded. Otherwise, the Neighbor.HeardRERRSeqNum MUST be 
-  set to the received value and processing continues according to Section 7.
-
-
+2. Verify the received TIMESTAMP value by comparing the sequence number in the value field of the TIMESTAMP TLV with the Neighbor.HeardRERRSeqNum. If the  sequence number in the message is lower than the stored value, the AODVv2  message MUST be discarded. Otherwise, the Neighbor.HeardRERRSeqNum MUST be set to the received value and processing continues according to Section 7.
 
 <!--
  Most AODVv2 messages are transmitted to the multicast address LL-MANET-Routers [](#RFC5498).  It is
