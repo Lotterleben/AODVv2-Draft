@@ -49,7 +49,8 @@ if advertised routes could form loops.
 Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers and issuing Route Error (RERR) messages informing other routers of broken links. It also includes reacting to received Route Error messages, and extending and enforcing route timeouts.
 
 The on-demand nature of AODVv2 requires signals to be exchanged between AODVv2 and the forwarding plane. These signals
-indicate when: 
+indicate when:
+
 *  a packet is to be forwarded, in order to initiate route discovery
 *  packet forwarding fails, in order to initiate route error reporting
 *  a packet is successfully forwarded, for route maintenance.
