@@ -255,7 +255,7 @@ Interface.Id
 
 If multiple interfaces of the AODVv2 router are configured for use by AODVv2, they MUST be configured in the InterfaceSet.
 
-Otherwise the InterfaceSet MAY be empty.
+Implementations for constrained devices using only one interface MAY choose not to use the InterfaceSet.
 
 <!-- TODO when I resolve this see also TODO in {#gateway}-->
 
@@ -431,14 +431,14 @@ The Multicast Route Message Set is maintained so that no two entries have the sa
 
 ## Route Error (RERR) Set  {#rerrtable}
 
-Each sent RERR message SHOULD be recorded in a conceptual set called the Route Error (RERR) Set. Each entry contains the following information:
+Each RERR message sent because no route exists for packet forwarding SHOULD be recorded in a conceptual set called the Route Error (RERR) Set. Each entry contains the following information:
 
 RerrMsg.Timeout
 :   <vspace/>The time after which the entry SHOULD be deleted.
-RerrMsg.AddressList
-:   <vspace/>The AddressList of the RERR to be recorded.
+RerrMsg.UnreachableAddress
+:   <vspace/>The UnreachableAddress reported in the AddressList of the RERR.
 RerrMsg.PktSource:
-:   <vspace/>The PktSource of the RERR to be recorded, if any.
+:   <vspace/>The PktSource of the RERR.
 
 See section [](#suppressrerr) for instructions on how to update the set.
 
@@ -756,7 +756,8 @@ An incoming advertised route (AdvRte) is compared to existing LocalRoutes to det
     *   If LoopFree(AdvRte, LocalRoute) returns TRUE, continue to Step 4.
 
 1.  Compare route costs
-    *   If AdvRte is better than all matching LocalRoutes, it SHOULD be used to update the Local Route Set because it offers improvement. If it is not used to update the Local Route Set, the existing non-optimal LocalRoute will continue to be used, causing data traffic to use a non-optimal route.
+    *   If AdvRte is better than all matching LocalRoutes, it MUST be used to update the Local Route Set because it offers improvement. 
+<!-- If it is not used to update the Local Route Set, the existing non-optimal LocalRoute will continue to be used, causing data traffic to use a non-optimal route. -->
     *   If AdvRte is equal in cost and LocalRoute is valid, AdvRte SHOULD NOT be used to update the Local Route Set because it will offer no improvement.
     *   If AdvRte is worse and LocalRoute is valid, ignore AdvRte for further processing. AdvRte MUST NOT be used to update the Local Route Set because it does not offer any improvement.
     *   If AdvRte is not better (i.e., it is worse or equal) but LocalRoute is Invalid, AdvRte SHOULD be used to update the Local Route Set because it can safely repair the existing Invalid LocalRoute.
@@ -816,7 +817,7 @@ The route update is applied as follows:
     value SHOULD be expunged.
 
 1.  If this update results in LocalRoute.State of Active or Idle, which matches a route request which is still in progress,
-    the associated route request retry timers SHOULD be cancelled.
+    the associated route request retry timers MUST be cancelled.
 
 If this update to the Local Route Set results in two LocalRoutes to the same address, the best LocalRoute will be
 Unconfirmed. In order to improve the route used for forwarding, the router SHOULD try to determine if the link to the
@@ -888,18 +889,18 @@ have up-to-date information and the best metrics. If the message is not forwarde
 In order to avoid flooding the network with RERR messages when a stream of IP packets to an unreachable address arrives, an AODVv2
 router SHOULD avoid creating duplicate messages by determining whether an equivalent RERR has recently been sent. This is achieved with the help of the Route Error Set (see [](#rerrtable)).
 
-To determine if a received RERR is redundant:
+To determine if a RERR should be created:
 
 1.  Search for an entry in the Route Error Set where:
-    * RerrMsg.AddressList == RERR.AddressList
-    * RerrMsg.PktSource == RERR.PktSource
+    * RerrMsg.UnreachableAddress == UnreachableAddress to be reported
+    * RerrMsg.PktSource == PktSource to be included in the RERR
 
     If a matching entry is found, no further processing is required and the RERR SHOULD NOT be sent.
 
-2.  If no matching entry is found, a new entry with the following properties is created:
+2.  If no matching entry is found, a new entry with the following properties is created, and the RERR is created and sent as described in [](#RERR_gen):
     * RerrMsg.Timeout := CurrentTime + RERR_TIMEOUT
-    * RerrMsg.AddressList == RERR.AddressList
-    * RerrMsg.PktSource == RERR.PktSource
+    * RerrMsg.UnreachableAddress == UnreachableAddress to be reported
+    * RerrMsg.PktSource == PktSource to be included in the RERR
 
 ## Local Route Set Maintenance  {#route_maint}
 
@@ -1114,7 +1115,8 @@ The procedure for RREQ forwarding is as follows:
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
 1.  Set OrigMetric := LocalRoute[OrigPrefix].Metric
 
-This modified message is handed to the [](#RFC5444) multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  However, the forwarded RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.
+This modified message is handed to the [](#RFC5444) multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  
+<!-- However, the forwarded RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.-->
 
 
 ## Route Reply (RREP) Message  {#RREP_msgs}
@@ -1164,8 +1166,8 @@ A Route Reply message is generated when a Route Request for
 a Router Client of the AODVv2 router arrives. This is the case when
 RteMsg.TargPrefix matches an entry in the Router Client Set of the AODVv2 router.
 
-Before creating an RREP, the router SHOULD check if the corresponding RREQ is redundant, i.e.,
-a Route Reply has already been generated in response to the RREQ, or if CONTROL_TRAFFIC_LIMIT has been reached. If so, the RREP SHOULD NOT be created.
+Before creating an RREP, the router SHOULD check if <!--the corresponding RREQ is redundant, i.e.,
+a Route Reply has already been generated in response to the RREQ, or if--> CONTROL_TRAFFIC_LIMIT has been reached. If so, the RREP SHOULD NOT be created.
 
 The RREP will follow the path of the route to OrigPrefix. If the best route to OrigPrefix in the Local Route Set is Unconfirmed, the link to the next hop neighbor is not yet confirmed as bidirectional (as described in [](#nexthopmonitoring)). In this case an RREP_Ack MUST also be sent as described in [](#rrep_ack_msgs), in order to request an acknowledgement message from the next hop router to prove that the link is bidirectional. If the best route to OrigPrefix
 in the Local Route Set is valid, the link to the next hop neighbor is already confirmed as bidirectional, and no acknowledgement is required.
@@ -1305,7 +1307,7 @@ Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
      * If it does, the router sets Neighbor.Timeout to INFINITY_TIME, and processing continues to Step 3.
      * Otherwise no actions are required and processing ends.
 
-1.   Update the Neighbor Set according to [](#nbrupdate)
+1.   Update the Neighbor Set according to [](#nbrupdate), including updating routes using this Neighbor as LocalRoute.NextHop.
 
 ### RREP_Ack Response Generation {#RREP_Ack_Resp}
 
