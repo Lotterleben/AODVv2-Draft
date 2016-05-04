@@ -124,6 +124,9 @@
 	      <?rfc include="reference.RFC.4193" ?>
 	      <?rfc include="reference.RFC.4728" ?>
 	      <?rfc include="reference.RFC.6130" ?>
+          <?rfc include="reference.RFC.4107" ?>
+          <?rfc include="reference.I-D.ietf-manet-ibs" ?>
+          <?rfc include="reference.RFC.6507" ?>
 <!--	      <?rfc include="reference.RFC.6621" ?> -->
 
 	      <reference anchor="Perkins94">
