@@ -933,7 +933,9 @@ reporting routes that become Invalid.
 ### LocalRoute State Changes {#routestatechanges}
 
 During normal operation, AODVv2 does not require any explicit timeouts to manage the lifetime of a route. At any time, any
-LocalRoute MAY be examined and updated according to the rules below. If timers are not used to prompt updates of LocalRoute.State,
+LocalRoute MAY be examined and updated according to the rules below.
+In case a Routing Information Base is used for forwarding, the corresponding RIB entry MUST be updated as soon as the state of a LocalRoute.State changes.
+Otherwise, if timers are not used to prompt updates of LocalRoute.State,
 the LocalRoute.State MUST be checked before IP packet forwarding and before any operation based on LocalRoute.State.
 
 Route timeout behaviour is as follows:
