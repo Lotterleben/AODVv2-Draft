@@ -2,6 +2,12 @@
 
 # AODVv2 Draft Updates
 
+This section lists the changes between AODVv2 revisions ...-16.txt and ...-17.txt.
+
+* Removed wording that suggested RREP_Gen could add multiple (unrelated) subnets.
+
+<!--
+
 This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.txt.
 
 * Changed 'regeneration' language in favor of 'forwarding'.
@@ -17,7 +23,6 @@ This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.tx
 * Extended experiment description
 * Added detailed description of which steps to take when calculating and evaluating ICVs, particularly how to zero out the metric value
 
-<!--
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
 
 * Shortened Terminology descriptions of Unreachable Address, Unreachable Route, Valid Route and add references to sections explaining the details.
