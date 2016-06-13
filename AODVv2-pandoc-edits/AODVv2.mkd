@@ -411,12 +411,12 @@ Invalid
     is not referred to as a valid route. Invalid routes contain sequence number information which allows
     incoming information to be assessed for freshness.
 
-If the Local Route Set is stored separately from the Routing Information Base, routes are added to the Routing Information Base
-when LocalRoute.State is valid (set to Active or Idle), and removed from the Routing Information Base when LocalRoute.State becomes Invalid.
+If the Local Route Set is stored separately from the Routing Information Base, routes MAY be added to the Routing Information Base when LocalRoute.State is valid (set to Active or Idle), and MUST be removed from the Routing Information Base when LocalRoute.State becomes Invalid. 
+
+Multiple valid routes for the same address and prefix length but for different metric types may exist in the Local Route Set, but only one route to a particular address and prefix length may exist in the Routing Information Base. The decision of which of the routes should be installed in the Routing Information Base is outside the scope of AODVv2. A LocalRoute should be marked if installed in the Routing Information Base, so that when the LocalRoute changes, the entry in the Routing Information Base can also be updated. 
 
 Changes to LocalRoute state are detailed in [](#routestatechanges).
 
-Multiple valid routes for the same address and prefix length but for different metric types may exist in the Local Route Set, but only one route to a particular address and prefix length may exist in the Routing Information Base. The decision of which of the routes should be installed in the Routing Information Base is outside the scope of AODVv2.
 
 
 ## Multicast Route Message Set  {#rtemsgtable}
@@ -645,9 +645,11 @@ AODVv2 needs to send signals to the forwarding plane:
     within RREQ_WAIT_TIME (see [](#route_discovery)).
 *   A route discovery is not permitted: any buffered packets requiring that route should be discarded. A route discovery will
     not be attempted if the source address of the packet needing a route is not configured as a Router Client.
-*   A route discovery succeeded: install a corresponding route into the Routing Information Base and begin transmitting any buffered packets.
-*   A route has been made invalid: remove the corresponding route from the Routing Information Base.
-*   A route has been updated: update the corresponding route in the Routing Information Base.
+*   A route discovery succeeded and there is a new entry in the Local Route Set: using the new LocalRoute, a corresponding route MAY be installed into the Routing Information Base. If installed, any buffered packets MUST be transmitted.
+*   A route has been made invalid in the Local Route Set: if the newly invalid LocalRoute has a corresponding route installed in the Routing Information Base, remove it.
+*   A route has been updated in the Local Route Set: if the updated LocalRoute has a corresponding route in the Routing Information Base, update it.
+
+See [](#rte) for further information on interaction with the Routing Information Base.
 
 ## Message Transmission  {#MsgXmit}
 
