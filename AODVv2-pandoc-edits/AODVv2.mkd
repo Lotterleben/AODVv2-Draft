@@ -44,7 +44,7 @@ Verification of link bidirectionality has been substantially improved, and addit
 The basic protocol mechanisms are as follows.
 Since AODVv2 is a reactive protocol, route discovery is initiated only when a route to the target is needed (i.e. when a router' client wants to send data). AODVv2 does this with the help of a Route Request (RREQ) and Route Reply (RREP) cycle: an RREQ is distributed across the network until it arrives at the target. When forwarding an RREQ, all routers across the network store the neighbor they've received the RREQ from, memorizing a possible route back to the originator of the RREQ.
 When the target receives the RREQ, it answers with an RREP, which then travels back to the originator along the path memorized by the intermediate routers.
-A metric value is included within the messages to record the cost of the route. AODVv2 uses sequence numbers to identify stale routing information, and compares route metric values to determine
+A metric value is included within the messages to record the metric of the route. AODVv2 uses sequence numbers to identify stale routing information, and compares route metric values to determine
 if advertised routes could form loops.
 
 Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers and issuing Route Error (RERR) messages informing other routers of broken links. It also includes reacting to received Route Error messages, and extending and enforcing route timeouts.
@@ -199,8 +199,8 @@ encryption can be used for AODVv2 messages to ensure that only trusted routers p
 
 Since the route discovery process aims for a route to be established in both directions along the same path, uni-directional links
 are not suitable. AODVv2 will detect and exclude those links from route discovery. The route discovered is optimised for the requesting router,
-and the return path may not be the optimal route. <!-- Route costs learned by routers other than the requesting router may not reflect the true route
-cost. -->
+and the return path may not be the optimal route. <!-- Route metrics learned by routers other than the requesting router may not reflect the true route
+metric. -->
 <!-- and the TargAddr end wouldnt request a better route if it already has a route -->
 
 <!-- Issue #22 -->
@@ -291,8 +291,8 @@ RouterClient.IPAddress
 <!-- A client node with multiple IP addresses MAY cause the AODVv2 router to be configured with multiple Router Client entries. -->
 RouterClient.PrefixLength
 :   <vspace/>The length, in bits, of the routing prefix associated with the RouterClient.IPAddress.  If the prefix length is not equal to the address length of RouterClient.IPAddress, the AODVv2 router MUST participate in route discovery on behalf of all addresses within that prefix.
-RouterClient.Cost
-:   <vspace/>The cost associated with reaching this address or address range.
+RouterClient.Metric
+:   <vspace/>The metric associated with reaching this address or address range.
 
 A Router Client address MUST NOT be served by more than one AODVv2 router at any one time. To shift responsibility for a Router Client to
 a different AODVv2 router, correct AODVv2 routing behavior MUST be observed; The AODVv2 router adding the Router Client MUST wait for any
@@ -389,7 +389,7 @@ LocalRoute.LastSeqNumUpdate
 LocalRoute.MetricType
 :   <vspace/>The type of metric associated with this route.
 LocalRoute.Metric
-:   <vspace/>The cost of the route toward LocalRoute.Address expressed in units consistent with LocalRoute.MetricType.
+:   <vspace/>The metric of the route toward LocalRoute.Address expressed in units consistent with LocalRoute.MetricType.
 LocalRoute.State
 :   <vspace/>The last known state (Unconfirmed, Idle, Active, or Invalid) of the route.
 
@@ -471,17 +471,17 @@ See section [](#suppressrerr) for instructions on how to update the set.
 Metrics measure a cost or quality associated with a route or a link, e.g., latency, delay, financial cost, energy, etc. Metric
 values are reported in Route Request and Route Reply messages.
 
-In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client Set entry which includes OrigAddr. For routers which forward the RREQ, this is the cost from OrigPrefix to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Request message,
+In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the metric associated with the Router Client Set entry which includes OrigAddr. For routers which forward the RREQ, this is the metric from OrigPrefix to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link metric from the sender to the receiver, i.e., the incoming link metric. This updated route metric is included when forwarding the Route Request message,
 and used to install a route to OrigPrefix.
 
-Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client Set entry which includes TargAddr. For routers which forward the RREP, this is the cost from TargPrefix to the forwarding router, combining the metric value from the received RREP message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Reply message,
+Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the metric associated with the Router Client Set entry which includes TargAddr. For routers which forward the RREP, this is the metric from TargPrefix to the forwarding router, combining the metric value from the received RREP message with knowledge of the link metric from the sender to the receiver, i.e., the incoming link metric. This updated route metric is included when forwarding the Route Reply message,
 and used to install a route to TargPrefix.
 
-Assuming link metrics are symmetric, the cost of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
+Assuming link metrics are symmetric, the metrics of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
 The route discovered is optimised for the requesting router, and the return path may not be the optimal route.
 
-<!-- if not symmetric...could be stored with MAX_METRIC..then if forwarding data from a Router Client on a route with MAX_METRIC maybe this could indicate that a route should be requested, to learn the best cost from us to them, rather than them to us which is what we would have installed.  -->
-<!-- Similarly cost on route to TargAddr is currently stored with metric from targ->current. The existing route to TargAddr is probably a good one, because it was found on a prev RREQ in that direction - its just that we dont know the accurate metric. OR, we could be adding up outgoing link costs back toward targaddr in a rrep, and also transporting the orig->targ metric unchanged, add up outgoing metrics to get correct cost for targaddr -->
+<!-- if not symmetric...could be stored with MAX_METRIC..then if forwarding data from a Router Client on a route with MAX_METRIC maybe this could indicate that a route should be requested, to learn the best metric from us to them, rather than them to us which is what we would have installed.  -->
+<!-- Similarly metric on route to TargAddr is currently stored with metric from targ->current. The existing route to TargAddr is probably a good one, because it was found on a prev RREQ in that direction - its just that we dont know the accurate metric. OR, we could be adding up outgoing link metrics back toward targaddr in a rrep, and also transporting the orig->targ metric unchanged, add up outgoing metrics to get correct metric for targaddr -->
 
 AODVv2 enables the use of multiple metric types. Each route discovery attempt indicates the metric type which is requested for
 the route. Only one metric type MUST be used in each route discovery attempt.
@@ -490,10 +490,10 @@ For each MetricType, AODVv2 requires:
 
 * A MetricType number, to indicate the metric type of a route. MetricType numbers allocated are detailed in [](#metric-type).
 * A maximum value, denoted MAX_METRIC[MetricType]. This MUST always be the maximum expressible metric value of type MetricType.
-  Field lengths associated with metric values are found in [](#metric-type). If the cost of a route exceeds MAX_METRIC[MetricType], the route is ignored.
-* A function for incoming link cost, denoted Cost(L). Using incoming link costs means that the route learned has a path optimized
+  Field lengths associated with metric values are found in [](#metric-type). If the metric of a route exceeds MAX_METRIC[MetricType], the route is ignored.
+* A function for incoming link metric, denoted Metric(L). Using incoming link metrics means that the route learned has a path optimized
   for the direction from OrigAddr to TargAddr.
-* A function for route cost, denoted Cost(R).
+* A function for route metric, denoted Metric(R).
 * A function to analyze routes for potential loops based on metric information, denoted LoopFree(R1, R2). LoopFree verifies that a route R2 is not a sub-section
   of another route R1. An AODVv2 router invokes LoopFree() as part of the process in [](#test), when an advertised route (R1) and an
   existing LocalRoute (R2) have the same destination address, metric type, and sequence number. LoopFree returns FALSE to indicate
@@ -502,12 +502,12 @@ For each MetricType, AODVv2 requires:
   which did not yet receive notification of the route becoming Invalid, so the advertised route should not be used to update the Local
   Route Set, in case it forms a loop to a broken route.
 
-AODVv2 currently supports cost metrics where Cost(R) is strictly increasing, by defining:
+AODVv2 currently supports cost metrics where Metric(R) is strictly increasing, by defining:
 
-* Cost(R) := Sum of Cost(L) of each link in the route
-* LoopFree(R1, R2) := ( Cost(R1) \<= Cost(R2) )
+* Metric(R) := Sum of Metric(L) of each link in the route
+* LoopFree(R1, R2) := ( Metric(R1) \<= Metric(R2) )
 
-Implementers MAY consider other metric types, but the definitions of Cost and LoopFree functions for such types are undefined, and
+Implementers MAY consider other metric types, but the definitions of Metric and LoopFree functions for such types are undefined, and
 interoperability issues need to be considered.
 
 
@@ -727,15 +727,15 @@ the router will begin sending the buffered IP packets. Any retry timers for the 
 During route discovery, all routers on the path learn a route to both OrigPrefix and TargPrefix, so that routes are constructed in both directions.
 The route is optimized for the forward route.
 
-<!-- For RREQ, use incoming cost from previous hop, so that the return path will be the optimal for Orig->Targ. -->
+<!-- For RREQ, use incoming metric from previous hop, so that the return path will be the optimal for Orig->Targ. -->
 <!-- Targ rtr doesnt learn the optimal path to OrigAddr, in fact learns wrong metric too -->
 
 <!--
-Routes to OrigAddr learned from an RREQ will reflect the route cost in the direction from OrigAddr toward
-TargAddr, calculated at each receiving router. This might not be the correct cost for their route to OrigAddr.
+Routes to OrigAddr learned from an RREQ will reflect the route metric in the direction from OrigAddr toward
+TargAddr, calculated at each receiving router. This might not be the correct metric for their route to OrigAddr.
 The corresponding RREP contains this accumulated metric value. It is not changed at intermediate routers, so
 RREQ_Gen and all intermediate routers install a route to TargAddr using this metric. At intermediate routers
-this route does not correctly reflect the cost of their route to TargAddr.
+this route does not correctly reflect the metric of their route to TargAddr.
 -->
 
 ## Processing Received Route Information {#processingrte}
@@ -756,9 +756,9 @@ AdvRte has the following properties:
 * AdvRte.SeqNum := RteMsg.OrigSeqNum (in RREQ) or RteMsg.TargSeqNum (in RREP)
 * AdvRte.NextHop := RteMsg.IPSourceAddress (an address of the sending interface of the router from which the RteMsg was received)
 * AdvRte.MetricType := RteMsg.MetricType
-* AdvRte.Metric := RteMsg.Metric
-* AdvRte.Cost := Cost(R) using the cost function associated with the route's metric type,
-  i.e. Cost(R) = AdvRte.Metric + Cost(L), as described in [](#metrics), where L is the link from the
+* AdvRte.AdvMetric := RteMsg.Metric
+* AdvRte.Metric := Metric(R) using the metric function associated with the route's metric type,
+  i.e. Metric(R) = AdvRte.AdvMetric + Metric(L), as described in [](#metrics), where L is the link from the
   advertising router
 
 
@@ -779,10 +779,10 @@ An incoming advertised route (AdvRte) is compared to existing LocalRoutes to det
     *   If LoopFree(AdvRte, LocalRoute) returns FALSE, ignore AdvRte for further processing. AdvRte MUST NOT be used to update the Local Route Set because using the incoming information might cause a routing loop.
     *   If LoopFree(AdvRte, LocalRoute) returns TRUE, continue to Step 4.
 
-1.  Compare route costs
+1.  Compare route metrics
     *   If AdvRte is better than all matching LocalRoutes, it MUST be used to update the Local Route Set because it offers improvement. 
 <!-- If it is not used to update the Local Route Set, the existing non-optimal LocalRoute will continue to be used, causing data traffic to use a non-optimal route. -->
-    *   If AdvRte is equal in cost and LocalRoute is valid, AdvRte SHOULD NOT be used to update the Local Route Set because it will offer no improvement.
+    *   If AdvRte is equal in metric and LocalRoute is valid, AdvRte SHOULD NOT be used to update the Local Route Set because it will offer no improvement.
     *   If AdvRte is worse and LocalRoute is valid, ignore AdvRte for further processing. AdvRte MUST NOT be used to update the Local Route Set because it does not offer any improvement.
     *   If AdvRte is not better (i.e., it is worse or equal) but LocalRoute is Invalid, AdvRte SHOULD be used to update the Local Route Set because it can safely repair the existing Invalid LocalRoute.
 
@@ -824,7 +824,7 @@ The route update is applied as follows:
     *  LocalRoute.SeqNum := AdvRte.SeqNum
     *  LocalRoute.NextHop := AdvRte.NextHop
     *  LocalRoute.NextHopInterface := interface on which RteMsg was received
-    *  LocalRoute.Metric := AdvRte.Cost
+    *  LocalRoute.Metric := AdvRte.Metric
     *  LocalRoute.LastUsed := CurrentTime
     *  LocalRoute.LastSeqNumUpdate := CurrentTime
 
@@ -899,7 +899,7 @@ To update a Multicast Route Message Set entry, set:
 * RteMsg.TargPrefix := TargPrefix from the message
 * RteMsg.OrigSeqNum := the sequence number associated with OrigPrefix, if RteMsg is an RREQ
 * RteMsg.TargSeqNum := the sequence number associated with TargPrefix, if RteMsg is an RREP
-* RteMsg.Metric := the metric value associated with OrigPrefix in a received RREQ
+* RteMsg.AdvMetric := the metric value associated with OrigPrefix in a received RREQ
 * RteMsg.MetricType := the metric type associated with RteMsg.Metric
 * RteMsg.Timestamp := CurrentTime
 * RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
@@ -1090,7 +1090,7 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
        omit TargSeqNum.
 1.  Include MetricType and set the type accordingly
 1.  Find the Router Client Set Entry where RouterClient.IPAddress == OrigPrefix:
-    * Set OrigMetric := RouterClient.Cost
+    * Set OrigMetric := RouterClient.Metric
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET- Routers on all interfaces configured for AODVv2 operation.
 The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
@@ -1117,8 +1117,8 @@ Upon receiving a Route Request, an AODVv2 router performs the following steps:
     *  If not, ignore this RREQ for further processing.
 1.  Check that the MetricType is supported and configured for use
     *  If not, ignore this RREQ for further processing.
-1.  Verify that the cost of the advertised route will not exceed the maximum allowed metric
-    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
+1.  Verify that the metric of the advertised route will not exceed the maximum allowed metric
+    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Metric(L))
     *  If it will, ignore this RREQ for further processing.
 1.  Process the route to OrigPrefix as specified in [](#processingrte)
 1.  Check if the information in the message is redundant by comparing to entries in the Multicast Route Message Set, following the procedure in [](#suppress)
@@ -1215,7 +1215,7 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
     *  Increment the router Sequence Number as specified in [](#seqnum).
     *  Set TargSeqNum := router Sequence Number.
 1.  Include MetricType and set the type to match the MetricType in the received RREQ message
-1.  Set TargMetric := RouterClient.Cost for the Router Client Set entry which includes TargAddr
+1.  Set TargMetric := RouterClient.Metric for the Router Client Set entry which includes TargAddr
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. The multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
@@ -1247,8 +1247,8 @@ ignore this RREP for further processing, since it does not correspond to a previ
 
 1.  Update the Neighbor Set according to [](#nbrupdate)
 <!--    *  If the sender has Neighbor.State set to Blacklisted after the update, ignore this RREP for further processing. -->
-1.  Verify that the cost of the advertised route does not exceed the maximum allowed metric
-    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
+1.  Verify that the metric of the advertised route does not exceed the maximum allowed metric
+    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Metric(L))
     *  If it does, ignore this RREP for further processing.
 1.  Process the route to TargPrefix as specified in [](#processingrte)
 1.  Check if the message is redundant by comparing to entries in the Multicast Route Message Set ([](#suppress))
