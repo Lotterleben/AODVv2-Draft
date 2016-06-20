@@ -1517,8 +1517,7 @@ A brief summary of the [](#RFC5444) format:
 AODVv2 does not require access to the [](#RFC5444) packet header.
 
 In the message header, AODVv2 uses \<msg-type\>, \<msg-hop-limit\> and
-\<msg-addr-length\>. The \<msg-addr-length\> field indicates the length of any addresses in the message,
-using \<msg-addr-length\> := (address length in octets - 1), i.e. 3 for IPv4 and 15 for IPv6.
+\<msg-addr-length\>.
 
 The addresses in an Address Block MAY appear in any order, and values in a TLV in the Address Block
 TLV Block must be associated with the correct address in the Address Block by the [](#RFC5444) implementation.
