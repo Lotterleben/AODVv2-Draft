@@ -1516,7 +1516,7 @@ A brief summary of the [](#RFC5444) format:
 
 AODVv2 does not require access to the [](#RFC5444) packet header.
 
-In the message header, AODVv2 uses \<msg-type\>, \<msg-hop-limit\> and
+In the message header, AODVv2 uses the fields \<msg-type\>, \<msg-hop-limit\> and
 \<msg-addr-length\>.
 
 The addresses in an Address Block MAY appear in any order, and values in a TLV in the Address Block
@@ -1547,15 +1547,15 @@ The following sections show how AODVv2 data is represented in [](#RFC5444) messa
 Where the extension type of a TLV is set to zero, this is the default [](#RFC5444) value and the extension type
 will not be included in the message.
 
-
 ## Route Request Message Representation
 
 ### Message Header
 
-Data           Header Field       Value
-------------   ---------------    -----
-None           \<msg-type\>       RREQ
-msg_hop_limit  \<msg-hop-limit\>  MAX_HOPCOUNT, reduced by number of hops traversed so far by the message.
+Data           Header Field        Value
+------------   ---------------     -----
+None           \<msg-type\>        RREQ
+None           \<msg-addr-length\> The length of OrigPrefix in octets - 1, as mandated by [](#RFC5444).
+msg_hop_limit  \<msg-hop-limit\>   MAX_HOPCOUNT, reduced by number of hops traversed so far by the message.
 
 ### Message TLV Block
 
@@ -1563,6 +1563,8 @@ AODVv2 does not define any Message TLVs for an RREQ message.
 
 ### Address Block
 An RREQ contains OrigPrefix and TargPrefix, and each of these addresses has an associated prefix length. If the prefix length has not been included in the AODVv2 message, it is equal to the address length in bits.
+Note that, since the \<msg-addr-length\> of an [](#RFC5444) message applies to all of its addresses, OrigPrefix and TargPrefix must be of the same length.
+
 
 Data                        Address Block
 -------------               ---------------
@@ -1592,10 +1594,11 @@ TargSeqNum               SEQ_NUM        0               The last known TargSeqNu
 
 ### Message Header
 
-Data            Header Field       Value
-------------    ---------------    -----
-None            \<msg-type\>       RREP
-msg_hop_limit   \<msg-hop-limit\>  MAX_HOPCOUNT - msg_hop_limit from the corresponding RREQ, reduced by number of hops traversed so far by the message.
+Data            Header Field        Value
+------------    ---------------     -----
+None            \<msg-type\>        RREP
+None            \<msg-addr-length\> The length of OrigPrefix in octets - 1, as mandated by [](#RFC5444).
+msg_hop_limit   \<msg-hop-limit\>   MAX_HOPCOUNT - msg_hop_limit from the corresponding RREQ, reduced by number of hops traversed so far by the message.
 
 ### Message TLV Block
 
@@ -1604,7 +1607,8 @@ AODVv2 does not define any Message TLVs for an RREP message.
 ### Address Block {#rrep_addrblk}
 
 An RREP contains OrigPrefix and TargPrefix, and each of these addresses has an associated prefix length. If the prefix length
-has not been included in the AODVv2 message, it is equal to the address length in bits.
+has not been included in the AODVv2 message, it is equal to the address length in bits. 
+Note that, since the \<msg-addr-length\> of an [](#RFC5444) message applies to all of its addresses, OrigPrefix and TargPrefix must be of the same length.
 
 Data                        Address Block
 -------------               ---------------
@@ -1662,9 +1666,10 @@ all of the resulting [](#RFC5444) messages.
 
 ### Message Header
 
-Data           Header Field       Value
-------------   ---------------    -----
-None           \<msg-type\>       RERR
+Data           Header Field        Value
+------------   ---------------     -----
+None           \<msg-type\>        RERR
+None           \<msg-addr-length\> The length of an Unreachable Address in octets - 1, as mandated by [](#RFC5444).
 
 ### Message TLV Block
 AODVv2 does not define any Message TLVs for an RERR message.
@@ -1677,6 +1682,8 @@ address length in bits.
 Address Block always contains one address per route that is no longer valid, and each address
 has an associated prefix length.  If a prefix length has not been included for this address, it is equal
 to the address length in bits.
+
+Note that, since the \<msg-addr-length\> of an [](#RFC5444) message applies to all of its addresses, all Unreachable Addresses and (if present) PktSource must be of the same length.
 
 Data                            Address Block
 ------------                    ---------------
