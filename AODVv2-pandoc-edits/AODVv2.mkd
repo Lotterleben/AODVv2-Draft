@@ -1527,7 +1527,7 @@ order of SeqNums in the SeqNumList in an RERR. [](#RFC5444) maps this informatio
 with the relevant addresses in the Address Block.
 
 Each address included in the Address Block is identified as OrigPrefix, TargPrefix, PktSource, or
-Unreachable Address by including an ADDRESS_TYPE TLV in the Address Block TLV Block.
+Unreachable Address by including an ADDRESS_TYPE TLV in the Address Block TLV Block. The corresponding values are listed in [](#address-type).
 
 The following sections show how AODVv2 data is represented in [](#RFC5444) messages. AODVv2 defines (in [](#addrtlvspec)) a number of new TLVs.
 
