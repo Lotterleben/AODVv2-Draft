@@ -1781,12 +1781,12 @@ configurable. Ideally, for networks with frequent topology changes the AODVv2 pa
 SHOULD be adjusted using experimentally determined values or dynamic adaptation. For example, in networks with infrequent topology changes MAX_IDLETIME MAY be set to a much larger value.
 If the values were configured differently, the following consequences may be observed:
 
-* If MAX_SEQNUM_LIFETIME was configured differently across the network, and any of the routers lost their sequence number or rebooted, this could result in their next route messages being
-classified as stale at any AODVv2 router using a greater value for MAX_SEQNUM_LIFETIME. This would
-delay route discovery from and to the re-initializing router.
 * Routers with lower values for ACTIVE_INTERVAL + MAX_IDLETIME will invalidate routes more quickly and free resources used to maintain them. This can affect bursty traffic flows which have quiet periods longer than ACTIVE_INTERVAL + MAX_IDLETIME. A route which has timed out due to perceived inactivity is not reported. When the bursty traffic resumes, it would cause a RERR to be generated, and the traffic itself would be dropped. This route would be removed from all upstream routers, even if those upstream routers had larger ACTIVE_INTERVAL or MAX_IDLETIME values. A new route discovery would be required to re-establish the route, causing extra routing protocol traffic and disturbance to the bursty traffic.
 * Routers with lower values for MAX_BLACKLIST_TIME would allow neighboring routers to participate in route discovery sooner than routers with higher values. This could result in failed route discoveries if un-blacklisted links are still uni-directional. Since RREQs are retried, this would not affect success of route discovery unless this value was so small as to un-blacklist the router before the RREQ is retried. This value need not be consistent across the network since it is used for maintaining a 1-hop blacklist. However it MUST be greater than RREQ_WAIT_TIME.
 <!-- TODO: [and probably a good idea to be at least a multiple of RREQ_WAIT_TIME?] -->
+* If MAX_SEQNUM_LIFETIME was configured differently across the network, and any of the routers lost their sequence number or rebooted, this could result in their next route messages being
+classified as stale at any AODVv2 router using a greater value for MAX_SEQNUM_LIFETIME. This would
+delay route discovery from and to the re-initializing router.
 * Routers with lower values for RERR_TIMEOUT may create more RERR messages than routers with higher values. This value should be large enough that a RERR will reach all routers using the route reported within it before the timer expires, so that no further data traffic will arrive, and no duplicated RERR messages will be generated.
 * Routers with lower values for RteMsg_ENTRY_TIME may not consider received redundant multicast route messages as redundant, and may forward these messages unnecessarily.
 * Routers with lower values for RREQ_WAIT_TIME may send more frequent RREQ messages and wrongly determine that a route does not exist, if the delay in receiving an RREP is greater than this interval.
@@ -1830,8 +1830,6 @@ INFINITY_TIME
 is used in ([](#update_rte)). It could be set to any value which will not be interpreted as a time value. If not
 the same on every router, this does not affect interoperability.
 
-   <!-- Need to figure out what the time format. -->
-
 ## Local Settings {#other}
 
 The following lists shows AODVv2 parameters which SHOULD be administratively configured for each router:
@@ -1851,9 +1849,6 @@ is described in [](#aodv_msgs).
 <!-- [TBD - 50 pkts/sec?] TODO Charlie to suggest a value -->
 
 
-<!-- BUFFER_SIZE_PACKETS       2                         [](#route_discovery)
-BUFFER_SIZE_BYTES         MAX_PACKET_SIZE [TBD]     [](#route_discovery)
--->
 
 ## Network-Wide Settings
 
