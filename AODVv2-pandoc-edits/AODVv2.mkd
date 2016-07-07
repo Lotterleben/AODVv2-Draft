@@ -507,8 +507,7 @@ AODVv2 currently supports cost metrics where Cost(R) is strictly increasing, by 
 * Cost(R) := Sum of Cost(L) of each link in the route
 * LoopFree(R1, R2) := ( Cost(R1) \<= Cost(R2) )
 
-Implementers MAY consider other metric types, but the definitions of Cost and LoopFree functions for such types are undefined, and
-interoperability issues need to be considered.
+Implementers MAY consider other, non-cost metric types, but the definitions of Cost and LoopFree functions for such types are out of the scope of this document.
 
 
 
