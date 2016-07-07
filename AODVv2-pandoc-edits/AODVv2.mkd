@@ -946,11 +946,19 @@ Route timeout behaviour is as follows:
    MAX_IDLETIME, LocalRoute.State MUST become Invalid.
 *  An Invalid route SHOULD remain in the Local Route Set, since LocalRoute.SeqNum is used to classify future information about LocalRoute.Address as
    stale or fresh.
-*  In all cases, if the time since LocalRoute.LastSeqNumUpdate exceeds MAX_SEQNUM_LIFETIME, LocalRoute.SeqNum must be set to
-   0. This is required to ensure that any AODVv2 routers following the initialization procedure can safely begin routing
-   functions using a new sequence number. A LocalRoute with
-   LocalRoute.State set to Active or Idle can remain in the Local Route Set after the sequence number has been set to 0, for example if the route is reliably carrying traffic. If LocalRoute.State
-   is Invalid, or later becomes Invalid, the LocalRoute MUST be expunged from the Local Route Set.
+*  In all cases, if the time since LocalRoute.LastSeqNumUpdate exceeds
+   MAX_SEQNUM_LIFETIME, LocalRoute.SeqNum must be set to 0.  This is
+   required to ensure that any AODVv2 routers following the initialization
+   procedure can safely begin routing functions using a new sequence number.
+   A LocalRoute with LocalRoute.State set to Active or Idle can remain in the
+   Local Route Set after the sequence number has been set to 0, for example
+   if the route is reliably carrying traffic. If LocalRoute.State is Invalid,
+   or later becomes Invalid, the LocalRoute MUST be expunged from the Local
+   Route Set.
+
+<!-- CEP: Last bullet incorporates fix for Issue #22, which seems to have
+          occurred because pandoc considers a zero ('0') at the beginning of a
+          line, followed by a period '.', to be the start of a numbered list -->
 
 LocalRoutes can become Invalid before a timeout occurs:
 
