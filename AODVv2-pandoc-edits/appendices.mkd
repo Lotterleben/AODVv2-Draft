@@ -8,7 +8,8 @@ This section lists the changes between AODVv2 revisions ...-16.txt and ...-17.tx
 
 <!--
 
-This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.txt.
+This section lists the changes between AODVv2 revisions ...-16.txt and
+...-17.txt.
 
 * Changed 'regeneration' language in favor of 'forwarding'.
 * Reintroduced use of msg-hop-limit in 5444 message header.
@@ -21,7 +22,11 @@ This section lists the changes between AODVv2 revisions ...-15.txt and ...-16.tx
 * Improved Sequence Number instructions
 * Changed 'Unknown' terminology to 'Heard'
 * Extended experiment description
-* Added detailed description of which steps to take when calculating and evaluating ICVs, particularly how to zero out the metric value
+* Added detailed description of which steps to take when calculating and
+  evaluating ICVs, particularly how to zero out the metric value
+* Enabled multihoming by creating new address type SeqNoRtr, along with
+  rules prohibiting comparison of sequence numbers from distinct	
+  multihoming routers per advertised prefix.
 
 This section lists the changes between AODVv2 revisions ...-14.txt and ...-15.txt.
 
