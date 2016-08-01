@@ -44,7 +44,7 @@ Verification of link bidirectionality has been substantially improved, and addit
 The basic protocol mechanisms are as follows.
 Since AODVv2 is a reactive protocol, route discovery is initiated only when a route to the target is needed (i.e. when a router' client wants to send data). AODVv2 does this with the help of a Route Request (RREQ) and Route Reply (RREP) cycle: an RREQ is distributed across the network until it arrives at the target. When forwarding an RREQ, all routers across the network store the neighbor they've received the RREQ from, memorizing a possible route back to the originator of the RREQ.
 When the target receives the RREQ, it answers with an RREP, which then travels back to the originator along the path memorized by the intermediate routers.
-A metric value is included within the messages to record the cost of the route. AODVv2 uses sequence numbers to identify stale routing information, and compares route metric values to determine
+A metric value is included within the messages to record the metric of the route. AODVv2 uses sequence numbers to identify stale routing information, and compares route metric values to determine
 if advertised routes could form loops.
 
 Route maintenance includes confirming bidirectionality of links to next hop AODVv2 routers and issuing Route Error (RERR) messages informing other routers of broken links. It also includes reacting to received Route Error messages, and extending and enforcing route timeouts.
@@ -199,8 +199,8 @@ encryption can be used for AODVv2 messages to ensure that only trusted routers p
 
 Since the route discovery process aims for a route to be established in both directions along the same path, uni-directional links
 are not suitable. AODVv2 will detect and exclude those links from route discovery. The route discovered is optimised for the requesting router,
-and the return path may not be the optimal route. <!-- Route costs learned by routers other than the requesting router may not reflect the true route
-cost. -->
+and the return path may not be the optimal route. <!-- Route metrics learned by routers other than the requesting router may not reflect the true route
+metric. -->
 <!-- and the TargAddr end wouldnt request a better route if it already has a route -->
 
 <!-- Issue #22 -->
@@ -226,7 +226,7 @@ AODVv2 is an Experimental protocol. While it is based on AODV [](#RFC3561), impo
 * Alternate metrics may be used to determine route quality
 * Support for multiple interfaces has been improved
 * Support for multi-interface IP addresses has been added
-* A new security model allowing end to end integrity checks has been added 
+* A new security model allowing end to end integrity checks has been added
 * A new message format ([](#RFC5444)) is used.
 
 Many of these changes have been made quite recently, after a protocol development hiatus of several years.
@@ -291,8 +291,8 @@ RouterClient.IPAddress
 <!-- A client node with multiple IP addresses MAY cause the AODVv2 router to be configured with multiple Router Client entries. -->
 RouterClient.PrefixLength
 :   <vspace/>The length, in bits, of the routing prefix associated with the RouterClient.IPAddress.  If the prefix length is not equal to the address length of RouterClient.IPAddress, the AODVv2 router MUST participate in route discovery on behalf of all addresses within that prefix.
-RouterClient.Cost
-:   <vspace/>The cost associated with reaching this address or address range.
+RouterClient.Metric
+:   <vspace/>The metric associated with reaching this address or address range.
 
 A Router Client address MUST NOT be served by more than one AODVv2 router at any one time. To shift responsibility for a Router Client to
 a different AODVv2 router, correct AODVv2 routing behavior MUST be observed; The AODVv2 router adding the Router Client MUST wait for any
@@ -318,14 +318,14 @@ Neighbor.State
 Neighbor.Timeout
 :   <vspace/>Indicates at which time the Neighbor.State should be updated:
 
-* If the value of Neighbor.State is Blacklisted, this indicates the time at which Neighbor.State will revert to Heard. By default this value is calculated at the time the router is blacklisted and is equal to CurrentTime + MAX_BLACKLIST_TIME. 
-* If Neighbor.State is Heard, and an RREP_Ack has been requested from the neighbor, it indicates the time at which Neighbor.State will be set to Blacklisted, if an RREP_Ack has not been received. 
+* If the value of Neighbor.State is Blacklisted, this indicates the time at which Neighbor.State will revert to Heard. By default this value is calculated at the time the router is blacklisted and is equal to CurrentTime + MAX_BLACKLIST_TIME.
+* If Neighbor.State is Heard, and an RREP_Ack has been requested from the neighbor, it indicates the time at which Neighbor.State will be set to Blacklisted, if an RREP_Ack has not been received.
 * If the value of Neighbor.State is Heard and no RREP_Ack has been requested, or if Neighbor.State is Confirmed, this time is set to INFINITY_TIME.
 
 Neighbor.Interface
 :   <vspace/>The interface on which the link to the neighbor was established.
 Neighbor.AckSeqNum
-:   <vspace/>The next sequence number to use for the TIMESTAMP value in an RREP_Ack request, in order to detect replay of an RREP_Ack response. Initially set to a random value. 
+:   <vspace/>The next sequence number to use for the TIMESTAMP value in an RREP_Ack request, in order to detect replay of an RREP_Ack response. Initially set to a random value.
 Neighbor.HeardRERRSeqNum
 :   <vspace/>The last heard sequence number used as the TIMESTAMP value in a RERR received from this neighbor, saved in order to detect replay of a RERR message. Initially set to zero.
 
@@ -345,9 +345,9 @@ Clients on a particular interface MUST include the sequence number associated wi
 
 Each AODVv2 router in the network MUST maintain its own sequence number. All RREQ and RREP messages created by an AODVv2 router include the router's sequence number, reported as a 16-bit unsigned integer. Each AODVv2 router MUST ensure that its sequence number is strictly increasing, and that it is incremented by one (1) whenever an RREQ or RREP is created, except when the sequence number is 65,535 (the maximum value of a 16-bit unsigned integer), in which case it MUST be reset to one (1) to achieve wrap around. The value zero (0) is reserved to indicate that the sequence number is unknown.
 
-An AODVv2 router MUST only attach its own sequence number to information about a route to one of its configured Router Clients, all route messages forwarded by other routers retain the originator's sequence number. 
+An AODVv2 router MUST only attach its own sequence number to information about a route to one of its configured Router Clients, all route messages forwarded by other routers retain the originator's sequence number.
 
-To determine if newly received information is stale and therefore redundant, the sequence number attached to the information is compared to the sequence number of existing information about the same route. The comparison is carried out by subtracting the existing sequence number from the newly received sequence number, using unsigned arithmetic. The result of the subtraction is to be interpreted as a signed 16-bit integer. 
+To determine if newly received information is stale and therefore redundant, the sequence number attached to the information is compared to the sequence number of existing information about the same route. The comparison is carried out by subtracting the existing sequence number from the newly received sequence number, using unsigned arithmetic. The result of the subtraction is to be interpreted as a signed 16-bit integer.
 
 *  If the result is negative, the newly received information is considered older than the existing information and is considered stale and redundant and MUST therefore be discarded.
 *  If the result is positive, the newly received information is considered newer than the existing information and is not considered stale or redundant and MUST therefore be processed.
@@ -389,7 +389,7 @@ LocalRoute.LastSeqNumUpdate
 LocalRoute.MetricType
 :   <vspace/>The type of metric associated with this route.
 LocalRoute.Metric
-:   <vspace/>The cost of the route toward LocalRoute.Address expressed in units consistent with LocalRoute.MetricType.
+:   <vspace/>The metric of the route toward LocalRoute.Address expressed in units consistent with LocalRoute.MetricType.
 LocalRoute.State
 :   <vspace/>The last known state (Unconfirmed, Idle, Active, or Invalid) of the route.
 
@@ -471,17 +471,17 @@ See section [](#suppressrerr) for instructions on how to update the set.
 Metrics measure a cost or quality associated with a route or a link, e.g., latency, delay, financial cost, energy, etc. Metric
 values are reported in Route Request and Route Reply messages.
 
-In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client Set entry which includes OrigAddr. For routers which forward the RREQ, this is the cost from OrigPrefix to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Request message,
+In Route Request messages, the metric describes the cost of the route from OrigPrefix to the router sending the Route Request. For RREQ_Gen, this is the cost associated with the Router Client Set entry which includes OrigAddr. For routers which forward the RREQ, this is the cost from OrigPrefix to the forwarding router, combining the metric value from the received RREQ message with knowledge of the link metric from the sender to the receiver, i.e., the incoming link metric. This updated route metric is included when forwarding the Route Request message,
 and used to install a route to OrigPrefix.
 
-Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client Set entry which includes TargAddr. For routers which forward the RREP, this is the cost from TargPrefix to the forwarding router, combining the metric value from the received RREP message with knowledge of the link cost from the sender to the receiver, i.e., the incoming link cost. This updated route cost is included when forwarding the Route Reply message,
+Similarly, in Route Reply messages, the metric reflects the cost of the route from TargPrefix to the router sending the Route Reply. For RREP_Gen, this is the cost associated with the Router Client Set entry which includes TargAddr. For routers which forward the RREP, this is the cost from TargPrefix to the forwarding router, combining the metric value from the received RREP message with knowledge of the link metric from the sender to the receiver, i.e., the incoming link metric. This updated route metric is included when forwarding the Route Reply message,
 and used to install a route to TargPrefix.
 
-Assuming link metrics are symmetric, the cost of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
+Assuming link metrics are symmetric, the metrics of the routes installed in the Local Route Set at each router will be correct. While this assumption is not always correct, calculating incoming/outgoing metric data is outside of scope of this document.
 The route discovered is optimised for the requesting router, and the return path may not be the optimal route.
 
-<!-- if not symmetric...could be stored with MAX_METRIC..then if forwarding data from a Router Client on a route with MAX_METRIC maybe this could indicate that a route should be requested, to learn the best cost from us to them, rather than them to us which is what we would have installed.  -->
-<!-- Similarly cost on route to TargAddr is currently stored with metric from targ->current. The existing route to TargAddr is probably a good one, because it was found on a prev RREQ in that direction - its just that we dont know the accurate metric. OR, we could be adding up outgoing link costs back toward targaddr in a rrep, and also transporting the orig->targ metric unchanged, add up outgoing metrics to get correct cost for targaddr -->
+<!-- if not symmetric...could be stored with MAX_METRIC..then if forwarding data from a Router Client on a route with MAX_METRIC maybe this could indicate that a route should be requested, to learn the best metric from us to them, rather than them to us which is what we would have installed.  -->
+<!-- Similarly metric on route to TargAddr is currently stored with metric from targ->current. The existing route to TargAddr is probably a good one, because it was found on a prev RREQ in that direction - its just that we dont know the accurate metric. OR, we could be adding up outgoing link metrics back toward targaddr in a rrep, and also transporting the orig->targ metric unchanged, add up outgoing metrics to get correct metric for targaddr -->
 
 AODVv2 enables the use of multiple metric types. Each route discovery attempt indicates the metric type which is requested for
 the route. Only one metric type MUST be used in each route discovery attempt.
@@ -490,10 +490,10 @@ For each MetricType, AODVv2 requires:
 
 * A MetricType number, to indicate the metric type of a route. MetricType numbers allocated are detailed in [](#metric-type).
 * A maximum value, denoted MAX_METRIC[MetricType]. This MUST always be the maximum expressible metric value of type MetricType.
-  Field lengths associated with metric values are found in [](#metric-type). If the cost of a route exceeds MAX_METRIC[MetricType], the route is ignored.
-* A function for incoming link cost, denoted Cost(L). Using incoming link costs means that the route learned has a path optimized
+  Field lengths associated with metric values are found in [](#metric-type). If the metric of a route exceeds MAX_METRIC[MetricType], the route is ignored.
+* A function for incoming link metric, denoted Metric(L). Using incoming link metrics means that the route learned has a path optimized
   for the direction from OrigAddr to TargAddr.
-* A function for route cost, denoted Cost(R).
+* A function for route metric, denoted Metric(R).
 * A function to analyze routes for potential loops based on metric information, denoted LoopFree(R1, R2). LoopFree verifies that a route R2 is not a sub-section
   of another route R1. An AODVv2 router invokes LoopFree() as part of the process in [](#test), when an advertised route (R1) and an
   existing LocalRoute (R2) have the same destination address, metric type, and sequence number. LoopFree returns FALSE to indicate
@@ -502,13 +502,12 @@ For each MetricType, AODVv2 requires:
   which did not yet receive notification of the route becoming Invalid, so the advertised route should not be used to update the Local
   Route Set, in case it forms a loop to a broken route.
 
-AODVv2 currently supports cost metrics where Cost(R) is strictly increasing, by defining:
+AODVv2 currently supports cost metrics where Metric(R) is strictly increasing, by defining:
 
-* Cost(R) := Sum of Cost(L) of each link in the route
-* LoopFree(R1, R2) := ( Cost(R1) \<= Cost(R2) )
+* Metric(R) := Sum of Metric(L) of each link in the route
+* LoopFree(R1, R2) := ( Metric(R1) \<= Metric(R2) )
 
-Implementers MAY consider other, non-cost metric types, but the definitions of Cost and LoopFree functions for such types are out of the scope of this document.
-
+Implementers MAY consider other, non-cost metric types, but the definitions of Metric and LoopFree functions for such types are out of the scope of this document.
 
 
 # AODVv2 Protocol Operations  {#aodv_ops}
@@ -700,7 +699,7 @@ RREQ is referred to as RREQ_Gen.
     the DestOnly Data Element (see <xref target="RREQ_gen" />).
   -->
 
-Buffering might be configured for IP packets awaiting a route for forwarding by RREQ_Gen, if sufficient memory is available. 
+Buffering might be configured for IP packets awaiting a route for forwarding by RREQ_Gen, if sufficient memory is available.
 Buffering of IP packets might have both positive and negative effects. Real-time traffic, voice, and scheduled delivery may suffer if packets are
 buffered and subjected to delays, but TCP connection establishment will benefit if packets are queued while route discovery is performed [](#Koodli01).
 Recommendations for appropriate buffer methods are out of scope for this specification. Determining which packets to discard first when the buffer is full is a matter of policy at each AODVv2 router. Note that using different or no buffer methods does not affect interoperability.
@@ -726,15 +725,15 @@ the router will begin sending the buffered IP packets. Any retry timers for the 
 During route discovery, all routers on the path learn a route to both OrigPrefix and TargPrefix, so that routes are constructed in both directions.
 The route is optimized for the forward route.
 
-<!-- For RREQ, use incoming cost from previous hop, so that the return path will be the optimal for Orig->Targ. -->
+<!-- For RREQ, use incoming metric from previous hop, so that the return path will be the optimal for Orig->Targ. -->
 <!-- Targ rtr doesnt learn the optimal path to OrigAddr, in fact learns wrong metric too -->
 
 <!--
-Routes to OrigAddr learned from an RREQ will reflect the route cost in the direction from OrigAddr toward
-TargAddr, calculated at each receiving router. This might not be the correct cost for their route to OrigAddr.
+Routes to OrigAddr learned from an RREQ will reflect the route metric in the direction from OrigAddr toward
+TargAddr, calculated at each receiving router. This might not be the correct metric for their route to OrigAddr.
 The corresponding RREP contains this accumulated metric value. It is not changed at intermediate routers, so
 RREQ_Gen and all intermediate routers install a route to TargAddr using this metric. At intermediate routers
-this route does not correctly reflect the cost of their route to TargAddr.
+this route does not correctly reflect the metric of their route to TargAddr.
 -->
 
 ## Processing Received Route Information {#processingrte}
@@ -755,9 +754,9 @@ AdvRte has the following properties:
 * AdvRte.SeqNum := RteMsg.OrigSeqNum (in RREQ) or RteMsg.TargSeqNum (in RREP)
 * AdvRte.NextHop := RteMsg.IPSourceAddress (an address of the sending interface of the router from which the RteMsg was received)
 * AdvRte.MetricType := RteMsg.MetricType
-* AdvRte.Metric := RteMsg.Metric
-* AdvRte.Cost := Cost(R) using the cost function associated with the route's metric type,
-  i.e. Cost(R) = AdvRte.Metric + Cost(L), as described in [](#metrics), where L is the link from the
+* AdvRte.AdvMetric := RteMsg.Metric
+* AdvRte.Metric := Metric(R) using the metric function associated with the route's metric type,
+  i.e. Metric(R) = AdvRte.AdvMetric + Metric(L), as described in [](#metrics), where L is the link from the
   advertising router
 
 
@@ -778,10 +777,10 @@ An incoming advertised route (AdvRte) is compared to existing LocalRoutes to det
     *   If LoopFree(AdvRte, LocalRoute) returns FALSE, ignore AdvRte for further processing. AdvRte MUST NOT be used to update the Local Route Set because using the incoming information might cause a routing loop.
     *   If LoopFree(AdvRte, LocalRoute) returns TRUE, continue to Step 4.
 
-1.  Compare route costs
-    *   If AdvRte is better than all matching LocalRoutes, it MUST be used to update the Local Route Set because it offers improvement. 
+1.  Compare route metrics
+    *   If AdvRte is better than all matching LocalRoutes, it MUST be used to update the Local Route Set because it offers improvement.
 <!-- If it is not used to update the Local Route Set, the existing non-optimal LocalRoute will continue to be used, causing data traffic to use a non-optimal route. -->
-    *   If AdvRte is equal in cost and LocalRoute is valid, AdvRte SHOULD NOT be used to update the Local Route Set because it will offer no improvement.
+    *   If AdvRte is equal in metric and LocalRoute is valid, AdvRte SHOULD NOT be used to update the Local Route Set because it will offer no improvement.
     *   If AdvRte is worse and LocalRoute is valid, ignore AdvRte for further processing. AdvRte MUST NOT be used to update the Local Route Set because it does not offer any improvement.
     *   If AdvRte is not better (i.e., it is worse or equal) but LocalRoute is Invalid, AdvRte SHOULD be used to update the Local Route Set because it can safely repair the existing Invalid LocalRoute.
 
@@ -823,7 +822,7 @@ The route update is applied as follows:
     *  LocalRoute.SeqNum := AdvRte.SeqNum
     *  LocalRoute.NextHop := AdvRte.NextHop
     *  LocalRoute.NextHopInterface := interface on which RteMsg was received
-    *  LocalRoute.Metric := AdvRte.Cost
+    *  LocalRoute.Metric := AdvRte.Metric
     *  LocalRoute.LastUsed := CurrentTime
     *  LocalRoute.LastSeqNumUpdate := CurrentTime
 
@@ -898,7 +897,7 @@ To update a Multicast Route Message Set entry, set:
 * RteMsg.TargPrefix := TargPrefix from the message
 * RteMsg.OrigSeqNum := the sequence number associated with OrigPrefix, if RteMsg is an RREQ
 * RteMsg.TargSeqNum := the sequence number associated with TargPrefix, if RteMsg is an RREP
-* RteMsg.Metric := the metric value associated with OrigPrefix in a received RREQ
+* RteMsg.AdvMetric := the metric value associated with OrigPrefix in a received RREQ
 * RteMsg.MetricType := the metric type associated with RteMsg.Metric
 * RteMsg.Timestamp := CurrentTime
 * RteMsg.RemoveTime := CurrentTime + MAX_SEQNUM_LIFETIME
@@ -1097,7 +1096,7 @@ To generate the RREQ, the router (referred to as RREQ_Gen) follows this procedur
        omit TargSeqNum.
 1.  Include MetricType and set the type accordingly
 1.  Find the Router Client Set Entry where RouterClient.IPAddress == OrigPrefix:
-    * Set OrigMetric := RouterClient.Cost
+    * Set OrigMetric := RouterClient.Metric
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET- Routers on all interfaces configured for AODVv2 operation.
 The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
@@ -1124,8 +1123,8 @@ Upon receiving a Route Request, an AODVv2 router performs the following steps:
     *  If not, ignore this RREQ for further processing.
 1.  Check that the MetricType is supported and configured for use
     *  If not, ignore this RREQ for further processing.
-1.  Verify that the cost of the advertised route will not exceed the maximum allowed metric
-    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
+1.  Verify that the metric of the advertised route will not exceed the maximum allowed metric
+    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Metric(L))
     *  If it will, ignore this RREQ for further processing.
 1.  Process the route to OrigPrefix as specified in [](#processingrte)
 1.  Check if the information in the message is redundant by comparing to entries in the Multicast Route Message Set, following the procedure in [](#suppress)
@@ -1148,7 +1147,7 @@ The procedure for RREQ forwarding is as follows:
 1.  If msg_hop_limit is now zero, do not continue the forwarding process
 1.  Set OrigMetric := LocalRoute[OrigPrefix].Metric
 
-This modified message is handed to the [](#RFC5444) multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.  
+This modified message is handed to the [](#RFC5444) multiplexer for further processing. By default, the multiplexer is instructed to multicast the message to LL-MANET-Routers on all interfaces configured for AODVv2 operation.
 <!-- However, the forwarded RREQ can be unicast to the next hop address of the LocalRoute toward TargAddr, if known.-->
 
 
@@ -1222,7 +1221,7 @@ To generate the RREP, the router (also referred to as RREP_Gen) follows this pro
     *  Increment the router Sequence Number as specified in [](#seqnum).
     *  Set TargSeqNum := router Sequence Number.
 1.  Include MetricType and set the type to match the MetricType in the received RREQ message
-1.  Set TargMetric := RouterClient.Cost for the Router Client Set entry which includes TargAddr
+1.  Set TargMetric := RouterClient.Metric for the Router Client Set entry which includes TargAddr
 
 This AODVv2 message is used to create a corresponding [](#RFC5444) message (see [](#represent)) which is handed to the RFC5444 multiplexer for further processing. The multiplexer is instructed to unicast the RREP to LocalRoute[OrigPrefix].NextHop. The RREP MUST be sent over LocalRoute[OrigPrefix].NextHopInterface.
 
@@ -1254,8 +1253,8 @@ ignore this RREP for further processing, since it does not correspond to a previ
 
 1.  Update the Neighbor Set according to [](#nbrupdate)
 <!--    *  If the sender has Neighbor.State set to Blacklisted after the update, ignore this RREP for further processing. -->
-1.  Verify that the cost of the advertised route does not exceed the maximum allowed metric
-    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Cost(L))
+1.  Verify that the metric of the advertised route does not exceed the maximum allowed metric
+    value for the metric type (Metric \<= MAX_METRIC[MetricType] - Metric(L))
     *  If it does, ignore this RREP for further processing.
 1.  Process the route to TargPrefix as specified in [](#processingrte)
 1.  Check if the message is redundant by comparing to entries in the Multicast Route Message Set ([](#suppress))
@@ -1272,7 +1271,7 @@ ignore this RREP for further processing, since it does not correspond to a previ
 
 ### RREP Forwarding  {#RREP_fwd}
 
-A received Route Reply message is forwarded toward OrigPrefix. 
+A received Route Reply message is forwarded toward OrigPrefix.
 By forwarding an RREP, a router advertises that it will forward IP packets to TargPrefix.
 
 The RREP SHOULD NOT be forwarded if CONTROL_TRAFFIC_LIMIT
@@ -1289,7 +1288,7 @@ This modified message is handed to the [](#RFC5444) multiplexer for further proc
 
 ## Route Reply Acknowledgement (RREP_Ack) Message  {#rrep_ack_msgs}
 
-The Route Reply Acknowledgement is used as both a request and a response message to test bidirectionality of a link over which a Route Reply has also been sent. The router which forwards the RREP MUST send a Route Reply Acknowledgement message to the intended next hop, if the link to the next hop neighbor is not yet confirmed as bidirectional. 
+The Route Reply Acknowledgement is used as both a request and a response message to test bidirectionality of a link over which a Route Reply has also been sent. The router which forwards the RREP MUST send a Route Reply Acknowledgement message to the intended next hop, if the link to the next hop neighbor is not yet confirmed as bidirectional.
 
 The receiving router MUST then reply with a Route Reply Acknowledgement response message.
 
@@ -1307,7 +1306,7 @@ If the Route Reply Acknowledgement is not received within RREP_Ack_SENT_TIMEOUT,
 
 ### RREP_Ack Request Generation  {#RREP_Ack_gen}
 
-An RREP_Ack MUST be generated if a Route Reply is sent over a link which is not known to be bidirectional. It includes an AckReq element to indicate that it is a request for acknowledgement. 
+An RREP_Ack MUST be generated if a Route Reply is sent over a link which is not known to be bidirectional. It includes an AckReq element to indicate that it is a request for acknowledgement.
 
 The RREP_Ack SHOULD NOT be generated if the limit for the rate of AODVv2
 control message generation has been reached.
@@ -1344,7 +1343,7 @@ Upon receiving an RREP_Ack, an AODVv2 router performs the following steps:
 
 ### RREP_Ack Response Generation {#RREP_Ack_Resp}
 
-An RREP_Ack response MUST be generated if a received RREP_Ack includes an AckReq. 
+An RREP_Ack response MUST be generated if a received RREP_Ack includes an AckReq.
 
 The RREP_Ack response SHOULD NOT be generated if the limit for the rate of AODVv2 control message generation has been reached.
 
@@ -1614,7 +1613,7 @@ AODVv2 does not define any Message TLVs for an RREP message.
 ### Address Block {#rrep_addrblk}
 
 An RREP contains OrigPrefix and TargPrefix, and each of these addresses has an associated prefix length. If the prefix length
-has not been included in the AODVv2 message, it is equal to the address length in bits. 
+has not been included in the AODVv2 message, it is equal to the address length in bits.
 Note that, since the \<msg-addr-length\> of an [](#RFC5444) message applies to all of its addresses, OrigPrefix and TargPrefix must be of the same length.
 
 Data                        Address Block
@@ -1910,7 +1909,7 @@ ACK_REQ                       128 (TBD) 0               [](#nexthopmonitoring)
 
 ## RFC 5444 Address Block TLV Type Allocation {#addrtlvspec}
 
-This specification defines three Address Block TLV Types, to be allocated from the Message-Type-specific  
+This specification defines three Address Block TLV Types, to be allocated from the Message-Type-specific
 "Address Block TLV Types" namespace defined in [](#RFC5444), as specified in [](#addrtlvtypes).
 
 ----------------------------------------------------------------------
@@ -2188,15 +2187,15 @@ timestamps, since they are known to be strictly increasing.
 TODO: choose HASH_FUNCTION and CRYPTOGRAPHIC_FUNCTION.
 -->
 
-AODVv2 implementations MUST support ICV and TIMESTAMP TLVs, unless the implementation is intended solely for an environment in which security is unnecessary. AODVv2 deployments SHOULD be configured to use these TLVs to secure messages. 
+AODVv2 implementations MUST support ICV and TIMESTAMP TLVs, unless the implementation is intended solely for an environment in which security is unnecessary. AODVv2 deployments SHOULD be configured to use these TLVs to secure messages.
 
 Implementations of AODVv2 MUST support ICV TLVs using type-extensions 1 and 2,
 hash-function HASH_FUNCTION, and cryptographic function CRYPTOGRAPHIC_FUNCTION. An ICV
 MUST be included with every message. The ICV value MAY be truncated as specified in [](#RFC7182).
 
-Since the msg-hop-limit and PATH_METRIC values are mutable when included in AODVv2 messages, 
-these values MUST be set to zero before calculating an ICV. This means that these values are 
-not protected end-to-end and are therefore susceptible to manipulation. This form of attack 
+Since the msg-hop-limit and PATH_METRIC values are mutable when included in AODVv2 messages,
+these values MUST be set to zero before calculating an ICV. This means that these values are
+not protected end-to-end and are therefore susceptible to manipulation. This form of attack
 is described in [](#security-integrity-mitm).
 
 Implementations of AODVv2 MUST support a TIMESTAMP TLV using type-extension 0. The timestamp used
@@ -2206,9 +2205,9 @@ messages.
 
 When more than one message is included in an RFC5444 packet, using a single ICV Packet TLV or
 single TIMESTAMP Packet TLV is more efficient than including ICV and TIMESTAMP Message TLVs in
-each message created. If the RFC5444 multiplexer is capable of adding the Packet TLVs, it SHOULD 
-be instructed to include the Packet TLVs in packets containing AODVv2 messages. However, if the 
-multiplexer is not capable of adding the Packet TLVs, the TLVs MUST be included as Message TLVs 
+each message created. If the RFC5444 multiplexer is capable of adding the Packet TLVs, it SHOULD
+be instructed to include the Packet TLVs in packets containing AODVv2 messages. However, if the
+multiplexer is not capable of adding the Packet TLVs, the TLVs MUST be included as Message TLVs
 in each AODVv2 message in the packet.
 
 After message generation but before transmission, the ICV and TIMESTAMP TLVs MUST be added
@@ -2218,18 +2217,18 @@ according to each message type as detailed in the following sections. The follow
    * When a TIMESTAMP Packet TLV is being added, the Packet TLV Block size field MUST be updated.
    * When a TIMESTAMP Message TLV is being added, the Message TLV Block size field MUST be updated.
 
-2.  The considerations in Section 8 and section 9 of [](#RFC7182) are followed, removing existing ICV TLVs and adjusting the size and flags fields as appropriate: 
-   * When an ICV Packet TLV is being added, existing ICV Packet TLVs MUST be removed 
-     and the Packet TLV Block size MUST be updated. If the Packet 
-     TLV Block now contains no TLVs, the phastlv bit in the \<pkt-flags\> field in 
-     the Packet Header MUST be cleared. 
-   * When an ICV Message TLV is being added, existing ICV Message TLVs are removed 
+2.  The considerations in Section 8 and section 9 of [](#RFC7182) are followed, removing existing ICV TLVs and adjusting the size and flags fields as appropriate:
+   * When an ICV Packet TLV is being added, existing ICV Packet TLVs MUST be removed
+     and the Packet TLV Block size MUST be updated. If the Packet
+     TLV Block now contains no TLVs, the phastlv bit in the \<pkt-flags\> field in
+     the Packet Header MUST be cleared.
+   * When an ICV Message TLV is being added, existing ICV Message TLVs are removed
      and the Message TLV Block Size MUST be updated.
 
-3.  Mutable fields in the message MUST have their mutable values set to zero before calculating the ICV. 
-   * If the msg-hop-limit field is included in the [](#RFC5444) message header, 
-     msg-hop-limit MUST be set to zero before calculating the ICV. 
-   * If a PATH_METRIC TLV is included, any values present in the TLV MUST be 
+3.  Mutable fields in the message MUST have their mutable values set to zero before calculating the ICV.
+   * If the msg-hop-limit field is included in the [](#RFC5444) message header,
+     msg-hop-limit MUST be set to zero before calculating the ICV.
+   * If a PATH_METRIC TLV is included, any values present in the TLV MUST be
      set to zero before calculating the ICV value.
 
 
@@ -2246,26 +2245,26 @@ message MUST take place:
 1.  The considerations in Section 8 and Section 9 of [](#RFC7182) are followed,
    removing existing ICV TLVs and adjusting the size and flags
    fields as appropriate.
-   * When verifying the ICV value in an ICV Packet TLV, all ICV Packet TLVs present 
-     in the Packet TLV Block MUST be removed before calculating the ICV, and the 
-     Packet TLV Block size MUST be updated. If there are no 
-     remaining Packet TLVs, the Packet TLV Block MUST be removed and the phastlv bit 
+   * When verifying the ICV value in an ICV Packet TLV, all ICV Packet TLVs present
+     in the Packet TLV Block MUST be removed before calculating the ICV, and the
+     Packet TLV Block size MUST be updated. If there are no
+     remaining Packet TLVs, the Packet TLV Block MUST be removed and the phastlv bit
      in the \<pkt-flags\> field MUST be cleared.
    * When verifying the ICV value in an ICV Message TLV, all ICV Message TLVs present
      in the Message TLV Block MUST be removed before calculating the ICV, and the
      Message TLV Block size MUST be updated.
 
-2.  Mutable fields in the message MUST have their mutable values set to zero before 
-   calculating the ICV. 
-   * If the msg-hop-limit field is included in the [](#RFC5444) message header, 
-     msg-hop-limit MUST be set to zero before calculating the ICV. 
-   * If a PATH_METRIC TLV is included, any values present in the TLV MUST be 
+2.  Mutable fields in the message MUST have their mutable values set to zero before
+   calculating the ICV.
+   * If the msg-hop-limit field is included in the [](#RFC5444) message header,
+     msg-hop-limit MUST be set to zero before calculating the ICV.
+   * If a PATH_METRIC TLV is included, any values present in the TLV MUST be
      set to zero before calculating the ICV value.
 
-3.  The ICV is calculated following the considerations in Section 12.2 of 
-   [RFC7182], to include the fields \<hash-function\>, \<cryptographic-function\>, 
-   \<key-id-length\>, and, if present, \<key-id\> (in that order), followed by the 
-   entire packet or message. 
+3.  The ICV is calculated following the considerations in Section 12.2 of
+   [RFC7182], to include the fields \<hash-function\>, \<cryptographic-function\>,
+   \<key-id-length\>, and, if present, \<key-id\> (in that order), followed by the
+   entire packet or message.
    * If the received ICV value is truncated, the calculated ICV value
      MUST also be truncated (as specified in [](#RFC7182)), before comparing.
    * If the ICV value calculated from the received message or packet does not match
@@ -2276,7 +2275,7 @@ message MUST take place:
 
 4.  Verification of a received TIMESTAMP value MUST be performed. The procedure
    depends on message type as specified in the following sub sections.
-   *   If the TIMESTAMP value in the received message is not valid, the AODVv2 
+   *   If the TIMESTAMP value in the received message is not valid, the AODVv2
        message MUST be discarded and NOT processed or forwarded.
    *   If the TIMESTAMP value is valid, processing continues as defined in Section 7.
 
@@ -2299,7 +2298,7 @@ is deployed etc)
 
 #### RREQ Generation and Reception {#security-protection-application-rreq}
 
-Since OrigPrefix is included in the RREQ, the ICV can be calculated and verified using the [](#RFC5444) contents.The ICV TLV has type extension := 1. Inclusion of an 
+Since OrigPrefix is included in the RREQ, the ICV can be calculated and verified using the [](#RFC5444) contents.The ICV TLV has type extension := 1. Inclusion of an
    ICV TLV message integrity and endpoint authentication,
 because trusted routers MUST hold the shared key in order to calculate the ICV value, both to include when creating a message, and to validate the message by checking that the ICV is correct.
 
@@ -2317,10 +2316,10 @@ On message reception and before message processing:
 
 #### RREP Generation and Reception {#security-protection-application-rrep}
 
-Since TargPrefix is included in the RREP, the ICV can be calculated and verified using the [](#RFC5444) contents. The ICV TLV has type extension := 1. Inclusion of an 
-ICV provides message integrity and endpoint authentication, because trusted routers MUST 
-hold a valid key in order to calculate the ICV value, both to include when 
-creating a message, and to validate the message by checking that the ICV is correct.  
+Since TargPrefix is included in the RREP, the ICV can be calculated and verified using the [](#RFC5444) contents. The ICV TLV has type extension := 1. Inclusion of an
+ICV provides message integrity and endpoint authentication, because trusted routers MUST
+hold a valid key in order to calculate the ICV value, both to include when
+creating a message, and to validate the message by checking that the ICV is correct.
 
 Since RREP_Gen's sequence number is incremented for each new RREP,
 replay protection is already afforded and no extra TIMESTAMP TLV is
@@ -2338,16 +2337,16 @@ On message reception and before message processing:
 
 #### RREP_Ack Generation and Reception {#security-protection-application-rrepack}
 
-Since no sequence number is included in the RREP_Ack, a TIMESTAMP TLV MUST be included 
+Since no sequence number is included in the RREP_Ack, a TIMESTAMP TLV MUST be included
 to protect against replay attacks. The value in the TIMESTAMP TLV is set as follows:
 
 * For RREP_Ack request, use Neighbor.AckSeqNum.
 * For RREP_Ack response, use the sequence number from the TIMESTAMP TLV in the received RREP_Ack request.
 
 Since no addresses are included in the RREP_Ack, and the receiver of the RREP_Ack
-uses the source IP address of a received RREP_Ack to identify the sender, the ICV 
-MUST be calculated using the message contents and the IP source address.  The 
-ICV TLV has type extension := 2 in order to accomplish this.  This provides message 
+uses the source IP address of a received RREP_Ack to identify the sender, the ICV
+MUST be calculated using the message contents and the IP source address.  The
+ICV TLV has type extension := 2 in order to accomplish this.  This provides message
 integrity and endpoint authentication, because trusted routers MUST hold the
 correct key in order to calculate the ICV value.
 
@@ -2359,12 +2358,12 @@ On message reception and before message processing:
 
 1. Verify the received ICV value as described above.
 
-2. Verify the received TIMESTAMP value by comparing the sequence number in 
+2. Verify the received TIMESTAMP value by comparing the sequence number in
   the value field of the TIMESTAMP TLV as follows:
   * For a received RREP_Ack request, there is no need to verify the timestamp value. Proceed
     to message processing as defined in Section 7.
-  * For a received RREP_Ack response, compare with the Neighbor.AckSeqNum of the Neighbor 
-    Set entry for sender of the RREP_Ack request. 
+  * For a received RREP_Ack response, compare with the Neighbor.AckSeqNum of the Neighbor
+    Set entry for sender of the RREP_Ack request.
   * If the sequence number does not match, the AODVv2 message MUST be discarded. Otherwise,
     Neighbor.AckSeqNum is incremented by 1 and processing continues according to Section 7.
 
@@ -2374,16 +2373,16 @@ Since the sender's sequence number is not contained in the RERR, a TIMESTAMP TLV
 MUST be included to protect against replay attacks. The value in the TIMESTAMP TLV
 is set by incrementing and using RERR_Gen's sequence number.
 
-Since the receiver of the RERR MUST use the 
-source IP address of the RERR to identify the sender, the ICV MUST be 
-calculated using the message contents and the IP source address.  The ICV TLV 
-has type extension := 2 in order to accomplish this.  This provides message 
-integrity and endpoint authentication, because trusted routers MUST hold the 
-shared key in order to calculate the ICV value. 
+Since the receiver of the RERR MUST use the
+source IP address of the RERR to identify the sender, the ICV MUST be
+calculated using the message contents and the IP source address.  The ICV TLV
+has type extension := 2 in order to accomplish this.  This provides message
+integrity and endpoint authentication, because trusted routers MUST hold the
+shared key in order to calculate the ICV value.
 
 After message generation and before message transmission:
 
-1. Add the TIMESTAMP TLV and ICV TLV as described above. 
+1. Add the TIMESTAMP TLV and ICV TLV as described above.
 
 On message reception and before message processing:
 
