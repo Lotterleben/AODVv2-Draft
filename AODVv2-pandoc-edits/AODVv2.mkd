@@ -1263,7 +1263,7 @@ ignore this RREP for further processing, since it does not correspond to a previ
        RREP messages and continue processing.
 1.  Check if the OrigPrefix matches an entry in the Router Client Set
     *  If so, no further processing is necessary.
-    *  If not, continue to Step 10.
+    *  If not, continue to Step 6.
 1.  Check if a valid (Active or Idle) or Unconfirmed LocalRoute exists to OrigPrefix
     *  If so, continue to RREP forwarding.
     *  If not, a Route Error message SHOULD be transmitted toward TargPrefix according to
