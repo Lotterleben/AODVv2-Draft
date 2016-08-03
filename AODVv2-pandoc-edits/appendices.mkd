@@ -7,7 +7,6 @@ This section lists the changes between AODVv2 revisions ...-16.txt and ...-17.tx
 * Removed wording that suggested RREP_Gen could add multiple (unrelated) subnets.
 * Used 'metric' rather than 'cost' for consistency.
 * Updated TBD and restructured Constants sections.
->>>>>>> TBD-issue-22
 
 <!--
 
