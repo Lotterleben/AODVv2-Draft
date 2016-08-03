@@ -1793,12 +1793,12 @@ configurable. Ideally, for networks with frequent topology changes the AODVv2 pa
 SHOULD be adjusted using experimentally determined values or dynamic adaptation. For example, in networks with infrequent topology changes MAX_IDLETIME MAY be set to a much larger value.
 If the values were configured differently, the following consequences may be observed:
 
-* If MAX_SEQNUM_LIFETIME was configured differently across the network, and any of the routers lost their sequence number or rebooted, this could result in their next route messages being
-classified as stale at any AODVv2 router using a greater value for MAX_SEQNUM_LIFETIME. This would
-delay route discovery from and to the re-initializing router.
 * Routers with lower values for ACTIVE_INTERVAL + MAX_IDLETIME will invalidate routes more quickly and free resources used to maintain them. This can affect bursty traffic flows which have quiet periods longer than ACTIVE_INTERVAL + MAX_IDLETIME. A route which has timed out due to perceived inactivity is not reported. When the bursty traffic resumes, it would cause a RERR to be generated, and the traffic itself would be dropped. This route would be removed from all upstream routers, even if those upstream routers had larger ACTIVE_INTERVAL or MAX_IDLETIME values. A new route discovery would be required to re-establish the route, causing extra routing protocol traffic and disturbance to the bursty traffic.
 * Routers with lower values for MAX_BLACKLIST_TIME would allow neighboring routers to participate in route discovery sooner than routers with higher values. This could result in failed route discoveries if un-blacklisted links are still uni-directional. Since RREQs are retried, this would not affect success of route discovery unless this value was so small as to un-blacklist the router before the RREQ is retried. This value need not be consistent across the network since it is used for maintaining a 1-hop blacklist. However it MUST be greater than RREQ_WAIT_TIME.
 <!-- TODO: [and probably a good idea to be at least a multiple of RREQ_WAIT_TIME?] -->
+* If MAX_SEQNUM_LIFETIME was configured differently across the network, and any of the routers lost their sequence number or rebooted, this could result in their next route messages being
+classified as stale at any AODVv2 router using a greater value for MAX_SEQNUM_LIFETIME. This would
+delay route discovery from and to the re-initializing router.
 * Routers with lower values for RERR_TIMEOUT may create more RERR messages than routers with higher values. This value should be large enough that a RERR will reach all routers using the route reported within it before the timer expires, so that no further data traffic will arrive, and no duplicated RERR messages will be generated.
 * Routers with lower values for RteMsg_ENTRY_TIME may not consider received redundant multicast route messages as redundant, and may forward these messages unnecessarily.
 * Routers with lower values for RREQ_WAIT_TIME may send more frequent RREQ messages and wrongly determine that a route does not exist, if the delay in receiving an RREP is greater than this interval.
@@ -1810,62 +1810,68 @@ MAX_SEQNUM_LIFETIME MUST be configured to have the same values for all AODVv2 ro
 
 ## Protocol Constants  {#constants}
 
-AODVv2 protocol constants typically do not require changes. The following table lists these
-constants, along with their values and a reference to the section describing their use.
+AODVv2 protocol constants typically do not require changes. The following list shows these
+constants, along with their values and a reference to the section describing their use. These 
+protocol constants MUST have the same values for all AODVv2 routers in the ad hoc
+network.  The consequences are described for situations where the values are configured differently.
 
-Name                      Default   Description
----                       -------   ----------
-DISCOVERY_ATTEMPTS_MAX    3         [](#route_discovery)
-RREP_RETRIES              2         [](#RREP_gen)
-MAX_METRIC[MetricType]    [TBD]     [](#metrics)
-MAX_METRIC[HopCount]      255       [](#metrics) and [](#aodv_msgs)
-MAX_HOPCOUNT              20        Limit to number of hops an RREQ or RREP message can traverse
-INFINITY_TIME             [TBD]     Maximum expressible clock time ([](#update_rte))
+DISCOVERY_ATTEMPTS_MAX
+:   <vspace/>The maximum number of times to retry a Route Request [](#route_discovery). The default is 3.
+If not the same on every router, routers with higher values are likely to be more successful at finding
+routes, at the cost of additional control traffic.
 
-^[const-tbl::AODVv2 Constants]
+RREP_RETRIES
+:   <vspace/>The maximum number of times to retry a Route Reply [](#RREP_gen). The default is 2. If not
+the same on every router, routers with lower values are more likely to blacklist neighbors when there is 
+a temporary fluctuation in link quality.
 
-<!-- Need to figure out what the time format. -->
+MAX_METRIC[MetricType]
+:   <vspace/>The maximum expressible metric value of type MetricType, based on the field length associated with MetricType, 
+as detailed in [](#metric-type). If not the same on every router, routers with lower values may exhibit overly restrictive 
+behavior during route comparisons.
 
-MAX_HOPCOUNT cannot be larger than 255.
+MAX_METRIC[HopCount]
+:   <vspace/>The maximum expressible metric value of type HopCount, 255, used in [](#metrics) and [](#aodv_msgs).
 
-MAX_METRIC[MetricType] MUST always be the maximum expressible metric value of type MetricType.
-Field lengths associated with metric values are found in [](#metric-type).
+MAX_HOPCOUNT
+:   <vspace/>Limit to number of hops an RREQ or RREP message can traverse. The default is 20. If not the same on every router,
+routers with a value too small would not be able to discover routes to distant addresses.
 
-These protocol constants MUST have the same values for all AODVv2 routers in the ad hoc
-network.  If the values were configured differently, the following consequences may be observed:
-
-*  DISCOVERY_ATTEMPTS_MAX: Routers with higher values are likely to be more successful at finding
-   routes, at the cost of additional control traffic.
-*  RREP_RETRIES: Routers with lower values are more likely to blacklist neighbors when there is a temporary fluctuation in link quality.
-*  MAX_METRIC[MetricType]: No interoperability problems due to variations on different routers, but
-   routers with lower values may exhibit overly restrictive behavior during route comparisons.
-*  MAX_HOPCOUNT: Routers with a value too small would not be able to discover routes to distant addresses.
-*  INFINITY_TIME: No interoperability problems due to variations on different routers, but if a
-   lower value is used, route state management may exhibit overly restrictive behavior.
+INFINITY_TIME
+:   <vspace/>An implementation value which represents an infinite time, i.e. maximum expressible clock time, 
+is used in ([](#update_rte)). It could be set to any value which will not be interpreted as a time value. If not
+the same on every router, this does not affect interoperability.
 
 ## Local Settings {#other}
-The following table lists AODVv2 parameters which SHOULD be administratively configured for each router:
 
-Name                      Default Value             Description
----                       ------------              --------------
-InterfaceSet                                        [](#interfaceslist)
-Router Client Set                                   [](#clients)
-BUFFER_SIZE_PACKETS       2                         [](#route_discovery)
-BUFFER_SIZE_BYTES         MAX_PACKET_SIZE [TBD]     [](#route_discovery)
-CONTROL_TRAFFIC_LIMIT     [TBD - 50 pkts/sec?]      [](#aodv_msgs)
+The following lists shows AODVv2 parameters which SHOULD be administratively configured for each router:
 
-^[admincontrol::Configuration for Local Settings]
+InterfaceSet
+:   <vspace/>The list of interfaces which AODVv2 can use for participating in route discovery and maintenance. Further 
+details can be found in [](#interfaceslist).
+
+Router Client Set
+:   <vspace/>The set of addresses for which AODVv2 is configured to perform route discovery, as defined in [](#clients).
+
+CONTROL_TRAFFIC_LIMIT
+:   <vspace/>The limit on the amount of control traffic that can be generated by an AODVv2 router. This value should be 
+based on the average size of a packet containing an AODVv2 message and the bandwidth available. The limit should be 
+calculated so that AODVv2 traffic does not exceed a certain percentage of the bandwidth. The use of CONTROL_TRAFFIC_LIMIT 
+is described in [](#aodv_msgs). 
+<!-- [TBD - 50 pkts/sec?] TODO Charlie to suggest a value -->
+
+
 
 ## Network-Wide Settings
+
 The following administrative controls MAY be used to change the operation of the network. The same
 settings SHOULD be used across the network. Inconsistent settings at different routers in the network
 will not result in protocol errors, but poor performance may result.
 
-Name                       Default               Description
-------                     --------              ----------
-ENABLE_IDLE_IN_RERR        Disabled              [](#RERR_gen)
+ENABLE_IDLE_IN_RERR
+:   <vspace/>When set, Idle routes that become invalid are reported in RERR messages as described in [](#RERR_gen). By 
+default this option is disabled.
 
-^[suggestedoptions::Configuration for Network-Wide Settings]
 
 ## MetricType Allocation  {#metric-type}
 
@@ -1876,7 +1882,7 @@ Name of MetricType        Type                     Metric Value Size
 --------------------      ------                   -------------
 Unassigned                0                        Undefined
 Hop Count                 1                        1 octet
-Unallocated               2 - 254                  TBD
+Unallocated               2 - 254                  Undefined
 Reserved                  255                      Undefined
 
 ^[metric-tbl::AODVv2 Metric Types]
@@ -1903,7 +1909,7 @@ This specification defines one Message TLV Type, to be allocated from the Messag
 ----------------------------------------------------------------------
 Name of TLV                   Type      Length (octets) Reference
 --------------------------    --------  ----------      --------------
-ACK_REQ                       128 (TBD) 0               [](#nexthopmonitoring)
+ACK_REQ                       128       0               [](#nexthopmonitoring)
 ----------------------------------------------------------------------
 ^[msgtlvtypes::AODVv2 Message TLV Types]
 
@@ -1915,12 +1921,12 @@ This specification defines three Address Block TLV Types, to be allocated from t
 ----------------------------------------------------------------------
 Name of TLV                   Type      Length (octets) Reference
 --------------------------    --------  ----------      --------------
-PATH_METRIC                   129 (TBD)  depends on      [](#aodv_msgs)
+PATH_METRIC                   129       depends on      [](#aodv_msgs)
                                         MetricType
 
-SEQ_NUM                       130 (TBD)  2               [](#aodv_msgs)
+SEQ_NUM                       130        2               [](#aodv_msgs)
 
-ADDRESS_TYPE                  131 (TBD)  1               [](#represent)
+ADDRESS_TYPE                  131        1               [](#represent)
 ----------------------------------------------------------------------
 ^[addrtlvtypes::AODVv2 Address Block TLV Types]
 
