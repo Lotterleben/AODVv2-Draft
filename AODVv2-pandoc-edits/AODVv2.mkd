@@ -2189,14 +2189,10 @@ timestamps, since they are known to be strictly increasing.
 
 ### Application to AODVv2 {#security-protection-application}
 
-<!--
-TODO: choose HASH_FUNCTION and CRYPTOGRAPHIC_FUNCTION.
--->
-
 AODVv2 implementations MUST support ICV and TIMESTAMP TLVs, unless the implementation is intended solely for an environment in which security is unnecessary. AODVv2 deployments SHOULD be configured to use these TLVs to secure messages.
 
 Implementations of AODVv2 MUST support ICV TLVs using type-extensions 1 and 2,
-hash-function HASH_FUNCTION, and cryptographic function CRYPTOGRAPHIC_FUNCTION. An ICV
+hash-function SHA-256, and cryptographic function HMAC. An ICV
 MUST be included with every message. The ICV value MAY be truncated as specified in [](#RFC7182).
 
 Since the msg-hop-limit and PATH_METRIC values are mutable when included in AODVv2 messages,
